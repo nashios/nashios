@@ -44,3 +44,25 @@ void *memcpy(void *restrict s1, const void *restrict s2, size_t n)
 
     return s1;
 }
+
+void *memmove(void *s1, const void *s2, size_t n)
+{
+    char *p_s1 = s1;
+    const char *p_s2 = s2;
+
+    if (p_s1 < p_s2)
+    {
+        for (size_t i = 0; i < n; i++)
+            p_s1[i] = p_s2[i];
+    }
+    else
+    {
+        char *last_s1 = p_s1 + (n - 1);
+        const char *last_s2 = p_s2 + (n - 1);
+
+        for (size_t i = 0; i < n; i++)
+            last_s1[i] = last_s2[i];
+    }
+
+    return s1;
+}
