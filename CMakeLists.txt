@@ -27,4 +27,8 @@ add_custom_target(toolchain
     COMMAND ${CMAKE_SOURCE_DIR}/scripts/setup-toolchain.sh
     USES_TERMINAL)
 
+add_custom_target(run
+    COMMAND ${CMAKE_SOURCE_DIR}/scripts/run.sh
+    USES_TERMINAL)
+
 add_subdirectory(kernel)
