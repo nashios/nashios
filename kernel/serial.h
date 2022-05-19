@@ -1,7 +1,7 @@
 /**
- * @file kernel/main.c
+ * @file kernel/serial.h
  * @author Saullo Bretas Silva (saullo.silva303@gmail.com)
- * @brief Kernel entrypoint
+ * @brief 16550 UART serial communication
  * @version 0.1
  * @date 2022-05-19
  *
@@ -21,13 +21,12 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
-#include <kernel/serial.h>
-#include <stdbool.h>
+#pragma once
 
-void kernel_main()
-{
-    serial_init();
+#include <stdint.h>
+#include <stddef.h>
 
-    while (true)
-        ;
-}
+#define SERIAL_PORT 0x3F8
+
+void serial_init();
+void serial_write(const char *buffer, size_t length);

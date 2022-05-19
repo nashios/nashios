@@ -1,7 +1,7 @@
 /**
- * @file kernel/main.c
+ * @file kernel/serial.c
  * @author Saullo Bretas Silva (saullo.silva303@gmail.com)
- * @brief Kernel entrypoint
+ * @brief 16550 UART serial communication
  * @version 0.1
  * @date 2022-05-19
  *
@@ -22,12 +22,36 @@
  *
  */
 #include <kernel/serial.h>
-#include <stdbool.h>
+#include <kernel/io.h>
 
-void kernel_main()
+void serial_init()
 {
-    serial_init();
+    outb(SERIAL_PORT + 1, 0x00);
+    outb(SERIAL_PORT + 3, 0x80);
+    outb(SERIAL_PORT + 0, 0x03);
+    outb(SERIAL_PORT + 1, 0x00);
+    outb(SERIAL_PORT + 3, 0x03);
+    outb(SERIAL_PORT + 2, 0xC7);
+    outb(SERIAL_PORT + 4, 0x0B);
+    outb(SERIAL_PORT + 4, 0x1E);
+    outb(SERIAL_PORT + 0, 0xAE);
 
-    while (true)
+    if (inb(SERIAL_PORT + 0) != 0xAE)
+        return;
+
+    outb(SERIAL_PORT + 4, 0x0F);
+}
+
+void serial_write_char(char ch)
+{
+    while ((inb(SERIAL_PORT + 5) & 0x20) == 0)
         ;
+
+    outb(SERIAL_PORT, ch);
+}
+
+void serial_write(const char *buffer, size_t length)
+{
+    for (size_t i = 0; i < length; i++)
+        serial_write_char(buffer[i]);
 }

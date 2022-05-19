@@ -31,4 +31,6 @@ add_custom_target(run
     COMMAND ${CMAKE_SOURCE_DIR}/scripts/run.sh
     USES_TERMINAL)
 
+include_directories(.)
+
 add_subdirectory(kernel)
