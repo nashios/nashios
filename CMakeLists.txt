@@ -21,6 +21,10 @@ set(CMAKE_FIND_ROOT_PATH_MODE_LIBRARY ONLY)
 set(CMAKE_FIND_ROOT_PATH_MODE_INCLUDE ONLY)
 set(CMAKE_FIND_ROOT_PATH_MODE_PACKAGE ONLY)
 
+add_compile_options(-Wall -Wextra)
+
 add_custom_target(toolchain
     COMMAND ${CMAKE_SOURCE_DIR}/scripts/setup-toolchain.sh
     USES_TERMINAL)
+
+add_subdirectory(kernel)
