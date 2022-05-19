@@ -3,7 +3,8 @@ set(ASM_SOURCES
 
 set(C_SOURCES
     main.c
-    serial.c)
+    serial.c
+    stdio.c)
 
 add_executable(kernel ${ASM_SOURCES} ${C_SOURCES})
 target_link_libraries(kernel PRIVATE gcc)

@@ -1,7 +1,7 @@
 /**
- * @file kernel/serial.c
+ * @file kernel/stdio.c
  * @author Saullo Bretas Silva (saullo.silva303@gmail.com)
- * @brief 16550 UART serial communication
+ * @brief Libc stdio implementation for kernel
  * @version 0.1
  * @date 2022-05-19
  *
@@ -21,40 +21,22 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
-#include <kernel/serial.h>
-#include <kernel/io.h>
 #include <kernel/stdio.h>
+#include <kernel/serial.h>
+#include <stdarg.h>
 
-void serial_init()
+int printf(const char *restrict format, ...)
 {
-    outb(SERIAL_PORT + 1, 0x00);
-    outb(SERIAL_PORT + 3, 0x80);
-    outb(SERIAL_PORT + 0, 0x03);
-    outb(SERIAL_PORT + 1, 0x00);
-    outb(SERIAL_PORT + 3, 0x03);
-    outb(SERIAL_PORT + 2, 0xC7);
-    outb(SERIAL_PORT + 4, 0x0B);
-    outb(SERIAL_PORT + 4, 0x1E);
-    outb(SERIAL_PORT + 0, 0xAE);
+    va_list args;
+    va_start(args, format);
 
-    if (inb(SERIAL_PORT + 0) != 0xAE)
-        return;
+    size_t length = 0;
+    while (format[length])
+        length++;
 
-    outb(SERIAL_PORT + 4, 0x0F);
+    serial_write(format, length);
 
-    printf("Serial: Initialized\n");
-}
+    va_end(args);
 
-void serial_write_char(char ch)
-{
-    while ((inb(SERIAL_PORT + 5) & 0x20) == 0)
-        ;
-
-    outb(SERIAL_PORT, ch);
-}
-
-void serial_write(const char *buffer, size_t length)
-{
-    for (size_t i = 0; i < length; i++)
-        serial_write_char(buffer[i]);
+    return length;
 }
