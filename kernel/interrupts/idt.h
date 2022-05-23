@@ -1,9 +1,9 @@
 /**
- * @file kernel/main.c
+ * @file kernel/interrupts/idt.h
  * @author Saullo Bretas Silva (saullo.silva303@gmail.com)
- * @brief Kernel entrypoint
+ * @brief x86 Interrupt Descriptor Table
  * @version 0.1
- * @date 2022-05-19
+ * @date 2022-05-22
  *
  * @copyright Copyright (C) 2022 Saullo Bretas Silva
  *
@@ -21,17 +21,26 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
-#include <kernel/serial.h>
-#include <kernel/gdt.h>
-#include <kernel/interrupts/idt.h>
-#include <stdbool.h>
+#pragma once
 
-void kernel_main()
+#define IDT_ENTRIES 256
+
+#include <stdint.h>
+
+struct idt_entry
 {
-    serial_init();
-    gdt_init();
-    idt_init();
+    uint16_t base_low;
+    uint16_t selector;
+    uint8_t always_zero;
+    uint8_t flags;
+    uint16_t base_high;
+} __attribute__((packed));
 
-    while (true)
-        ;
-}
+struct idt_ptr
+{
+    uint16_t limit;
+    uint32_t base;
+} __attribute__((packed));
+
+void idt_init();
+void idt_add_entry(uint8_t index, uint32_t base, uint16_t selector, uint8_t flags);
