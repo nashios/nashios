@@ -22,6 +22,7 @@
  *
  */
 #include <kernel/interrupts/idt.h>
+#include <kernel/interrupts/irq.h>
 #include <kernel/stdio.h>
 
 static struct idt_ptr idt_pointer;
@@ -42,6 +43,8 @@ void idt_init()
 {
     idt_pointer.limit = sizeof(struct idt_entry) * IDT_ENTRIES - 1;
     idt_pointer.base = (uint32_t)&idt_entries;
+
+    irq_init();
 
     idt_flush((uint32_t)&idt_pointer);
     printf("IDT: Flushed address 0x%08x\n", &idt_pointer);

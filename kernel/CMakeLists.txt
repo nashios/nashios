@@ -2,7 +2,8 @@ set(ASM_SOURCES
     boot.S
     gdt.S
 
-    interrupts/idt.S)
+    interrupts/idt.S
+    interrupts/irq.S)
 
 set(C_SOURCES
     main.c
@@ -12,7 +13,8 @@ set(C_SOURCES
     gdt.c
 
     interrupts/pic.c
-    interrupts/idt.c)
+    interrupts/idt.c
+    interrupts/irq.c)
 
 add_executable(kernel ${ASM_SOURCES} ${C_SOURCES})
 target_link_libraries(kernel PRIVATE gcc)
