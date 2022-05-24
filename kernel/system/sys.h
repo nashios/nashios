@@ -1,9 +1,9 @@
 /**
- * @file kernel/main.c
+ * @file kernel/system/sys.h
  * @author Saullo Bretas Silva (saullo.silva303@gmail.com)
- * @brief Kernel entrypoint
+ * @brief System controller
  * @version 0.1
- * @date 2022-05-19
+ * @date 2022-05-24
  *
  * @copyright Copyright (C) 2022 Saullo Bretas Silva
  *
@@ -21,22 +21,14 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
-#include <kernel/serial.h>
-#include <kernel/gdt.h>
-#include <kernel/interrupts/idt.h>
-#include <kernel/system/sys.h>
-#include <stdbool.h>
+#pragma once
 
-void kernel_main()
+static inline void sys_cli()
 {
-    sys_cli();
+    asm volatile("cli");
+}
 
-    serial_init();
-    gdt_init();
-    idt_init();
-
-    sys_sti();
-
-    while (true)
-        ;
+static inline void sys_sti()
+{
+    asm volatile("sti");
 }
