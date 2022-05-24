@@ -12,6 +12,7 @@ set(C_SOURCES
     stdio.c
     string.c
     gdt.c
+    bitmap.c
 
     interrupts/pic.c
     interrupts/idt.c
