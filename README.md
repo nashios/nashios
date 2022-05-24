@@ -2,6 +2,8 @@
 
 Unix-like operating system for x86 architecture.
 
+[![Build](https://github.com/nashios/nashios/actions/workflows/cmake.yml/badge.svg)](https://github.com/nashios/nashios/actions/workflows/cmake.yml)
+
 ![Screenshot](https://github.com/nashios/nashios/blob/main/meta/images/screenshot-2022-05-24-175408.png?raw=true)
 *NashiOS boot time*
 
