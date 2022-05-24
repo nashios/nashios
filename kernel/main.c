@@ -25,15 +25,17 @@
 #include <kernel/gdt.h>
 #include <kernel/interrupts/idt.h>
 #include <kernel/system/sys.h>
+#include <kernel/boot/multiboot.h>
 #include <stdbool.h>
 
-void kernel_main()
+void kernel_main(uint32_t magic, uint32_t address)
 {
     sys_cli();
 
     serial_init();
     gdt_init();
     idt_init();
+    multiboot_init(magic, address);
 
     sys_sti();
 

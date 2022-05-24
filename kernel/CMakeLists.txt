@@ -18,7 +18,9 @@ set(C_SOURCES
     interrupts/irq.c
     interrupts/isr.c
     
-    system/sys.c)
+    system/sys.c
+    
+    boot/multiboot.c)
 
 add_executable(kernel ${ASM_SOURCES} ${C_SOURCES})
 target_link_libraries(kernel PRIVATE gcc)
