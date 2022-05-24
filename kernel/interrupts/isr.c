@@ -24,6 +24,7 @@
 #include <kernel/interrupts/isr.h>
 #include <kernel/interrupts/idt.h>
 #include <kernel/interrupts/handler.h>
+#include <kernel/system/sys.h>
 #include <kernel/stdio.h>
 #include <stddef.h>
 
@@ -112,7 +113,10 @@ void isr_handler(struct itr_registers *registers)
     if (handler)
         handler(registers);
     else
+    {
         printf("ISR: Unhandled exception number = %d, message = %s\n", registers->int_no, isr_messages[registers->int_no]);
+        PANIC("Unhandled interrupt exception", registers);
+    }
 }
 
 void isr_init()

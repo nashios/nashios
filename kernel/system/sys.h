@@ -23,6 +23,9 @@
  */
 #pragma once
 
+#define PANIC(message, registers) sys_panic(message, __FILE__, __PRETTY_FUNCTION__, __LINE__, registers);
+
+#include <kernel/interrupts/handler.h>
 #include <stdbool.h>
 
 static inline void sys_cli()
@@ -45,3 +48,5 @@ static inline void sys_stop()
     while (true)
         sys_hlt();
 }
+
+void sys_panic(const char *message, const char *file, const char *function, int line, struct itr_registers *registers);
