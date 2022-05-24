@@ -23,4 +23,19 @@
  */
 #pragma once
 
+#include <stddef.h>
+#include <stdarg.h>
+
+enum vsn_flags
+{
+    VSN_ZEROPAD = 1,
+    VSN_SIGN = 2,
+    VSN_PLUS = 4,
+    VSN_SPACE = 8,
+    VSN_LEFT = 16,
+    VSN_SMALL = 32,
+    VSN_SPECIAL = 64
+};
+
 int printf(const char *restrict format, ...);
+int vsnprintf(char *restrict s, size_t n, const char *restrict format, va_list ap);
