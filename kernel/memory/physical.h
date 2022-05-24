@@ -1,9 +1,9 @@
 /**
- * @file kernel/main.c
+ * @file kernel/memory/physical.h
  * @author Saullo Bretas Silva (saullo.silva303@gmail.com)
- * @brief Kernel entrypoint
+ * @brief Physical Memory Manager
  * @version 0.1
- * @date 2022-05-19
+ * @date 2022-05-24
  *
  * @copyright Copyright (C) 2022 Saullo Bretas Silva
  *
@@ -21,26 +21,20 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
-#include <kernel/serial.h>
-#include <kernel/gdt.h>
-#include <kernel/interrupts/idt.h>
-#include <kernel/system/sys.h>
-#include <kernel/boot/multiboot.h>
-#include <kernel/memory/physical.h>
-#include <stdbool.h>
+#pragma once
 
-void kernel_main(uint32_t magic, uint32_t address)
-{
-    sys_cli();
+#define KERNEL_BOOT (uint32_t)(&kernel_boot)
+#define KERNEL_START (uint32_t)(&kernel_start)
+#define KERNEL_END (uint32_t)(&kernel_end)
 
-    serial_init();
-    gdt_init();
-    idt_init();
-    multiboot_init(magic, address);
-    phys_mm_init();
+#define PHYS_MM_FRAMES_PER_BYTE 8
+#define PHYS_MM_FRAMES_SIZE 4096
 
-    sys_sti();
+#include <stddef.h>
 
-    while (true)
-        ;
-}
+extern void *kernel_boot;
+extern void *kernel_start;
+extern void *kernel_end;
+
+void phys_mm_init();
+void *phys_mm_allocate(size_t size);
