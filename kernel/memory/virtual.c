@@ -79,7 +79,9 @@ void virt_mm_init()
     virt_mm_identity_map(dir, 0x0, 0x0);
     virt_mm_identity_map(dir, KERNEL_BOOT, KERNEL_BOOT);
 
+    dir->entries[PAGES_PER_DIR - 1] = ((uint32_t)dir & PAGE_DIR_FRAME) | PAGE_DIR_PRESENT;
     virt_mm_dir = dir;
+
     page_enable((uint32_t)&dir->entries);
     printf("Virtual MM: Enabled paging\n");
 
