@@ -26,7 +26,8 @@ set(C_SOURCES
     boot/multiboot.c
     
     memory/physical.c
-    memory/virtual.c)
+    memory/virtual.c
+    memory/heap.c)
 
 add_executable(kernel ${ASM_SOURCES} ${C_SOURCES})
 target_link_libraries(kernel PRIVATE gcc)
