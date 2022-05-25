@@ -1,9 +1,9 @@
 /**
- * @file kernel/main.c
+ * @file kernel/memory/virtual.h
  * @author Saullo Bretas Silva (saullo.silva303@gmail.com)
- * @brief Kernel entrypoint
+ * @brief Virtual memory manager
  * @version 0.1
- * @date 2022-05-19
+ * @date 2022-05-24
  *
  * @copyright Copyright (C) 2022 Saullo Bretas Silva
  *
@@ -21,28 +21,42 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
-#include <kernel/serial.h>
-#include <kernel/gdt.h>
-#include <kernel/interrupts/idt.h>
-#include <kernel/system/sys.h>
-#include <kernel/boot/multiboot.h>
-#include <kernel/memory/physical.h>
-#include <kernel/memory/virtual.h>
-#include <stdbool.h>
+#pragma once
 
-void kernel_main(uint32_t magic, uint32_t address)
+#define PAGE_DIR_FRAME 0x7FFFF000
+#define PAGE_TBL_FRAME 0x7FFFF000
+
+#define PAGE_DIR_INDEX(addr) (((addr) >> 22) & 0x3FF)
+#define PAGE_TBL_INDEX(addr) (((addr) >> 12) & 0x3FF)
+
+#define PAGES_PER_TBL 1024
+#define PAGES_PER_DIR 1024
+
+#define PAGE_SIZE 4096
+
+#include <stdint.h>
+
+enum page_dir_flags
 {
-    sys_cli();
+    PAGE_DIR_PRESENT = 1,
+    PAGE_DIR_WRITABLE = 2
+};
 
-    serial_init();
-    gdt_init();
-    idt_init();
-    multiboot_init(magic, address);
-    phys_mm_init();
-    virt_mm_init();
+enum page_tbl_flags
+{
+    PAGE_TBL_PRESENT = 1,
+    PAGE_TBL_WRITABLE = 2
+};
 
-    sys_sti();
+struct page_tbl
+{
+    uint32_t entries[PAGES_PER_TBL];
+};
 
-    while (true)
-        ;
-}
+struct page_dir
+{
+    uint32_t entries[PAGES_PER_DIR];
+};
+
+void virt_mm_init();
+void virt_mm_map_addr(struct page_dir *dir, uint32_t physical, uint32_t virtual, uint32_t flags);

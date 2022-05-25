@@ -4,7 +4,9 @@ set(ASM_SOURCES
 
     interrupts/idt.S
     interrupts/irq.S
-    interrupts/isr.S)
+    interrupts/isr.S
+    
+    memory/page_enable.S)
 
 set(C_SOURCES
     main.c
@@ -23,7 +25,8 @@ set(C_SOURCES
     
     boot/multiboot.c
     
-    memory/physical.c)
+    memory/physical.c
+    memory/virtual.c)
 
 add_executable(kernel ${ASM_SOURCES} ${C_SOURCES})
 target_link_libraries(kernel PRIVATE gcc)
