@@ -23,7 +23,7 @@ jobs:
       - name: Toolchain cache
         uses: actions/cache@v2
         with:
-          path: ${{ github.workspace }}/builts/tools/cache/github_actions_toolchain.tar.xz
+          path: ${{ github.workspace }}/build/tools/cache/github_actions_toolchain.tar.xz
           key: ${{ runner.os }}-toolchain-${{ matrix.arch }}-${{ hashFiles('scripts/setup-toolchain.sh') }}
 
       - name: Build/Restore toolchain
