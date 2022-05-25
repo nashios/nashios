@@ -23,8 +23,8 @@
  */
 #pragma once
 
-#define PAGE_DIR_FRAME 0x7FFFF000
-#define PAGE_TBL_FRAME 0x7FFFF000
+#define PAGE_DIR_FRAME 0xFFFFF000
+#define PAGE_TBL_FRAME 0xFFC00000
 
 #define PAGE_DIR_INDEX(addr) (((addr) >> 22) & 0x3FF)
 #define PAGE_TBL_INDEX(addr) (((addr) >> 12) & 0x3FF)
@@ -33,6 +33,9 @@
 #define PAGES_PER_DIR 1024
 
 #define PAGE_SIZE 4096
+#define PAGE_MASK (~(PAGE_SIZE - 1))
+#define PAGE_ALIGN(addr) (((addr) + PAGE_SIZE - 1) & PAGE_MASK)
+#define PAGE_IS_ENABLED(addr) (addr & 0x1)
 
 #include <stdint.h>
 
@@ -57,6 +60,8 @@ struct page_dir
 {
     uint32_t entries[PAGES_PER_DIR];
 };
+
+extern struct page_dir *virt_mm_dir;
 
 void virt_mm_init();
 void virt_mm_map_addr(struct page_dir *dir, uint32_t physical, uint32_t virtual, uint32_t flags);

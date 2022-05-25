@@ -26,7 +26,7 @@
 #include <kernel/stdio.h>
 #include <kernel/string.h>
 
-static struct page_dir *virt_mm_dir;
+struct page_dir *virt_mm_dir;
 
 extern void page_enable(uint32_t address);
 
@@ -38,36 +38,38 @@ void virt_mm_identity_map(struct page_dir *dir, uint32_t physical, uint32_t virt
     for (uint32_t i = 0, i_physical = physical, i_virtual = virtual; i < PAGES_PER_TBL; i++, i_physical += PAGE_SIZE, i_virtual += PAGE_SIZE)
     {
         uint32_t *entry = &tbl->entries[PAGE_TBL_INDEX(i_virtual)];
-        *entry |= PAGE_TBL_PRESENT;
-        *entry = (*entry & ~PAGE_TBL_FRAME) | i_physical;
+        *entry = i_physical | PAGE_TBL_PRESENT;
     }
 
     uint32_t *entry = &dir->entries[PAGE_DIR_INDEX(physical)];
-    *entry |= PAGE_DIR_PRESENT;
-    *entry = (*entry & ~PAGE_DIR_FRAME) | (uint32_t)tbl;
+    *entry = (uint32_t)tbl | PAGE_DIR_PRESENT;
 
     printf("Virtual MM: Identity map physical address = 0x%08x to virtual = 0x%08x\n", physical, virtual);
 }
 
 void virt_mm_create_tbl(struct page_dir *dir, uint32_t virtual, uint32_t flags)
 {
-    uint32_t *entry = &dir->entries[PAGE_DIR_INDEX(virtual)];
-    if (entry)
+    if (PAGE_IS_ENABLED(dir->entries[PAGE_DIR_INDEX(virtual)]))
         return;
 
     uint32_t physical = (uint32_t)phys_mm_allocate(1);
-    *entry = physical | flags;
-    virt_mm_map_addr(dir, physical, virtual, flags);
+    dir->entries[PAGE_DIR_INDEX(virtual)] = physical | flags;
 }
 
 void virt_mm_map_addr(struct page_dir *dir, uint32_t physical, uint32_t virtual, uint32_t flags)
 {
-    uint32_t *entry = &dir->entries[PAGE_DIR_INDEX(virtual)];
-    if (!entry)
+    if (PAGE_ALIGN(virtual) != virtual)
+    {
+        printf("Virtual MM: Virtual address = 0x%x not page aligned\n", virtual);
+        return;
+    }
+
+    if (!PAGE_IS_ENABLED(dir->entries[PAGE_DIR_INDEX(virtual)]))
         virt_mm_create_tbl(dir, virtual, flags);
 
-    uint32_t *tlb_entry = &((uint32_t *)(*entry & ~0xFFF))[PAGE_TBL_INDEX(virtual)];
-    *tlb_entry = physical | flags;
+    uint32_t *tlb_entry = (uint32_t *)(PAGE_TBL_FRAME + PAGE_DIR_INDEX(virtual) * PAGE_SIZE);
+    tlb_entry[PAGE_TBL_INDEX(virtual)] = physical | flags;
+
     printf("Virtual MM: Mapped physical address = 0x%x to virtual = 0x%x, flags = 0x%x\n", physical, virtual, flags);
 }
 
