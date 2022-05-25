@@ -68,6 +68,8 @@ Now it's time to compile the entire system:
 ninja install
 ```
 
+This will compile the entire system and install the built files into the `sysroot` directory.
+
 ### Running
 
 With the system compiled without errors, let's run it in the [QEMU](https://www.qemu.org/) emulator:
