@@ -73,11 +73,15 @@ void irq_handler(struct itr_registers *registers)
         {
             itr_handler_t handler = irq_entries[i * IRQ_ENTRIES + (itr_number)];
             if (!handler)
+            {
+                if (i == 0)
+                    printf("IRQ: Unhandled interrupt number = %d\n", itr_number);
+
                 break;
+            }
 
             handler(registers);
         }
-        printf("IRQ: Unhandled interrupt number = %d\n", itr_number);
         pic_eoi(itr_number);
     }
 }
