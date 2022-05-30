@@ -23,11 +23,13 @@
  */
 #include <kernel/gdt.h>
 #include <kernel/stdio.h>
+#include <kernel/task/tss.h>
 
 static struct gdt_ptr gdt_pointer;
 static struct gdt_entry gdt_entries[GDT_ENTRIES];
 
 extern void gdt_flush(uint32_t address);
+extern void tss_flush();
 
 void gdt_add_entry(uint8_t index, uint32_t base, uint32_t limit, uint8_t access, uint8_t granularity)
 {
@@ -50,9 +52,13 @@ void gdt_init()
     gdt_add_entry(2, 0, 0xFFFFFFFF, 0x92, 0xCF);
     gdt_add_entry(3, 0, 0xFFFFFFFF, 0xFA, 0xCF);
     gdt_add_entry(4, 0, 0xFFFFFFFF, 0xF2, 0xCF);
+    tss_init(5, 0x10, 0x0);
 
     gdt_flush((uint32_t)&gdt_pointer);
     printf("GDT: Flushed address = 0x%08x\n", &gdt_pointer);
+
+    tss_flush();
+    printf("TSS: Flushed\n");
 
     printf("GDT: Initialized\n");
 }

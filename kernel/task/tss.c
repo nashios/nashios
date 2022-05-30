@@ -1,9 +1,9 @@
 /**
- * @file kernel/gdt.h
+ * @file kernel/task/tss.c
  * @author Saullo Bretas Silva (saullo.silva303@gmail.com)
- * @brief x86 Global Descriptor Table
+ * @brief x86 Task State Segment
  * @version 0.1
- * @date 2022-05-19
+ * @date 2022-05-30
  *
  * @copyright Copyright (C) 2022 Saullo Bretas Silva
  *
@@ -21,27 +21,29 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
-#pragma once
+#include <kernel/task/tss.h>
+#include <kernel/gdt.h>
+#include <kernel/stdio.h>
 
-#define GDT_ENTRIES 6
+static struct tss_entry tss_entry;
 
-#include <stdint.h>
-
-struct gdt_entry
+void tss_init(uint8_t index, uint16_t ss0, uint32_t esp0)
 {
-    uint16_t limit_low;
-    uint16_t base_low;
-    uint8_t base_middle;
-    uint8_t access;
-    uint8_t granularity;
-    uint8_t base_high;
-} __attribute__((packed));
+    uint32_t base = (uint32_t)&tss_entry;
+    uint32_t limit = base + sizeof(struct tss_entry);
 
-struct gdt_ptr
-{
-    uint16_t limit;
-    uint32_t base;
-} __attribute__((packed));
+    tss_entry.ss0 = ss0;
+    tss_entry.esp0 = esp0;
+    tss_entry.cs = 0x0b;
+    tss_entry.ss = 0x13;
+    tss_entry.ds = 0x13;
+    tss_entry.es = 0x13;
+    tss_entry.fs = 0x13;
+    tss_entry.gs = 0x13;
+    tss_entry.iomap_base = sizeof(struct tss_entry);
 
-void gdt_init();
-void gdt_add_entry(uint8_t index, uint32_t base, uint32_t limit, uint8_t access, uint8_t granularity);
+    gdt_add_entry(index, base, limit, 0xE9, 0x00);
+
+    printf("TSS: Stack segment = 0x%x, pointer = 0x%x\n", ss0, esp0);
+    printf("TSS: Initialized\n");
+}

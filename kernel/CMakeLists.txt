@@ -6,7 +6,9 @@ set(ASM_SOURCES
     interrupts/irq.S
     interrupts/isr.S
     
-    memory/page_enable.S)
+    memory/page_enable.S
+    
+    task/tss_flush.S)
 
 set(C_SOURCES
     main.c
@@ -28,7 +30,9 @@ set(C_SOURCES
     
     memory/physical.c
     memory/virtual.c
-    memory/heap.c)
+    memory/heap.c
+    
+    task/tss.c)
 
 add_executable(kernel ${ASM_SOURCES} ${C_SOURCES})
 target_link_libraries(kernel PRIVATE gcc)
