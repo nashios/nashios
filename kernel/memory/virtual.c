@@ -23,13 +23,30 @@
  */
 #include <kernel/memory/virtual.h>
 #include <kernel/memory/physical.h>
+#include <kernel/memory/heap.h>
 #include <kernel/stdio.h>
 #include <kernel/string.h>
+#include <kernel/stdlib.h>
 
-struct page_dir *virt_mm_dir;
+struct page_dir *virt_mm_dir = NULL;
 
 extern void page_enable(uint32_t address);
 extern void flush_tbl(uint32_t address);
+
+struct page_dir *virt_mm_create_address()
+{
+    char *aligned = heap_align(PAGE_SIZE);
+    struct page_dir *dir = calloc(1, sizeof(struct page_dir));
+    if (aligned)
+        free(aligned);
+
+    for (int i = 768; i < PAGES_PER_DIR - 1; i++)
+        dir->entries[i] = virt_mm_get_phys_addr(PAGE_TBL_FRAME + i * PAGE_SIZE);
+
+    dir->entries[PAGES_PER_DIR - 1] = virt_mm_get_phys_addr((uint32_t)dir);
+
+    return dir;
+}
 
 uint32_t virt_mm_get_phys_addr(uint32_t virtual)
 {
