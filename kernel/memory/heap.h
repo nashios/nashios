@@ -30,9 +30,10 @@
 struct heap_block
 {
     bool allocated;
-    uint32_t size;
+    size_t size;
     struct heap_block *next;
 };
 
 void *heap_allocate(size_t size);
 void heap_free(void *ptr);
+void *heap_align(size_t size);

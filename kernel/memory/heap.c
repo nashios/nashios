@@ -66,6 +66,32 @@ struct heap_block *heap_expand(struct heap_block *last_block, size_t size)
     return block;
 }
 
+void *heap_align(size_t size)
+{
+    if (heap_address % size == 0)
+        return NULL;
+
+    uint32_t request_size = sizeof(struct heap_block) * 2;
+    uint32_t padding = DIV_ROUND_UP(heap_address, size) * size - heap_address;
+
+    while (padding <= 0xF0000000)
+    {
+        if (padding > request_size)
+        {
+            struct heap_block *last = heap_blocks;
+            while (!last->next)
+            {
+                last = last->next;
+            }
+
+            struct heap_block *block = heap_expand(last, padding - request_size);
+            return block + 1;
+        }
+        padding += size;
+    }
+    return NULL;
+}
+
 void *heap_allocate(size_t size)
 {
     if (size <= 0)
