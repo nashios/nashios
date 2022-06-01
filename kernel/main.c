@@ -33,6 +33,11 @@
 
 void kernel_init()
 {
+    sched_unlock();
+
+    sched_update_thread(sched_current_thread(), THREAD_WAIT);
+    sched_schedule();
+
     while (true)
         ;
 }

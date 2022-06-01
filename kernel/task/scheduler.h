@@ -70,3 +70,8 @@ struct thread_trap
 
 void sched_init(void *kernel_init);
 void sched_schedule();
+void sched_update_thread(struct thread *thread, enum thread_state state);
+struct process *sched_current_process();
+struct thread *sched_current_thread();
+void sched_lock();
+void sched_unlock();

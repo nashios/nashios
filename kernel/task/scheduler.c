@@ -38,6 +38,16 @@ static struct dlist_head sched_exit_list = {};
 
 extern void sched_switch(uint32_t *old_esp, uint32_t new_esp, uint32_t physical);
 
+struct thread *sched_current_thread()
+{
+    return sched_thread;
+}
+
+struct process *sched_current_process()
+{
+    return sched_process;
+}
+
 void sched_lock()
 {
     sys_cli();
