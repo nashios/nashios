@@ -33,7 +33,7 @@ extern void flush_tbl(uint32_t address);
 
 uint32_t virt_mm_get_phys_addr(uint32_t virtual)
 {
-    uint32_t *tbl = (uint32_t *)PAGE_TBL_FRAME + PAGE_DIR_INDEX(virtual) * PAGE_SIZE;
+    uint32_t *tbl = (uint32_t *)((char *)PAGE_TBL_FRAME + PAGE_DIR_INDEX(virtual) * PAGE_SIZE);
     return tbl[PAGE_TBL_INDEX(virtual)];
 }
 
