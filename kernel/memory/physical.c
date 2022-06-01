@@ -33,6 +33,16 @@ static uint32_t *phys_mm_bitmap = (uint32_t *)KERNEL_END;
 static uint32_t phys_mm_max_frames;
 static uint32_t phys_mm_used_frames;
 
+void phys_mm_set_addr(uint32_t address)
+{
+    uint32_t frame = address / PHYS_MM_FRAMES_SIZE;
+    if (!bitmap_test(phys_mm_bitmap, frame))
+    {
+        bitmap_set(phys_mm_bitmap, frame);
+        phys_mm_used_frames++;
+    }
+}
+
 void *phys_mm_allocate(size_t size)
 {
     if (phys_mm_used_frames >= phys_mm_max_frames)

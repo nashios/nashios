@@ -27,6 +27,8 @@
 #define PHYS_MM_FRAMES_SIZE 4096
 
 #include <stddef.h>
+#include <stdint.h>
 
 void phys_mm_init();
 void *phys_mm_allocate(size_t size);
+void phys_mm_set_addr(uint32_t address);
