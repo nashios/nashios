@@ -46,6 +46,7 @@ void virt_mm_identity_map(struct page_dir *dir, uint32_t physical, uint32_t virt
     {
         uint32_t *entry = &tbl->entries[PAGE_TBL_INDEX(i_virtual)];
         *entry = i_physical | PAGE_TBL_PRESENT;
+        phys_mm_set_addr(i_physical);
     }
 
     uint32_t *entry = &dir->entries[PAGE_DIR_INDEX(virtual)];
