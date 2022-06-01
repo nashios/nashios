@@ -30,6 +30,12 @@ struct page_dir *virt_mm_dir;
 
 extern void page_enable(uint32_t address);
 
+uint32_t virt_mm_get_phys_addr(uint32_t virtual)
+{
+    uint32_t *tbl = (uint32_t *)PAGE_TBL_FRAME + PAGE_DIR_INDEX(virtual) * PAGE_SIZE;
+    return tbl[PAGE_TBL_INDEX(virtual)];
+}
+
 void virt_mm_identity_map(struct page_dir *dir, uint32_t physical, uint32_t virtual)
 {
     struct page_tbl *tbl = (struct page_tbl *)phys_mm_allocate(1);
