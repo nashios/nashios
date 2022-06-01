@@ -57,3 +57,4 @@ struct tss_entry
 } __attribute__((packed));
 
 void tss_init(uint8_t index, uint16_t ss0, uint32_t esp0);
+void tss_set_stack(uint32_t esp);

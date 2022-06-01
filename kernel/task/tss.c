@@ -27,6 +27,11 @@
 
 static struct tss_entry tss_entry;
 
+void tss_set_stack(uint32_t esp)
+{
+    tss_entry.esp0 = esp;
+}
+
 void tss_init(uint8_t index, uint16_t ss0, uint32_t esp0)
 {
     uint32_t base = (uint32_t)&tss_entry;
