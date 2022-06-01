@@ -29,6 +29,7 @@
 struct page_dir *virt_mm_dir;
 
 extern void page_enable(uint32_t address);
+extern void flush_tbl(uint32_t address);
 
 uint32_t virt_mm_get_phys_addr(uint32_t virtual)
 {
@@ -60,6 +61,9 @@ void virt_mm_create_tbl(struct page_dir *dir, uint32_t virtual, uint32_t flags)
 
     uint32_t physical = (uint32_t)phys_mm_allocate(1);
     dir->entries[PAGE_DIR_INDEX(virtual)] = physical | flags;
+
+    flush_tbl(virtual);
+    memset((char *)PAGE_TBL_FRAME + PAGE_DIR_INDEX(virtual) * PAGE_SIZE, 0, sizeof(struct page_tbl));
 }
 
 void virt_mm_map_addr(struct page_dir *dir, uint32_t physical, uint32_t virtual, uint32_t flags)
@@ -73,8 +77,9 @@ void virt_mm_map_addr(struct page_dir *dir, uint32_t physical, uint32_t virtual,
     if (!PAGE_IS_ENABLED(dir->entries[PAGE_DIR_INDEX(virtual)]))
         virt_mm_create_tbl(dir, virtual, flags);
 
-    uint32_t *tlb_entry = (uint32_t *)(PAGE_TBL_FRAME + PAGE_DIR_INDEX(virtual) * PAGE_SIZE);
+    uint32_t *tlb_entry = (uint32_t *)((char *)PAGE_TBL_FRAME + PAGE_DIR_INDEX(virtual) * PAGE_SIZE);
     tlb_entry[PAGE_TBL_INDEX(virtual)] = physical | flags;
+    flush_tbl(virtual);
 
     printf("Virtual MM: Mapped physical address = 0x%x to virtual = 0x%x, flags = 0x%x\n", physical, virtual, flags);
 }

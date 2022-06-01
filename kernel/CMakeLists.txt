@@ -7,6 +7,7 @@ set(ASM_SOURCES
     interrupts/isr.S
     
     memory/page_enable.S
+    memory/flush_tbl.S
     
     task/tss_flush.S)
 
