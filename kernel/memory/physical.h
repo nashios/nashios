@@ -23,18 +23,10 @@
  */
 #pragma once
 
-#define KERNEL_BOOT (uint32_t)(&kernel_boot)
-#define KERNEL_START (uint32_t)(&kernel_start)
-#define KERNEL_END (uint32_t)(&kernel_end)
-
 #define PHYS_MM_FRAMES_PER_BYTE 8
 #define PHYS_MM_FRAMES_SIZE 4096
 
 #include <stddef.h>
-
-extern void *kernel_boot;
-extern void *kernel_start;
-extern void *kernel_end;
 
 void phys_mm_init();
 void *phys_mm_allocate(size_t size);

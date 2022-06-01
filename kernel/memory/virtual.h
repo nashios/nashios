@@ -37,6 +37,14 @@
 #define PAGE_ALIGN(addr) (((addr) + PAGE_SIZE - 1) & PAGE_MASK)
 #define PAGE_IS_ENABLED(addr) (addr & 0x1)
 
+#define KERNEL_HIGHER_HALF (uint32_t)(&kernel_higher_half)
+#define KERNEL_BOOT (uint32_t)(&kernel_boot)
+#define KERNEL_START (uint32_t)(&kernel_start)
+#define KERNEL_END (uint32_t)(&kernel_end)
+
+#define VIRT_TO_PHYS(addr) ((addr)-KERNEL_HIGHER_HALF)
+#define PHYS_TO_VIRT(addr) ((addr) + KERNEL_HIGHER_HALF)
+
 #include <stdint.h>
 
 enum page_dir_flags
@@ -60,6 +68,11 @@ struct page_dir
 {
     uint32_t entries[PAGES_PER_DIR];
 };
+
+extern void *kernel_higher_half;
+extern void *kernel_boot;
+extern void *kernel_start;
+extern void *kernel_end;
 
 extern struct page_dir *virt_mm_dir;
 

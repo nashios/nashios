@@ -38,7 +38,7 @@ uint32_t virt_mm_get_phys_addr(uint32_t virtual)
 
 void virt_mm_identity_map(struct page_dir *dir, uint32_t physical, uint32_t virtual)
 {
-    struct page_tbl *tbl = (struct page_tbl *)phys_mm_allocate(1);
+    struct page_tbl *tbl = (struct page_tbl *)PHYS_TO_VIRT(phys_mm_allocate(1));
     memset(tbl, 0x0, sizeof(struct page_tbl));
 
     for (uint32_t i = 0, i_physical = physical, i_virtual = virtual; i < PAGES_PER_TBL; i++, i_physical += PAGE_SIZE, i_virtual += PAGE_SIZE)
@@ -47,8 +47,8 @@ void virt_mm_identity_map(struct page_dir *dir, uint32_t physical, uint32_t virt
         *entry = i_physical | PAGE_TBL_PRESENT;
     }
 
-    uint32_t *entry = &dir->entries[PAGE_DIR_INDEX(physical)];
-    *entry = (uint32_t)tbl | PAGE_DIR_PRESENT;
+    uint32_t *entry = &dir->entries[PAGE_DIR_INDEX(virtual)];
+    *entry = VIRT_TO_PHYS((uint32_t)tbl) | PAGE_DIR_PRESENT;
 
     printf("Virtual MM: Identity map physical address = 0x%08x to virtual = 0x%08x\n", physical, virtual);
 }
@@ -81,16 +81,16 @@ void virt_mm_map_addr(struct page_dir *dir, uint32_t physical, uint32_t virtual,
 
 void virt_mm_init()
 {
-    struct page_dir *dir = (struct page_dir *)phys_mm_allocate(1);
+    struct page_dir *dir = (struct page_dir *)PHYS_TO_VIRT(phys_mm_allocate(1));
     memset(dir, 0x0, sizeof(struct page_dir));
 
-    virt_mm_identity_map(dir, 0x0, 0x0);
-    virt_mm_identity_map(dir, KERNEL_BOOT, KERNEL_BOOT);
+    virt_mm_identity_map(dir, 0x00000000, 0xC0000000);
 
-    dir->entries[PAGES_PER_DIR - 1] = ((uint32_t)dir & PAGE_DIR_FRAME) | PAGE_DIR_PRESENT;
+    uint32_t dir_physical = VIRT_TO_PHYS((uint32_t)dir);
+    dir->entries[PAGES_PER_DIR - 1] = (dir_physical & PAGE_DIR_FRAME) | PAGE_DIR_PRESENT | PAGE_DIR_WRITABLE;
     virt_mm_dir = dir;
 
-    page_enable((uint32_t)&dir->entries);
+    page_enable(dir_physical);
     printf("Virtual MM: Enabled paging\n");
 
     printf("Virtual MM: Initialized\n");

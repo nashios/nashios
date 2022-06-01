@@ -22,6 +22,7 @@
  *
  */
 #include <kernel/memory/physical.h>
+#include <kernel/memory/virtual.h>
 #include <kernel/boot/multiboot.h>
 #include <kernel/bitmap.h>
 #include <kernel/stdio.h>
@@ -84,7 +85,7 @@ void phys_mm_init()
     phys_mm_used_frames = bitmap_frames;
     phys_mm_max_frames = bitmap_frames;
 
-    for (struct multiboot_mmap_entry *mmap = (struct multiboot_mmap_entry *)mbi->mmap_addr; (unsigned long)mmap < mbi->mmap_addr + mbi->mmap_length; mmap = (struct multiboot_mmap_entry *)((unsigned long)mmap + mmap->size + sizeof(mmap->size)))
+    for (struct multiboot_mmap_entry *mmap = (struct multiboot_mmap_entry *)PHYS_TO_VIRT(mbi->mmap_addr); (unsigned long)mmap < PHYS_TO_VIRT(mbi->mmap_addr) + mbi->mmap_length; mmap = (struct multiboot_mmap_entry *)((unsigned long)mmap + mmap->size + sizeof(mmap->size)))
     {
         if (mmap->type != MULTIBOOT_MEMORY_AVAILABLE)
             continue;
