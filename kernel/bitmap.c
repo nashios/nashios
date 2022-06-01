@@ -45,22 +45,25 @@ uint32_t bitmap_first_free(uint32_t *bitmap, uint32_t frames, size_t size)
 
     for (uint32_t i = 0; i < BITMAP_INDEX(frames); i++)
     {
-        if (bitmap[i] != 0xFFFFFFFF)
-        {
-            for (int j = 0; j < 32; j++)
-            {
-                if (!(bitmap[i] & (1 << j)))
-                {
-                    uint32_t bit = i * 32 + j;
-                    uint32_t free_bits = 0;
-                    for (uint32_t count = 0; count <= size; count++)
-                    {
-                        if (!bitmap_test(bitmap, bit + count))
-                            free_bits++;
+        if (bitmap[i] == 0xFFFFFFFF)
+            continue;
 
-                        if (free_bits == size)
-                            return bit;
-                    }
+        for (int j = 0; j < 32; j++)
+        {
+            if (!(bitmap[i] & (1 << j)))
+            {
+                uint32_t bit = i * 32 + j;
+                if (size == 1)
+                    return bit;
+
+                uint32_t free_bits = 0;
+                for (uint32_t count = 0; count <= size; count++)
+                {
+                    if (!bitmap_test(bitmap, bit + count))
+                        free_bits++;
+
+                    if (free_bits == size)
+                        return bit;
                 }
             }
         }
