@@ -1,9 +1,9 @@
 /**
- * @file kernel/main.c
+ * @file kernel/task/scheduler.h
  * @author Saullo Bretas Silva (saullo.silva303@gmail.com)
- * @brief Kernel entrypoint
+ * @brief Process scheduling
  * @version 0.1
- * @date 2022-05-19
+ * @date 2022-06-01
  *
  * @copyright Copyright (C) 2022 Saullo Bretas Silva
  *
@@ -21,37 +21,52 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
-#include <kernel/serial.h>
-#include <kernel/gdt.h>
-#include <kernel/interrupts/idt.h>
-#include <kernel/system/sys.h>
-#include <kernel/boot/multiboot.h>
-#include <kernel/memory/physical.h>
+#pragma once
+
 #include <kernel/memory/virtual.h>
-#include <kernel/task/scheduler.h>
-#include <stdbool.h>
+#include <kernel/dlist.h>
+#include <stdint.h>
 
-void kernel_init()
+#define SCHED_STACK 0x2000
+#define SCHED_PAGE_FAULT 0xFFFFFFFF
+
+struct process
 {
-    while (true)
-        ;
-}
+    struct page_dir *page_dir;
+};
 
-void kernel_main(uint32_t magic, uint32_t address)
+enum thread_state
 {
-    sys_cli();
+    THREAD_NEW,
+    THREAD_READY,
+    THREAD_RUN,
+    THREAD_WAIT,
+    THREAD_EXIT,
+};
 
-    serial_init();
-    gdt_init();
-    idt_init();
-    multiboot_init(magic, address);
-    phys_mm_init();
-    virt_mm_init();
-    sched_init(kernel_init);
-    sched_schedule();
+struct thread
+{
+    uint32_t esp;
+    uint32_t kernel_stack;
+    enum thread_state state;
+    struct process *process;
+    struct dlist_head list;
+};
 
-    sys_sti();
+struct thread_trap
+{
+    uint32_t edi;
+    uint32_t esi;
+    uint32_t ebp;
+    uint32_t esp;
+    uint32_t ebx;
+    uint32_t edx;
+    uint32_t ecx;
+    uint32_t eax;
+    uint32_t eip;
+    uint32_t addr;
+    uint32_t param;
+};
 
-    while (true)
-        ;
-}
+void sched_init(void *kernel_init);
+void sched_schedule();

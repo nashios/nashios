@@ -9,7 +9,8 @@ set(ASM_SOURCES
     memory/page_enable.S
     memory/flush_tbl.S
     
-    task/tss_flush.S)
+    task/tss_flush.S
+    task/sched_switch.S)
 
 set(C_SOURCES
     main.c
@@ -33,7 +34,8 @@ set(C_SOURCES
     memory/virtual.c
     memory/heap.c
     
-    task/tss.c)
+    task/tss.c
+    task/scheduler.c)
 
 add_executable(kernel ${ASM_SOURCES} ${C_SOURCES})
 target_link_libraries(kernel PRIVATE gcc)
