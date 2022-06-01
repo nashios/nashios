@@ -35,14 +35,28 @@ static uint32_t phys_mm_used_frames;
 
 void *phys_mm_allocate(size_t size)
 {
+    if (phys_mm_used_frames >= phys_mm_max_frames)
+        return NULL;
+
+    if (phys_mm_max_frames - phys_mm_used_frames < size)
+        return NULL;
+
     uint32_t frame = bitmap_first_free(phys_mm_bitmap, phys_mm_max_frames, size);
     if ((int)frame == BITMAP_FAILED)
         return NULL;
 
-    for (uint32_t i = 0; i < size; i++)
+    if (size == 1)
     {
-        bitmap_set(phys_mm_bitmap, frame + i);
+        bitmap_set(phys_mm_bitmap, frame);
         phys_mm_used_frames++;
+    }
+    else
+    {
+        for (uint32_t i = 0; i < size; i++)
+        {
+            bitmap_set(phys_mm_bitmap, frame + i);
+            phys_mm_used_frames++;
+        }
     }
 
     return (void *)(frame * PHYS_MM_FRAMES_SIZE);
