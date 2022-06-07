@@ -72,6 +72,12 @@ This will compile the entire system and install the built files into the `sysroo
 
 ### Running
 
+We need an image with the ext2 file system, run the following command:
+
+```bash
+ninja image
+```
+
 With the system compiled without errors, let's run it in the [QEMU](https://www.qemu.org/) emulator:
 
 ```bash
