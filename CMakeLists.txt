@@ -32,6 +32,10 @@ add_custom_target(toolchain
     COMMAND ${CMAKE_SOURCE_DIR}/scripts/setup-toolchain.sh
     USES_TERMINAL)
 
+add_custom_target(image
+    COMMAND "SOURCE_DIR=${CMAKE_SOURCE_DIR}" "SYSROOT_DIR=${CMAKE_SYSROOT}" ${CMAKE_SOURCE_DIR}/scripts/setup-image.sh
+    USES_TERMINAL)
+
 add_custom_target(run
     COMMAND ${CMAKE_SOURCE_DIR}/scripts/run.sh
     USES_TERMINAL)
