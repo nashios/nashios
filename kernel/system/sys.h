@@ -45,6 +45,7 @@ static inline void sys_hlt()
 
 static inline void sys_stop()
 {
+    sys_cli();
     while (true)
         sys_hlt();
 }
