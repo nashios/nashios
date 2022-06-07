@@ -28,6 +28,19 @@
 #include <kernel/string.h>
 #include <kernel/io.h>
 
+static struct dlist_head ata_list;
+
+struct ata_device *ata_get_device(const char *name)
+{
+    struct ata_device *device;
+    dlist_foreach_entry(device, &ata_list, list)
+    {
+        if (strcmp(device->name, name) == 0)
+            return device;
+    }
+    return NULL;
+}
+
 void ata_delay(uint16_t io_addr)
 {
     inb(io_addr + 7);
@@ -87,6 +100,8 @@ struct ata_device *ata_detect(const char *name, uint16_t io_addr)
         device->name = calloc(name_len, sizeof(char));
         memcpy((void *)device->name, name, name_len);
 
+        dlist_add_tail(&device->list, &ata_list);
+
         printf("ATA: Detected device name = %s, io = 0x%x\n", device->name, io_addr);
         return device;
     }
@@ -95,6 +110,8 @@ struct ata_device *ata_detect(const char *name, uint16_t io_addr)
 
 void ata_init()
 {
+    dlist_head_init(&ata_list);
+
     if (ata_detect("/dev/hda", ATA_IO_ADDR) == NULL)
         PANIC("ATA: Failed to identify /dev/hda", NULL);
 

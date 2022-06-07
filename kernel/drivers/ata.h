@@ -56,3 +56,4 @@ enum ata_identify_status
 };
 
 void ata_init();
+struct ata_device *ata_get_device(const char *name);
