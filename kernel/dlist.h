@@ -35,6 +35,13 @@
 
 #define dlist_first_entry(head, type, name) dlist_entry((head)->next, type, name)
 
+#define dlist_next_entry(entry, name) dlist_entry((entry)->name.next, typeof(*entry), name)
+
+#define dlist_foreach_entry(entry, head, name)                  \
+    for (entry = dlist_first_entry(head, typeof(*entry), name); \
+         &entry->name != (head);                                \
+         entry = dlist_next_entry(entry, name))
+
 struct dlist_head
 {
     struct dlist_head *next;
