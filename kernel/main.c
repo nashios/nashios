@@ -29,11 +29,14 @@
 #include <kernel/memory/physical.h>
 #include <kernel/memory/virtual.h>
 #include <kernel/task/scheduler.h>
+#include <kernel/drivers/pci.h>
 #include <stdbool.h>
 
 void kernel_init()
 {
     sched_unlock();
+
+    pci_init();
 
     sched_update_thread(sched_current_thread(), THREAD_WAIT);
     sched_schedule();
