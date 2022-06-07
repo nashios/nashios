@@ -37,7 +37,8 @@ set(C_SOURCES
     task/tss.c
     task/scheduler.c
     
-    drivers/pci.c)
+    drivers/pci.c
+    drivers/ata.c)
 
 add_executable(kernel ${ASM_SOURCES} ${C_SOURCES})
 target_link_libraries(kernel PRIVATE gcc)
