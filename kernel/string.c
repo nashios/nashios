@@ -99,3 +99,22 @@ size_t strnlen_s(const char *str, size_t strsz)
         p_str++;
     return p_str - str;
 }
+
+int strcmp(const char *s1, const char *s2)
+{
+    const uint8_t *p_s1 = (const uint8_t *)s1;
+    const uint8_t *p_s2 = (const uint8_t *)s2;
+    uint8_t ch1;
+    uint8_t ch2;
+
+    do
+    {
+        ch1 = *p_s1++;
+        ch2 = *p_s2++;
+
+        if (ch1 == '\0')
+            break;
+    } while (ch1 == ch2);
+
+    return ch1 - ch2;
+}

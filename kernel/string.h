@@ -31,3 +31,4 @@ void *memmove(void *s1, const void *s2, size_t n);
 int memcmp(const void *s1, const void *s2, size_t n);
 size_t strlen(const char *str);
 size_t strnlen_s(const char *str, size_t strsz);
+int strcmp(const char *s1, const char *s2);
