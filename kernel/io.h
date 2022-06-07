@@ -24,6 +24,7 @@
 #pragma once
 
 #include <stdint.h>
+#include <stddef.h>
 
 static inline void outb(uint16_t port, uint8_t value)
 {
@@ -71,6 +72,14 @@ static inline uint32_t inl(uint16_t port)
                  : "=a"(result)
                  : "Nd"(port));
     return result;
+}
+
+static inline void insw(uint16_t port, void *buffer, size_t length)
+{
+    asm volatile("rep insw"
+                 : "+D"(buffer), "+c"(length)
+                 : "d"(port)
+                 : "memory");
 }
 
 static inline void io_wait(void)
