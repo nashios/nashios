@@ -44,6 +44,9 @@ void kernel_init()
     virt_fs_init();
     ext2_fs_init();
 
+    if (virt_fs_mount("/dev/hda", "/", "ext2", 0, NULL) < 0)
+        PANIC("Failed to mount root filesystem", NULL);
+
     sched_update_thread(sched_current_thread(), THREAD_WAIT);
     sched_schedule();
 

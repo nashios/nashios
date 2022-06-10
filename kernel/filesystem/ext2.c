@@ -24,9 +24,19 @@
 #include <kernel/filesystem/ext2.h>
 #include <kernel/filesystem/virtual.h>
 #include <kernel/stdio.h>
+#include <kernel/stdlib.h>
+
+struct vfs_mount *ext2_fs_mount()
+{
+    struct vfs_mount *mount = calloc(1, sizeof(struct vfs_mount));
+    if (!mount)
+        return NULL;
+    return mount;
+}
 
 static struct vfs_type ext2_type = {
-    .name = "ext2"};
+    .name = "ext2",
+    .mount = ext2_fs_mount};
 
 void ext2_fs_init()
 {

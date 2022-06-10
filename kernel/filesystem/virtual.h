@@ -28,10 +28,17 @@
 struct vfs_type
 {
     const char *name;
+    struct vfs_mount *(*mount)();
 
+    struct dlist_head list;
+};
+
+struct vfs_mount
+{
     struct dlist_head list;
 };
 
 void virt_fs_init();
 void virt_fs_add_type(struct vfs_type *type);
 void virt_fs_remove_type(struct vfs_type *type);
+int virt_fs_mount(const char *source, const char *target, const char *filesystemtype, unsigned long mountflags, const void *data);
