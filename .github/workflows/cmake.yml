@@ -24,7 +24,7 @@ jobs:
         uses: actions/cache@v2
         with:
           path: ${{ github.workspace }}/build/tools/cache/github_actions_toolchain.tar.xz
-          key: ${{ runner.os }}-toolchain-${{ matrix.arch }}-${{ hashFiles('scripts/setup-toolchain.sh') }}
+          key: ${{ runner.os }}-toolchain-${{ matrix.arch }}-${{ hashFiles('scripts/setup-toolchain.sh', 'scripts/patches/*.patch', 'libraries/c/*.h') }}
 
       - name: Build/Restore toolchain
         run: USE_CACHED=true cmake --build ${{ github.workspace }}/build --target toolchain

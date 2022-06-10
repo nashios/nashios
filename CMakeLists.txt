@@ -12,7 +12,7 @@ set(CMAKE_SYSTEM_PROCESSOR x86)
 set(CMAKE_SYSROOT ${CMAKE_BINARY_DIR}/sysroot)
 set(CMAKE_STAGING_PREFIX ${CMAKE_SYSROOT})
 
-set(TOOLCHAIN ${CMAKE_BINARY_DIR}/tools/cross/bin/i686-elf)
+set(TOOLCHAIN ${CMAKE_BINARY_DIR}/tools/cross/bin/i686-nashios)
 set(CMAKE_ASM_COMPILER ${TOOLCHAIN}-gcc)
 set(CMAKE_C_COMPILER ${TOOLCHAIN}-gcc)
 set(CMAKE_LINKER ${TOOLCHAIN}-ld)
@@ -29,7 +29,7 @@ set(CMAKE_FIND_ROOT_PATH_MODE_PACKAGE ONLY)
 add_compile_options(-Wall -Wextra)
 
 add_custom_target(toolchain
-    COMMAND ${CMAKE_SOURCE_DIR}/scripts/setup-toolchain.sh
+    COMMAND "SOURCE_DIR=${CMAKE_SOURCE_DIR}" "SYSROOT_DIR=${CMAKE_SYSROOT}" ${CMAKE_SOURCE_DIR}/scripts/setup-toolchain.sh
     USES_TERMINAL)
 
 add_custom_target(image
@@ -41,5 +41,6 @@ add_custom_target(run
     USES_TERMINAL)
 
 include_directories(.)
+include_directories(libraries/c)
 
 add_subdirectory(kernel)

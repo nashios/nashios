@@ -12,7 +12,7 @@ GCC_PACKAGE=gcc-$GCC_VERSION
 GCC_ARCHIVE=$GCC_PACKAGE.tar.xz
 
 MIRROR=http://ftp.gnu.org/gnu
-TARGET=i686-elf
+TARGET=i686-nashios
 PREFIX=$CROSS_DIR
 CORES=$(nproc)
 
@@ -43,16 +43,27 @@ mkdir -p $BUILD_DIR
 if [ ! -d $BUILD_DIR/$BINUTILS_PACKAGE ];then
     cd $BUILD_DIR || exit
     tar -xf $CACHE_DIR/$BINUTILS_ARCHIVE
+    
+    cd $BUILD_DIR/$BINUTILS_PACKAGE
+    patch -p1 < $SOURCE_DIR/scripts/patches/binutils.patch > /dev/null
 fi
 
 if [ ! -d $BUILD_DIR/$GCC_PACKAGE ];then
     cd $BUILD_DIR || exit
     tar -xf $CACHE_DIR/$GCC_ARCHIVE
+
+    cd $BUILD_DIR/$GCC_PACKAGE
+    patch -p1 < $SOURCE_DIR/scripts/patches/gcc.patch > /dev/null
 fi
+
+mkdir -p $SYSROOT_DIR/usr/include
+cd $SYSROOT_DIR
+rsync -a --include='*.h' $SOURCE_DIR/libraries/c/ $SYSROOT_DIR/usr/include/
+rsync -a --include='*.h' $SOURCE_DIR/kernel/api $SYSROOT_DIR/usr/include/
 
 mkdir -p $BUILD_DIR/build-binutils
 cd $BUILD_DIR/build-binutils
-../$BINUTILS_PACKAGE/configure --target=$TARGET --prefix="$PREFIX" --with-sysroot --disable-nls --disable-werror
+../$BINUTILS_PACKAGE/configure --target=$TARGET --prefix="$PREFIX" --with-sysroot=$SYSROOT_DIR --disable-nls --disable-werror
 make -j $CORES
 make install
 
@@ -61,7 +72,7 @@ cd $BUILD_DIR/$GCC_PACKAGE || exit
 
 mkdir -p $BUILD_DIR/build-gcc
 cd $BUILD_DIR/build-gcc
-../$GCC_PACKAGE/configure --target=$TARGET --prefix="$PREFIX" --disable-nls --enable-languages=c --without-headers
+../$GCC_PACKAGE/configure --target=$TARGET --prefix="$PREFIX" --with-sysroot=$SYSROOT_DIR --disable-nls --enable-languages=c
 make -j $CORES all-gcc all-target-libgcc
 make install-gcc install-target-libgcc
 
