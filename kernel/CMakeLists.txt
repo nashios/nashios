@@ -40,7 +40,8 @@ set(C_SOURCES
     drivers/pci.c
     drivers/ata.c
     
-    filesystem/virtual.c)
+    filesystem/virtual.c
+    filesystem/ext2.c)
 
 add_executable(kernel ${ASM_SOURCES} ${C_SOURCES})
 target_link_libraries(kernel PRIVATE gcc)
