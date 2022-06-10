@@ -58,8 +58,8 @@ fi
 
 mkdir -p $SYSROOT_DIR/usr/include
 cd $SYSROOT_DIR
-rsync -a --include='*.h' $SOURCE_DIR/libraries/c/ $SYSROOT_DIR/usr/include/
-rsync -a --include='*.h' $SOURCE_DIR/kernel/api $SYSROOT_DIR/usr/include/
+rsync -a --include='*.h' --include='*/' --exclude='*' --inplace $SOURCE_DIR/libraries/c/ $SYSROOT_DIR/usr/include/
+rsync -a --include='*.h' --include='*/' --exclude='*' --inplace $SOURCE_DIR/kernel $SYSROOT_DIR/usr/include/
 
 mkdir -p $BUILD_DIR/build-binutils
 cd $BUILD_DIR/build-binutils
