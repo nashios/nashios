@@ -24,3 +24,4 @@
 #pragma once
 
 typedef int ssize_t;
+typedef unsigned long sector_t;
