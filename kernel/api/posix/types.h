@@ -27,3 +27,4 @@ typedef int ssize_t;
 typedef unsigned long sector_t;
 typedef unsigned long long ino_t;
 typedef unsigned short umode_t;
+typedef long long loff_t;
