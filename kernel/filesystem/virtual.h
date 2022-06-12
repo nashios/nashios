@@ -24,6 +24,7 @@
 #pragma once
 
 #define VFS_MAX_FD 256
+#define VFS_BYTES_P_SECTOR 512
 
 #include <kernel/api/posix/stat.h>
 #include <kernel/api/posix/types.h>
@@ -89,3 +90,4 @@ int virt_fs_mount(const char *source, const char *target, const char *filesystem
 int virt_fs_open(const char *pathname, int flags, ...);
 int virt_fs_fstat(int fd, struct stat *buf);
 ssize_t virt_fs_read(int fd, void *buf, size_t count);
+char *virt_fs_bread(const char *devname, sector_t sector, uint32_t size);

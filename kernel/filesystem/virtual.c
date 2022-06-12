@@ -29,9 +29,27 @@
 #include <kernel/stdio.h>
 #include <kernel/string.h>
 #include <kernel/stdlib.h>
+#include <kernel/math.h>
 
 static struct dlist_head vfs_type_list;
 static struct dlist_head vfs_mount_list;
+
+char *virt_fs_bread(const char *devname, sector_t sector, uint32_t size)
+{
+    struct ata_device *device = ata_get_device(devname);
+    if (!device)
+        return NULL;
+
+    uint8_t sectors = DIV_ROUND_UP(size, VFS_BYTES_P_SECTOR);
+    char *buffer = calloc(sectors * VFS_BYTES_P_SECTOR, sizeof(char));
+    if (!buffer)
+        return NULL;
+
+    if (ata_read(device, (uint16_t *)buffer, sector, sectors) < 0)
+        return NULL;
+
+    return buffer;
+}
 
 struct vfs_dentry *virt_fs_create_dentry(const char *name, struct vfs_dentry *parent)
 {
