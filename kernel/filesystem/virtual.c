@@ -72,6 +72,29 @@ void virt_fs_remove_type(struct vfs_type *type)
     dlist_remove_entry(&type->list);
 }
 
+int virt_fs_getattr(struct vfs_dentry *dentry, struct stat *stat)
+{
+    struct vfs_inode *inode = dentry->inode;
+    if (!inode)
+        return -EFAULT;
+
+    stat->st_size = inode->size;
+
+    return 0;
+}
+
+int virt_fs_fstat(int fd, struct stat *buf)
+{
+    if (fd < 0)
+        return -EBADF;
+
+    struct vfs_file *file = sched_current_process()->files[fd];
+    if (!file)
+        return -EBADF;
+
+    return virt_fs_getattr(file->dentry, buf);
+}
+
 int virt_fs_path_lookup(const char *pathname, struct vfs_nameidata *nameidata)
 {
     struct process *process = sched_current_process();
@@ -154,6 +177,7 @@ int virt_fs_open(const char *pathname, int flags, ...)
     struct vfs_file *file = calloc(1, sizeof(struct vfs_file));
     if (!file)
         return -ENOMEM;
+    file->dentry = nameidata.dentry;
     file->fop = nameidata.dentry->inode->fop;
 
     if (file->fop && file->fop->open)
