@@ -100,7 +100,7 @@ ssize_t virt_fs_read(int fd, void *buf, size_t count)
         return -EBADF;
 
     if (file->fop && file->fop->read)
-        return file->fop->read(buf, count);
+        return file->fop->read(file, buf, count);
 
     return -EBADF;
 }

@@ -30,9 +30,11 @@
 #include <kernel/string.h>
 
 struct vfs_inode *ext2_fs_lookup(struct vfs_inode *inode, struct vfs_dentry *dentry);
+ssize_t ext2_fs_read(struct vfs_file *file, void *buffer, size_t count);
 
 static struct vfs_inode_op ext2_file_inode_op = {};
-static struct vfs_file_op ext2_file_op = {};
+static struct vfs_file_op ext2_file_op = {
+    .read = ext2_fs_read};
 static struct vfs_inode_op ext2_dir_inode_op = {
     .lookup = ext2_fs_lookup};
 static struct vfs_file_op ext2_dir_op = {};
@@ -132,6 +134,32 @@ struct vfs_inode *ext2_fs_lookup(struct vfs_inode *inode, struct vfs_dentry *den
     }
 
     return NULL;
+}
+
+ssize_t ext2_fs_read(struct vfs_file *file, void *buffer, size_t count)
+{
+    struct vfs_inode *inode = file->dentry->inode;
+    struct vfs_superblock *sb = inode->sb;
+    struct ext2_inode *ext2_inode = inode->data;
+
+    loff_t current_pos = file->pos;
+    while (current_pos < file->pos + count)
+    {
+        uint32_t block = current_pos / sb->blocksize;
+        char *ext2_buffer = ext2_fs_bread_block(sb, ext2_inode->i_block[block]);
+        if (!ext2_buffer)
+            return -ENOMEM;
+
+        loff_t pos_start = (file->pos > current_pos) ? file->pos - current_pos : 0;
+        loff_t pos_end = ((file->pos + count) < (current_pos + sb->blocksize)) ? (current_pos + sb->blocksize - file->pos - count) : 0;
+        memcpy(buffer, ext2_buffer + pos_start, sb->blocksize - pos_start - pos_end);
+
+        current_pos += sb->blocksize;
+        buffer += sb->blocksize - pos_start - pos_end;
+    }
+    file->pos = file->pos + count;
+
+    return count;
 }
 
 struct vfs_inode *ext2_fs_create_inode(struct vfs_superblock *sb)

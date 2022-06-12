@@ -47,6 +47,7 @@ struct vfs_mount
 
 struct vfs_file
 {
+    loff_t pos;
     struct vfs_dentry *dentry;
     struct vfs_file_op *fop;
 };
@@ -54,7 +55,7 @@ struct vfs_file
 struct vfs_file_op
 {
     int (*open)();
-    int (*read)(void *buffer, size_t count);
+    ssize_t (*read)(struct vfs_file *file, void *buffer, size_t count);
 };
 
 struct vfs_inode
