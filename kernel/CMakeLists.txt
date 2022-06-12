@@ -51,4 +51,4 @@ target_link_options(kernel PRIVATE LINKER:-T ${CMAKE_CURRENT_SOURCE_DIR}/linker.
 install(TARGETS kernel DESTINATION boot)
 
 nashios_install_headers(kernel)
-nashios_install_sources(kernel)
+nashios_install_sources()
