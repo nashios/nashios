@@ -11,6 +11,8 @@ set(CMAKE_SYSTEM_PROCESSOR x86)
 
 set(CMAKE_SYSROOT ${CMAKE_BINARY_DIR}/sysroot)
 set(CMAKE_STAGING_PREFIX ${CMAKE_SYSROOT})
+set(CMAKE_INSTALL_PREFIX ${CMAKE_SYSROOT})
+set(CMAKE_INSTALL_DATAROOTDIR ${CMAKE_SYSROOT}/res)
 
 set(TOOLCHAIN ${CMAKE_BINARY_DIR}/tools/cross/bin/i686-nashios)
 set(CMAKE_ASM_COMPILER ${TOOLCHAIN}-gcc)
@@ -60,4 +62,14 @@ function(nashios_install_sources)
     endforeach()
 endfunction()
 
+function(nashios_libc lib_name fs_name)
+    nashios_install_headers("")
+    nashios_install_sources()
+    add_library(${lib_name} ${SOURCES})
+    target_link_directories(${lib_name} PUBLIC ${CMAKE_CURRENT_BINARY_DIR})
+    install(TARGETS ${lib_name} DESTINATION usr/lib)
+    set_target_properties(${lib_name} PROPERTIES OUTPUT_NAME ${fs_name})
+endfunction()
+
 add_subdirectory(kernel)
+add_subdirectory(libraries)
