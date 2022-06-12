@@ -26,6 +26,7 @@
 #define VFS_MAX_FD 256
 
 #include <kernel/api/posix/stat.h>
+#include <kernel/api/posix/types.h>
 #include <kernel/dlist.h>
 #include <stdint.h>
 
@@ -52,6 +53,7 @@ struct vfs_file
 struct vfs_file_op
 {
     int (*open)();
+    int (*read)(void *buffer, size_t count);
 };
 
 struct vfs_inode
@@ -86,3 +88,4 @@ struct vfs_dentry *virt_fs_create_dentry(const char *name, struct vfs_dentry *pa
 int virt_fs_mount(const char *source, const char *target, const char *filesystemtype, unsigned long mountflags, const void *data);
 int virt_fs_open(const char *pathname, int flags, ...);
 int virt_fs_fstat(int fd, struct stat *buf);
+ssize_t virt_fs_read(int fd, void *buf, size_t count);

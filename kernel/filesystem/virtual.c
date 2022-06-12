@@ -72,6 +72,21 @@ void virt_fs_remove_type(struct vfs_type *type)
     dlist_remove_entry(&type->list);
 }
 
+ssize_t virt_fs_read(int fd, void *buf, size_t count)
+{
+    if (fd < 0)
+        return -EBADF;
+
+    struct vfs_file *file = sched_current_process()->files[fd];
+    if (!file)
+        return -EBADF;
+
+    if (file->fop && file->fop->read)
+        return file->fop->read(buf, count);
+
+    return -EBADF;
+}
+
 int virt_fs_getattr(struct vfs_dentry *dentry, struct stat *stat)
 {
     struct vfs_inode *inode = dentry->inode;
