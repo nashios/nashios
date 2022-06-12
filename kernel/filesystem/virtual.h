@@ -34,7 +34,7 @@
 struct vfs_type
 {
     const char *name;
-    struct vfs_mount *(*mount)(const char *pathname);
+    struct vfs_mount *(*mount)(const char *pathname, const char *devname);
 
     struct dlist_head list;
 };
@@ -59,9 +59,13 @@ struct vfs_file_op
 
 struct vfs_inode
 {
+    ino_t ino;
+    umode_t mode;
     uint32_t size;
+    struct vfs_superblock *sb;
     struct vfs_file_op *fop;
     struct vfs_inode_op *iop;
+    void *data;
 };
 
 struct vfs_inode_op
@@ -80,6 +84,13 @@ struct vfs_dentry
 struct vfs_nameidata
 {
     struct vfs_dentry *dentry;
+};
+
+struct vfs_superblock
+{
+    const char *devname;
+    uint32_t blocksize;
+    void *data;
 };
 
 void virt_fs_init();

@@ -238,7 +238,7 @@ int virt_fs_mount(const char *source, const char *target, const char *filesystem
     if (!type)
         return -ENODEV;
 
-    struct vfs_mount *mount = type->mount(target);
+    struct vfs_mount *mount = type->mount(target, source);
     if (!mount)
         return -ENOMEM;
 
