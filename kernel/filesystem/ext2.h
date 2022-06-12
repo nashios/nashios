@@ -170,4 +170,13 @@ struct ext2_superblock
     uint32_t s_reserved[190];
 };
 
+struct ext2_dentry
+{
+    uint32_t ino;
+    uint16_t rec_len;
+    uint8_t name_len;
+    uint8_t file_type;
+    char name[];
+};
+
 void ext2_fs_init();

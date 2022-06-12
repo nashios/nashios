@@ -23,9 +23,19 @@
  */
 #include <kernel/filesystem/ext2.h>
 #include <kernel/filesystem/virtual.h>
+#include <kernel/api/posix/limits.h>
+#include <kernel/api/posix/errno.h>
 #include <kernel/stdio.h>
 #include <kernel/stdlib.h>
 #include <kernel/string.h>
+
+struct vfs_inode *ext2_fs_lookup(struct vfs_inode *inode, struct vfs_dentry *dentry);
+
+static struct vfs_inode_op ext2_file_inode_op = {};
+static struct vfs_file_op ext2_file_op = {};
+static struct vfs_inode_op ext2_dir_inode_op = {
+    .lookup = ext2_fs_lookup};
+static struct vfs_file_op ext2_dir_op = {};
 
 char *ext2_fs_bread(struct vfs_superblock *sb, uint32_t block, uint32_t size)
 {
@@ -72,6 +82,58 @@ struct ext2_inode *ext2_fs_get_inode(struct vfs_superblock *sb, ino_t ino)
     return (struct ext2_inode *)(buffer + offset);
 }
 
+int ext2_fs_find_ino(struct vfs_superblock *sb, uint32_t block, const char *name)
+{
+    char *buffer = ext2_fs_bread_block(sb, block);
+    if (!buffer)
+        return -ENOMEM;
+
+    struct ext2_dentry *dentry = (struct ext2_dentry *)buffer;
+    uint32_t size = 0;
+    char tmp[NAME_MAX] = {};
+
+    while (size < sb->blocksize)
+    {
+        memcpy(tmp, dentry->name, dentry->name_len);
+        tmp[dentry->name_len] = 0;
+
+        if (strcmp(tmp, name) == 0)
+            return dentry->ino;
+
+        size = size + dentry->rec_len;
+        dentry = (struct ext2_dentry *)((char *)dentry + dentry->rec_len);
+    }
+
+    return -ENOENT;
+}
+
+struct vfs_inode *ext2_fs_lookup(struct vfs_inode *inode, struct vfs_dentry *dentry)
+{
+    struct ext2_inode *ext2_inode = inode->data;
+    if (!ext2_inode)
+        return NULL;
+
+    for (uint32_t i = 0; i < ext2_inode->i_blocks; i++)
+    {
+        if (!ext2_inode->i_block[i])
+            continue;
+
+        struct vfs_inode *new_inode = inode->sb->sop->create_inode(inode->sb);
+        if (!new_inode)
+            return NULL;
+
+        int ino = ext2_fs_find_ino(inode->sb, ext2_inode->i_block[i], dentry->name);
+        if (ino < 0)
+            return NULL;
+        new_inode->ino = ino;
+
+        inode->sb->sop->read_inode(new_inode);
+        return new_inode;
+    }
+
+    return NULL;
+}
+
 struct vfs_inode *ext2_fs_create_inode(struct vfs_superblock *sb)
 {
     struct vfs_inode *inode = calloc(1, sizeof(struct vfs_inode));
@@ -80,11 +142,6 @@ struct vfs_inode *ext2_fs_create_inode(struct vfs_superblock *sb)
     inode->sb = sb;
     return inode;
 }
-
-static struct vfs_inode_op ext2_file_inode_op = {};
-static struct vfs_file_op ext2_file_op = {};
-static struct vfs_inode_op ext2_dir_inode_op = {};
-static struct vfs_file_op ext2_dir_op = {};
 
 void ext2_fs_read_inode(struct vfs_inode *inode)
 {
@@ -108,6 +165,10 @@ void ext2_fs_read_inode(struct vfs_inode *inode)
     }
 }
 
+static struct vfs_superblock_op ext2_superblock_op = {
+    .create_inode = ext2_fs_create_inode,
+    .read_inode = ext2_fs_read_inode};
+
 struct vfs_mount *ext2_fs_mount(const char *pathname, const char *devname)
 {
     struct vfs_superblock *sb = calloc(1, sizeof(struct vfs_superblock));
@@ -115,6 +176,7 @@ struct vfs_mount *ext2_fs_mount(const char *pathname, const char *devname)
         return NULL;
     sb->blocksize = EXT2_BLOCK_SIZE;
     sb->devname = strdup(devname);
+    sb->sop = &ext2_superblock_op;
 
     struct ext2_superblock *ext2_sb = calloc(1, sizeof(struct ext2_superblock));
     if (!ext2_sb)

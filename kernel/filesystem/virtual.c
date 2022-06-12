@@ -170,7 +170,7 @@ int virt_fs_path_lookup(const char *pathname, struct vfs_nameidata *nameidata)
 
             struct vfs_inode *inode = NULL;
             if (nameidata->dentry->inode->iop && nameidata->dentry->inode->iop->lookup)
-                inode = nameidata->dentry->inode->iop->lookup();
+                inode = nameidata->dentry->inode->iop->lookup(nameidata->dentry->inode, dentry);
 
             if (!inode)
                 return -ENOENT;

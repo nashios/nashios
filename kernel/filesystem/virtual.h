@@ -70,7 +70,7 @@ struct vfs_inode
 
 struct vfs_inode_op
 {
-    struct vfs_inode *(*lookup)();
+    struct vfs_inode *(*lookup)(struct vfs_inode *inode, struct vfs_dentry *dentry);
 };
 
 struct vfs_dentry
@@ -90,7 +90,14 @@ struct vfs_superblock
 {
     const char *devname;
     uint32_t blocksize;
+    struct vfs_superblock_op *sop;
     void *data;
+};
+
+struct vfs_superblock_op
+{
+    struct vfs_inode *(*create_inode)(struct vfs_superblock *sb);
+    void (*read_inode)(struct vfs_inode *inode);
 };
 
 void virt_fs_init();
