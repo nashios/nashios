@@ -24,6 +24,7 @@
 #pragma once
 
 #include <kernel/memory/virtual.h>
+#include <kernel/filesystem/virtual.h>
 #include <kernel/dlist.h>
 #include <stdint.h>
 
@@ -32,6 +33,9 @@
 
 struct process
 {
+    struct vfs_file *files[VFS_MAX_FD];
+    struct vfs_mount *mount;
+    struct vfs_dentry *root;
     struct page_dir *page_dir;
 };
 

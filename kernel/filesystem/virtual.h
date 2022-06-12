@@ -23,22 +23,61 @@
  */
 #pragma once
 
+#define VFS_MAX_FD 256
+
 #include <kernel/dlist.h>
 
 struct vfs_type
 {
     const char *name;
-    struct vfs_mount *(*mount)();
+    struct vfs_mount *(*mount)(const char *pathname);
 
     struct dlist_head list;
 };
 
 struct vfs_mount
 {
+    struct vfs_dentry *root;
     struct dlist_head list;
+};
+
+struct vfs_file
+{
+    struct vfs_file_op *fop;
+};
+
+struct vfs_file_op
+{
+    int (*open)();
+};
+
+struct vfs_inode
+{
+    struct vfs_file_op *fop;
+    struct vfs_inode_op *iop;
+};
+
+struct vfs_inode_op
+{
+    struct vfs_inode *(*lookup)();
+};
+
+struct vfs_dentry
+{
+    const char *name;
+    struct dlist_head subdir_list;
+    struct dlist_head list;
+    struct vfs_inode *inode;
+};
+
+struct vfs_nameidata
+{
+    struct vfs_dentry *dentry;
 };
 
 void virt_fs_init();
 void virt_fs_add_type(struct vfs_type *type);
 void virt_fs_remove_type(struct vfs_type *type);
+struct vfs_dentry *virt_fs_create_dentry(const char *name, struct vfs_dentry *parent);
 int virt_fs_mount(const char *source, const char *target, const char *filesystemtype, unsigned long mountflags, const void *data);
+int virt_fs_open(const char *pathname, int flags, ...);
