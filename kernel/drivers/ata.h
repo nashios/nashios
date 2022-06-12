@@ -38,14 +38,14 @@ struct ata_device
 
 enum ata_reg_status
 {
-    ATA_REG_ERR,
+    ATA_REG_ERR = 0x01,
     ATA_REG_IDX,
     ATA_REG_CORR,
-    ATA_REG_DRQ,
+    ATA_REG_DRQ = 0x08,
     ATA_REG_SRV,
-    ATA_REG_DF,
+    ATA_REG_DF = 0x20,
     ATA_REG_RDY,
-    ATA_REG_BSY
+    ATA_REG_BSY = 0x80
 };
 
 enum ata_identify_status
@@ -57,3 +57,4 @@ enum ata_identify_status
 
 void ata_init();
 struct ata_device *ata_get_device(const char *name);
+int8_t ata_read(struct ata_device *device, uint16_t *buffer, uint32_t lba, uint8_t sectors);

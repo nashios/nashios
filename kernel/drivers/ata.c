@@ -23,6 +23,7 @@
  */
 #include <kernel/drivers/ata.h>
 #include <kernel/system/sys.h>
+#include <kernel/api/posix/errno.h>
 #include <kernel/stdlib.h>
 #include <kernel/stdio.h>
 #include <kernel/string.h>
@@ -104,6 +105,44 @@ struct ata_device *ata_detect(const char *name, uint16_t io_addr)
         return device;
     }
     return NULL;
+}
+
+uint8_t ata_polling(uint16_t io_addr)
+{
+    while (true)
+    {
+        uint8_t status = inb(io_addr + 7);
+        if (!(status & ATA_REG_BSY) || (status & ATA_REG_DRQ))
+            return ATA_SUCCESS;
+        if ((status & ATA_REG_ERR) || (status & ATA_REG_DF))
+            return ATA_ERROR;
+    }
+}
+
+int8_t ata_read(struct ata_device *device, uint16_t *buffer, uint32_t lba, uint8_t sectors)
+{
+    outb(device->io_addr + 6, 0xE0 | ((lba >> 24) & 0x0F));
+    ata_delay(device->io_addr);
+
+    outb(device->io_addr + 1, 0x00);
+    outb(device->io_addr + 2, sectors);
+    outb(device->io_addr + 3, (uint8_t)lba);
+    outb(device->io_addr + 4, (uint8_t)(lba >> 8));
+    outb(device->io_addr + 5, (uint8_t)(lba >> 16));
+    outb(device->io_addr + 7, 0x20);
+
+    if (ata_polling(device->io_addr) == ATA_ERROR)
+        return -ENXIO;
+
+    for (int i = 0; i < sectors; ++i)
+    {
+        insw(device->io_addr, buffer + i * 256, 256);
+        ata_delay(device->io_addr);
+
+        if (ata_polling(device->io_addr) == ATA_ERROR)
+            return -ENXIO;
+    }
+    return 0;
 }
 
 void ata_init()
