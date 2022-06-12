@@ -22,6 +22,7 @@
  *
  */
 #include <kernel/string.h>
+#include <kernel/stdlib.h>
 #include <stdint.h>
 
 void *memset(void *s, int c, size_t n)
@@ -117,4 +118,14 @@ int strcmp(const char *s1, const char *s2)
     } while (ch1 == ch2);
 
     return ch1 - ch2;
+}
+
+char *strdup(const char *s)
+{
+    size_t length = strlen(s) + 1;
+    void *buffer = calloc(length, sizeof(char));
+    if (!buffer)
+        return NULL;
+
+    return memcpy(buffer, s, length);
 }

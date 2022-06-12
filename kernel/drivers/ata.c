@@ -96,9 +96,7 @@ struct ata_device *ata_detect(const char *name, uint16_t io_addr)
     {
         struct ata_device *device = calloc(1, sizeof(struct ata_device));
         device->io_addr = io_addr;
-        size_t name_len = strlen(name);
-        device->name = calloc(name_len, sizeof(char));
-        memcpy((void *)device->name, name, name_len);
+        device->name = strdup(name);
 
         dlist_add_tail(&device->list, &ata_list);
 
