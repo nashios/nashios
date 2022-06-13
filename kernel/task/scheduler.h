@@ -30,6 +30,7 @@
 #include <stdint.h>
 
 #define SCHED_STACK 0x2000
+#define SCHED_HEAP 0x20000
 #define SCHED_PAGE_FAULT 0xFFFFFFFF
 
 struct process

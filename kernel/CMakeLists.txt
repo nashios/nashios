@@ -37,6 +37,7 @@ set(C_SOURCES
     
     task/tss.c
     task/scheduler.c
+    task/elf.c
     
     drivers/pci.c
     drivers/ata.c
