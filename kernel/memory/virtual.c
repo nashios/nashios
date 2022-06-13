@@ -98,8 +98,6 @@ void virt_mm_map_addr(struct page_dir *dir, uint32_t physical, uint32_t virtual,
     uint32_t *tlb_entry = (uint32_t *)((char *)PAGE_TBL_FRAME + PAGE_DIR_INDEX(virtual) * PAGE_SIZE);
     tlb_entry[PAGE_TBL_INDEX(virtual)] = physical | flags;
     flush_tbl(virtual);
-
-    printf("Virtual MM: Mapped physical address = 0x%x to virtual = 0x%x, flags = 0x%x\n", physical, virtual, flags);
 }
 
 void virt_mm_init()
