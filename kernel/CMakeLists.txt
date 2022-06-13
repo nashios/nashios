@@ -10,7 +10,8 @@ set(ASM_SOURCES
     memory/flush_tbl.S
     
     task/tss_flush.S
-    task/sched_switch.S)
+    task/sched_switch.S
+    task/sched_enter_user.S)
 
 set(C_SOURCES
     main.c

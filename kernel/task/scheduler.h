@@ -72,7 +72,8 @@ struct thread_trap
     uint32_t eax;
     uint32_t eip;
     uint32_t addr;
-    uint32_t param;
+    uint32_t param1;
+    uint32_t param2;
 };
 
 void sched_init(void *kernel_init);
@@ -82,3 +83,4 @@ struct process *sched_current_process();
 struct thread *sched_current_thread();
 void sched_lock();
 void sched_unlock();
+void sched_open(const char *path);
