@@ -71,5 +71,11 @@ function(nashios_libc lib_name fs_name)
     set_target_properties(${lib_name} PROPERTIES OUTPUT_NAME ${fs_name})
 endfunction()
 
+function(nashios_bin bin_name)
+    add_executable(${bin_name} ${SOURCES})
+    install(TARGETS ${bin_name} RUNTIME DESTINATION bin)
+endfunction()
+
 add_subdirectory(kernel)
 add_subdirectory(libraries)
+add_subdirectory(services)
