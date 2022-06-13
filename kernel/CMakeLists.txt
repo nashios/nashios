@@ -33,6 +33,7 @@ set(C_SOURCES
     memory/physical.c
     memory/virtual.c
     memory/heap.c
+    memory/mmap.c
     
     task/tss.c
     task/scheduler.c

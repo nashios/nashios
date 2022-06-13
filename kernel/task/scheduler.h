@@ -24,6 +24,7 @@
 #pragma once
 
 #include <kernel/memory/virtual.h>
+#include <kernel/memory/mmap.h>
 #include <kernel/filesystem/virtual.h>
 #include <kernel/dlist.h>
 #include <stdint.h>
@@ -33,6 +34,7 @@
 
 struct process
 {
+    struct mmap_mm *mm;
     struct vfs_file *files[VFS_MAX_FD];
     struct vfs_mount *mount;
     struct vfs_dentry *root;
