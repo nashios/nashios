@@ -59,7 +59,12 @@ static inline bool dlist_is_empty(const struct dlist_head *head)
     return head->next == head;
 }
 
-static inline void dlist_add(struct dlist_head *new, struct dlist_head *previous, struct dlist_head *next)
+static inline bool dlist_is_last(const struct dlist_head *list, const struct dlist_head *head)
+{
+    return list->next == head;
+}
+
+static inline void dlist_add_internal(struct dlist_head *new, struct dlist_head *previous, struct dlist_head *next)
 {
     next->previous = new;
     new->next = next;
@@ -67,9 +72,14 @@ static inline void dlist_add(struct dlist_head *new, struct dlist_head *previous
     previous->next = new;
 }
 
+static inline void dlist_add(struct dlist_head *new, struct dlist_head *head)
+{
+    dlist_add_internal(new, head, head->next);
+}
+
 static inline void dlist_add_tail(struct dlist_head *new, struct dlist_head *head)
 {
-    dlist_add(new, head->previous, head);
+    dlist_add_internal(new, head->previous, head);
 }
 
 static inline void dlist_remove_internal(struct dlist_head *previous, struct dlist_head *next)
@@ -87,4 +97,11 @@ static inline void dlist_remove_init(struct dlist_head *list)
 {
     dlist_remove_entry(list);
     dlist_head_init(list);
+}
+
+static inline void dlist_remove(struct dlist_head *entry)
+{
+    dlist_remove_entry(entry);
+    entry->next = NULL;
+    entry->previous = NULL;
 }
