@@ -153,7 +153,7 @@ void isr_init()
     idt_add_entry(29, (uint32_t)isr29, 0x08, 0x8E);
     idt_add_entry(30, (uint32_t)isr30, 0x08, 0x8E);
     idt_add_entry(31, (uint32_t)isr31, 0x08, 0x8E);
-    idt_add_entry(127, (uint32_t)isr127, 0x08, 0x8E);
+    idt_add_entry(127, (uint32_t)isr127, 0x08, 0x8E | 0x60);
     printf("ISR: Added 0..31 and 127 interrupts\n");
 
     printf("ISR: Initialized\n");
