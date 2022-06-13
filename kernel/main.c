@@ -37,8 +37,6 @@
 
 void kernel_init()
 {
-    sched_unlock();
-
     pci_init();
     ata_init();
     virt_fs_init();
@@ -46,6 +44,8 @@ void kernel_init()
 
     if (virt_fs_mount("/dev/hda", "/", "ext2", 0, NULL) < 0)
         PANIC("Failed to mount root filesystem", NULL);
+
+    sched_open("/bin/system_service");
 
     sched_update_thread(sched_current_thread(), THREAD_WAIT);
     sched_schedule();
