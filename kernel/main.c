@@ -25,6 +25,7 @@
 #include <kernel/gdt.h>
 #include <kernel/interrupts/idt.h>
 #include <kernel/system/sys.h>
+#include <kernel/system/syscall.h>
 #include <kernel/boot/multiboot.h>
 #include <kernel/memory/physical.h>
 #include <kernel/memory/virtual.h>
@@ -44,6 +45,8 @@ void kernel_init()
 
     if (virt_fs_mount("/dev/hda", "/", "ext2", 0, NULL) < 0)
         PANIC("Failed to mount root filesystem", NULL);
+
+    syscall_init();
 
     sched_open("/bin/system_service");
 

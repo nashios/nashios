@@ -28,6 +28,7 @@ set(C_SOURCES
     interrupts/isr.c
     
     system/sys.c
+    system/syscall.c
     
     boot/multiboot.c
     
