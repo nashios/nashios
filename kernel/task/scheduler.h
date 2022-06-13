@@ -35,6 +35,8 @@
 
 struct process
 {
+    pid_t pid;
+    struct thrad *thread;
     struct mmap_mm *mm;
     struct vfs_file *files[VFS_MAX_FD];
     struct vfs_mount *mount;
@@ -84,3 +86,4 @@ struct thread *sched_current_thread();
 void sched_lock();
 void sched_unlock();
 void sched_open(const char *path);
+void sched_exit(int status);

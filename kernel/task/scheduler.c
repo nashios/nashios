@@ -30,6 +30,7 @@
 #include <kernel/stdio.h>
 #include <kernel/string.h>
 
+static pid_t sched_next_pid = 0;
 static struct process *sched_process = NULL;
 static struct thread *sched_thread = NULL;
 static uint32_t sched_locks = 0;
@@ -158,6 +159,8 @@ struct thread *sched_create_thread(struct process *process)
 
     dlist_head_init(&thread->list);
 
+    process->thread = thread;
+
     return thread;
 }
 
@@ -183,6 +186,7 @@ struct thread *sched_create_elf_thread(struct process *process, uint32_t path)
 struct process *sched_create_process(struct process *parent)
 {
     struct process *process = calloc(1, sizeof(struct process));
+    process->pid = sched_next_pid++;
     process->mount = calloc(1, sizeof(struct vfs_mount));
     process->root = calloc(1, sizeof(struct vfs_dentry));
     process->mm = calloc(1, sizeof(struct mmap_mm));
@@ -274,6 +278,18 @@ void sched_open(const char *path)
     thread->state = THREAD_READY;
     sched_add_thread(thread);
     printf("Scheduler: Queued elf process path = %s\n", path);
+}
+
+void sched_exit(int status)
+{
+    sched_lock();
+
+    struct process *process = sched_process;
+    sched_update_thread(process->thread, THREAD_EXIT);
+    printf("Scheduler: Process pid = %d exited\n", process->pid);
+
+    sched_unlock();
+    sched_schedule();
 }
 
 void sched_init(void *kernel_init)
