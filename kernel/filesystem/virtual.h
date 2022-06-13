@@ -28,6 +28,7 @@
 
 #include <kernel/api/posix/stat.h>
 #include <kernel/api/posix/types.h>
+#include <kernel/api/posix/fcntl.h>
 #include <kernel/dlist.h>
 #include <stdint.h>
 
