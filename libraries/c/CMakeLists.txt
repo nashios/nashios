@@ -1,6 +1,7 @@
 set(SOURCES 
     stdlib.c
-    unistd.c)
+    unistd.c
+    errno.c)
 
 add_library(crt0 STATIC crt0.c)
 add_custom_command(
