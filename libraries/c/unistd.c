@@ -1,5 +1,52 @@
 #include <unistd.h>
 #include <syscall.h>
+#include <stddef.h>
+#include <string.h>
+
+char **environ;
+
+int execl(const char *path, const char *arg, ...)
+{
+    // FIXME Read args
+    return execve(path, NULL, environ);
+}
+
+int execle(const char *path, const char *arg, ...)
+{
+    // FIXME Read args
+    return execve(path, NULL, NULL);
+}
+
+int execlp(const char *file, const char *arg, ...)
+{
+    // FIXME Read args
+    return execvpe(file, NULL, environ);
+}
+
+int execv(const char *path, char *const argv[])
+{
+    return execve(path, argv, environ);
+}
+
+_syscall3(execve, const char *, char *const *, char *const *);
+int execve(const char *filename, char *const argv[], char *const envp[])
+{
+    SYSCALL_RETURN(syscall_execve(filename, argv, envp));
+}
+
+int execvp(const char *file, char *const argv[])
+{
+    return execvpe(file, argv, environ);
+}
+
+int execvpe(const char *file, char *const argv[], char *const envp[])
+{
+    if (strchr(file, '/'))
+        return execve(file, argv, envp);
+
+    // FIXME Read PATH and check if *file* exist
+    return -1;
+}
 
 _syscall0(fork);
 pid_t fork(void)

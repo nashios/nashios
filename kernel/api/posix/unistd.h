@@ -25,4 +25,5 @@
 
 #define __NR_exit 1
 #define __NR_fork 2
+#define __NR_execve 11
 #define __NR_brk 45
