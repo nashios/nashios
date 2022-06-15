@@ -21,3 +21,11 @@ void *memcpy(void *restrict s1, const void *restrict s2, size_t n)
 
     return s1;
 }
+
+size_t strlen(const char *str)
+{
+    size_t len = 0;
+    while (str[len])
+        len++;
+    return len;
+}
