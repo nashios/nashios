@@ -1,6 +1,23 @@
 #include <stdio.h>
 #include <ctype.h>
 #include <string.h>
+#include <errno.h>
+#include <stdint.h>
+
+FILE *stdin;
+FILE *stdout;
+FILE *stderr;
+
+int vfprintf(FILE *restrict stream, const char *restrict format, va_list ap)
+{
+    // FIXME implement
+    return -1;
+}
+
+int vprintf(const char *restrict format, va_list ap)
+{
+    return vfprintf(stdout, format, ap);
+}
 
 int vsnprintf_skip(const char *restrict *s)
 {
@@ -282,4 +299,45 @@ int vsnprintf(char *restrict s, size_t n, const char *restrict format, va_list a
 
     *p_s = '\0';
     return p_s - s;
+}
+
+int vsprintf(char *restrict s, const char *restrict format, va_list ap)
+{
+    return vsnprintf(s, INT32_MAX, format, ap);
+}
+
+int fprintf(FILE *restrict stream, const char *restrict format, ...)
+{
+    va_list ap;
+    va_start(ap, format);
+    int result = vfprintf(stream, format, ap);
+    va_end(ap);
+    return result;
+}
+
+int printf(const char *restrict format, ...)
+{
+    va_list ap;
+    va_start(ap, format);
+    int result = vprintf(format, ap);
+    va_end(ap);
+    return result;
+}
+
+int snprintf(char *restrict s, size_t n, const char *restrict format, ...)
+{
+    va_list ap;
+    va_start(ap, format);
+    int result = vsnprintf(s, n, format, ap);
+    va_end(ap);
+    return result;
+}
+
+int sprintf(char *restrict s, const char *restrict format, ...)
+{
+    va_list ap;
+    va_start(ap, format);
+    int result = vsprintf(s, format, ap);
+    va_end(ap);
+    return result;
 }

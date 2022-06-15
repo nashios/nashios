@@ -2,6 +2,8 @@
 
 #define SEEK_SET 0
 
+#define stdin stdin
+#define stdout stdout
 #define stderr stderr
 
 #include <stdarg.h>
@@ -23,16 +25,23 @@ enum vsn_flags
     VSN_SPECIAL = 64
 };
 
+extern FILE *stdin;
+extern FILE *stdout;
 extern FILE *stderr;
 
 int fclose(FILE *);
 int fflush(FILE *);
 FILE *fopen(const char *, const char *);
-int fprintf(FILE *, const char *, ...);
+int vsprintf(char *restrict s, const char *restrict format, va_list ap);
+int fprintf(FILE *restrict stream, const char *restrict format, ...);
 size_t fread(void *, size_t, size_t, FILE *);
 int fseek(FILE *, long, int);
 long ftell(FILE *);
 size_t fwrite(const void *, size_t, size_t, FILE *);
 void setbuf(FILE *, char *);
-int vfprintf(FILE *, const char *, va_list);
+int vfprintf(FILE *restrict stream, const char *restrict format, va_list ap);
+int vprintf(const char *restrict format, va_list ap);
 int vsnprintf(char *restrict s, size_t n, const char *restrict format, va_list ap);
+int printf(const char *restrict format, ...);
+int snprintf(char *restrict s, size_t n, const char *restrict format, ...);
+int sprintf(char *restrict s, const char *restrict format, ...);
