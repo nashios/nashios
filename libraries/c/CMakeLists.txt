@@ -4,6 +4,7 @@ set(SOURCES
     errno.c
     string.c
     ctype.c
+    stdio.c
     
     sys/wait.c)
 
