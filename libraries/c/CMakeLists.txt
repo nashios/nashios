@@ -3,6 +3,7 @@ set(SOURCES
     unistd.c
     errno.c
     string.c
+    ctype.c
     
     sys/wait.c)
 
