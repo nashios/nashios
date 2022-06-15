@@ -3,6 +3,7 @@
 #include <kernel/api/posix/errno.h>
 #include <kernel/interrupts/isr.h>
 #include <kernel/task/scheduler.h>
+#include <kernel/memory/mmap.h>
 #include <kernel/stdio.h>
 
 void syscall_exit(int status)
@@ -10,8 +11,26 @@ void syscall_exit(int status)
     sched_exit(status);
 }
 
+int syscall_brk(void *addr)
+{
+    uint32_t brk = (uint32_t)addr;
+    struct mmap_mm *mm = sched_current_process()->mm;
+    if (brk == 0)
+        return mm->brk_middle;
+
+    if (brk < mm->brk_start)
+        return -ENOMEM;
+
+    uint32_t result = mmap_brk(mm->brk_start, brk - mm->brk_start);
+    if (result != 0)
+        return result;
+
+    return 0;
+}
+
 static void *syscall_list[] = {
-    [__NR_exit] = syscall_exit};
+    [__NR_exit] = syscall_exit,
+    [__NR_brk] = syscall_brk};
 
 static size_t syscall_size = sizeof(syscall_list) / sizeof(syscall_list[0]);
 
