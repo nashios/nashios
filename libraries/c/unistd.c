@@ -1,6 +1,12 @@
 #include <unistd.h>
 #include <syscall.h>
 
+_syscall0(fork);
+pid_t fork(void)
+{
+    SYSCALL_RETURN(syscall_fork());
+}
+
 _syscall1(brk, void *);
 int brk(void *addr)
 {
