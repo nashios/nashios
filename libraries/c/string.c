@@ -1,5 +1,6 @@
 #include <string.h>
 #include <stdint.h>
+#include <stdbool.h>
 
 static const char *string_error_list[] = {
     "Success",
@@ -77,4 +78,16 @@ char *strerror(int errnum)
     if (errnum < 0 || errnum >= string_error_list_size)
         return "Unknown error";
     return (char *)string_error_list[errnum];
+}
+
+char *strchr(const char *s, int c)
+{
+    char p_c = c;
+    while (true)
+    {
+        if (*s == p_c)
+            return (char *)s;
+        if (!*s)
+            return NULL;
+    }
 }

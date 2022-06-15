@@ -8,3 +8,4 @@ char *strcpy(char *, const char *);
 size_t strlen(const char *);
 size_t strlen(const char *str);
 char *strerror(int errnum);
+char *strchr(const char *s, int c);
