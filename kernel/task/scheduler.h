@@ -36,7 +36,8 @@
 struct process
 {
     pid_t pid;
-    struct thrad *thread;
+    int exit_status;
+    struct thread *thread;
     struct mmap_mm *mm;
     struct vfs_file *files[VFS_MAX_FD];
     struct vfs_mount *mount;

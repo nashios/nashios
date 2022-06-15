@@ -285,6 +285,8 @@ void sched_exit(int status)
     sched_lock();
 
     struct process *process = sched_process;
+    process->exit_status = status;
+
     sched_update_thread(process->thread, THREAD_EXIT);
     printf("Scheduler: Process pid = %d exited\n", process->pid);
 
