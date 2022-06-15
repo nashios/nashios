@@ -24,6 +24,7 @@
 #include <kernel/memory/mmap.h>
 #include <kernel/memory/physical.h>
 #include <kernel/task/scheduler.h>
+#include <kernel/api/posix/errno.h>
 #include <kernel/stdlib.h>
 #include <kernel/string.h>
 #include <kernel/math.h>
@@ -134,4 +135,41 @@ uint32_t mmap_map(uint32_t address, uint32_t length)
     }
 
     return address ? address : area->start;
+}
+
+uint32_t mmap_brk(uint32_t address, uint32_t length)
+{
+    struct process *process = sched_current_process();
+    struct mmap_area *area = mmap_find_area(address, process->mm);
+    if (!area)
+        return 0;
+
+    uint32_t brk = PAGE_ALIGN(address + length);
+    process->mm->brk_middle = brk;
+    if (area->end >= brk)
+        return 0;
+
+    struct mmap_area *new_area = calloc(1, sizeof(struct mmap_area));
+    memcpy(new_area, area, sizeof(struct mmap_area));
+
+    if (brk > process->mm->brk_middle)
+        mmap_expand_area(brk, new_area, process);
+    else
+        new_area->end = brk;
+
+    if (new_area->end > area->end)
+    {
+        uint32_t physical = (uint32_t)phys_mm_allocate((new_area->end - area->end) / PAGE_SIZE);
+        uint32_t virtual = area->end;
+        while (virtual < new_area->end)
+        {
+            virt_mm_map_addr(process->page_dir, physical, virtual, PAGE_TBL_PRESENT | PAGE_TBL_WRITABLE | PAGE_TBL_USER);
+
+            virtual += PAGE_SIZE;
+            physical += PAGE_SIZE;
+        }
+    }
+    memcpy(area, new_area, sizeof(struct mmap_area));
+
+    return 0;
 }
