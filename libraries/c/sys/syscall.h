@@ -1,7 +1,5 @@
 #pragma once
 
-#include <kernel/api/posix/unistd.h>
-
 #define _syscall0(name)                   \
     static inline int syscall_##name()    \
     {                                     \
@@ -60,3 +58,8 @@
                      : "0"(__NR_##name), "b"(arg1), "c"(arg2), "d"(arg3), "S"(arg4), "D"(arg5)); \
         return ret;                                                                              \
     }
+
+#define SYSCALL_RETURN(expr) ({ int result = expr; if (result < 0) { return errno = -result, -1; } return result; })
+
+#include <kernel/api/posix/unistd.h>
+#include <errno.h>
