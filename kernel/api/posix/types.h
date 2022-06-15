@@ -29,3 +29,5 @@ typedef unsigned long long ino_t;
 typedef unsigned short umode_t;
 typedef long long loff_t;
 typedef int pid_t;
+typedef int id_t;
+typedef unsigned int uid_t;

@@ -1,3 +1,3 @@
 #pragma once
 
-typedef int pid_t;
+#include <kernel/api/posix/types.h>
