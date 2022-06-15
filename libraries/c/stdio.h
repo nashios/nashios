@@ -45,3 +45,4 @@ int vsnprintf(char *restrict s, size_t n, const char *restrict format, va_list a
 int printf(const char *restrict format, ...);
 int snprintf(char *restrict s, size_t n, const char *restrict format, ...);
 int sprintf(char *restrict s, const char *restrict format, ...);
+void perror(const char *s);

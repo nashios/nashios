@@ -341,3 +341,8 @@ int sprintf(char *restrict s, const char *restrict format, ...)
     va_end(ap);
     return result;
 }
+
+void perror(const char *s)
+{
+    fprintf(stderr, "perror(): %s - %s\n", s, strerror(errno));
+}
