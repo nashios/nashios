@@ -73,6 +73,14 @@ size_t strlen(const char *str)
     return len;
 }
 
+size_t strnlen_s(const char *str, size_t strsz)
+{
+    const char *p_str = str;
+    for (size_t i = 0; *p_str && i < strsz; i++)
+        p_str++;
+    return p_str - str;
+}
+
 char *strerror(int errnum)
 {
     if (errnum < 0 || errnum >= string_error_list_size)
