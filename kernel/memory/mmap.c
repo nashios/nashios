@@ -27,6 +27,7 @@
 #include <kernel/memory/physical.h>
 #include <kernel/stdlib.h>
 #include <kernel/string.h>
+#include <kernel/system/syscall.h>
 #include <kernel/task/scheduler.h>
 
 struct mmap_area *mmap_find_area(uint32_t address, struct mmap_mm *mm)
@@ -174,4 +175,11 @@ uint32_t mmap_brk(uint32_t address, uint32_t length)
     memcpy(area, new_area, sizeof(struct mmap_area));
 
     return 0;
+}
+
+uint32_t mmap_sbrk(intptr_t increment)
+{
+    uint32_t address = syscall_brk(0x0);
+    syscall_brk((void *)(address + increment));
+    return address;
 }

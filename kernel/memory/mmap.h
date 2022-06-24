@@ -44,3 +44,4 @@ struct mmap_area
 
 uint32_t mmap_map(uint32_t address, uint32_t length);
 uint32_t mmap_brk(uint32_t address, uint32_t length);
+uint32_t mmap_sbrk(intptr_t increment);

@@ -24,3 +24,4 @@
 #pragma once
 
 void syscall_init();
+int syscall_brk(void *addr);
