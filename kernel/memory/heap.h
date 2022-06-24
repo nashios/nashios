@@ -23,6 +23,7 @@
  */
 #pragma once
 
+#include <kernel/memory/virtual.h>
 #include <stdbool.h>
 #include <stddef.h>
 #include <stdint.h>
@@ -37,3 +38,4 @@ struct heap_block
 void *heap_allocate(size_t size);
 void heap_free(void *ptr);
 void *heap_align(size_t size);
+struct page_dir *heap_fork(struct page_dir *new_dir, struct page_dir *old_dir);
