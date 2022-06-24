@@ -22,6 +22,7 @@
  *
  */
 #include <kernel/interrupts/irq.h>
+#include <kernel/memory/heap.h>
 #include <kernel/stdio.h>
 #include <kernel/stdlib.h>
 #include <kernel/string.h>
@@ -40,6 +41,7 @@ static struct dlist_head sched_exit_list = {};
 
 extern void sched_switch(uint32_t *old_esp, uint32_t new_esp, uint32_t physical);
 extern void sched_enter_user(uint32_t eip, uint32_t esp, uint32_t failed_addr);
+extern void sched_reenter_user(struct itr_registers *registers);
 
 struct thread *sched_current_thread() { return sched_thread; }
 
@@ -139,12 +141,19 @@ void sched_elf_thread_entry(struct thread *thread, const char *path)
     sched_enter_user(elf->stack, elf->entry, SCHED_PAGE_FAULT);
 }
 
+void sched_user_thread_entry(struct thread *thread)
+{
+    sched_unlock();
+    tss_set_stack(thread->kernel_stack);
+    sched_reenter_user(&thread->registers);
+}
+
 struct thread *sched_create_thread(struct process *process)
 {
     struct thread *thread = calloc(1, sizeof(struct thread));
     thread->process = process;
     thread->state = THREAD_NEW;
-    thread->kernel_stack = (uint32_t)calloc(SCHED_STACK, sizeof(char)) + SCHED_STACK;
+    thread->kernel_stack = (uint32_t)(calloc(SCHED_STACK, sizeof(char))) + SCHED_STACK;
     thread->esp = thread->kernel_stack - sizeof(struct thread_trap);
 
     struct thread_trap *trap = (struct thread_trap *)thread->esp;
@@ -177,6 +186,15 @@ struct thread *sched_create_elf_thread(struct process *process, uint32_t path)
     return thread;
 }
 
+struct thread *sched_create_user_thread(struct process *process)
+{
+    struct thread *thread = sched_create_thread(process);
+    struct thread_trap *trap = (struct thread_trap *)thread->esp;
+    trap->eip = (uint32_t)sched_user_thread_entry;
+    trap->param1 = (uint32_t)thread;
+    return thread;
+}
+
 struct process *sched_create_process(struct process *parent)
 {
     struct process *process = calloc(1, sizeof(struct process));
@@ -185,18 +203,28 @@ struct process *sched_create_process(struct process *parent)
     process->root = calloc(1, sizeof(struct vfs_dentry));
     process->mm = calloc(1, sizeof(struct mmap_mm));
 
-    dlist_head_init(&process->mm->list);
-
     if (parent)
     {
         process->page_dir = virt_mm_create_address();
         memcpy(process->mount, parent->mount, sizeof(struct vfs_mount));
         memcpy(process->root, parent->root, sizeof(struct vfs_dentry));
         memcpy(process->files, parent->files, sizeof(struct vfs_file));
+        memcpy(process->mm, parent->mm, sizeof(struct mmap_mm));
+        dlist_head_init(&process->mm->list);
+
+        struct mmap_area *area;
+        dlist_foreach_entry(area, &parent->mm->list, list)
+        {
+            struct mmap_area *new_area = calloc(1, sizeof(struct mmap_area));
+            new_area->start = area->start;
+            new_area->end = area->end;
+            dlist_add_tail(&new_area->list, &process->mm->list);
+        }
     }
     else
     {
         process->page_dir = virt_mm_dir;
+        dlist_head_init(&process->mm->list);
     }
 
     return process;
@@ -275,6 +303,26 @@ void sched_open(const char *path)
     printf("Scheduler: Queued elf process path = %s\n", path);
 }
 
+pid_t sched_fork()
+{
+    sched_lock();
+
+    struct process *process = sched_create_process(sched_process);
+    process->page_dir = heap_fork(process->page_dir, sched_process->page_dir);
+
+    struct thread *thread = sched_create_user_thread(process);
+    thread->state = THREAD_READY;
+
+    memcpy(&thread->registers, &sched_thread->registers, sizeof(struct itr_registers));
+    thread->registers.eax = 0;
+
+    sched_unlock();
+
+    sched_add_thread(thread);
+
+    return process->pid;
+}
+
 void sched_exit(int status)
 {
     sched_lock();
@@ -289,11 +337,41 @@ void sched_exit(int status)
     sched_schedule();
 }
 
+void sched_handler(struct itr_registers *)
+{
+    if (sched_thread->state != THREAD_RUN)
+        return;
+
+    sched_lock();
+
+    sched_thread->timer++;
+    bool run_schedule = false;
+    if (sched_thread->timer >= SCHED_TIMER)
+    {
+        struct thread *thread = sched_get_next_thread();
+        if (thread)
+        {
+            sched_update_thread(sched_thread, THREAD_READY);
+            run_schedule = true;
+        }
+    }
+
+    sched_unlock();
+
+    if (run_schedule && !sched_locks)
+    {
+        printf("Scheduler: Round-robin thread tid = %d\n", sched_process->pid);
+        sched_schedule();
+    }
+}
+
 void sched_init(void *kernel_init)
 {
     dlist_head_init(&sched_ready_list);
     dlist_head_init(&sched_wait_list);
     dlist_head_init(&sched_exit_list);
+
+    irq_add_handler(0, sched_handler);
 
     sched_process = sched_create_process(NULL);
     sched_thread = sched_create_thread(sched_process);

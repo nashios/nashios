@@ -3,8 +3,11 @@
 #include <kernel/interrupts/isr.h>
 #include <kernel/memory/mmap.h>
 #include <kernel/stdio.h>
+#include <kernel/string.h>
 #include <kernel/system/syscall.h>
 #include <kernel/task/scheduler.h>
+
+pid_t syscall_fork() { return sched_fork(); }
 
 void syscall_exit(int status) { sched_exit(status); }
 
@@ -25,7 +28,7 @@ int syscall_brk(void *addr)
     return 0;
 }
 
-static void *syscall_list[] = {[__NR_exit] = syscall_exit, [__NR_brk] = syscall_brk};
+static void *syscall_list[] = {[__NR_exit] = syscall_exit, [__NR_brk] = syscall_brk, [__NR_fork] = syscall_fork};
 
 static size_t syscall_size = sizeof(syscall_list) / sizeof(syscall_list[0]);
 
@@ -45,6 +48,7 @@ void syscall_handler(struct itr_registers *registers)
         goto failed;
     }
 
+    memcpy(&sched_current_thread()->registers, registers, sizeof(struct itr_registers));
     registers->eax = handler(registers->ebx, registers->ecx, registers->edx, registers->esi, registers->edi);
     printf("Syscall: Called syscall number = %d, result = 0x%x\n", number, registers->eax);
 

@@ -25,6 +25,7 @@
 
 #include <kernel/dlist.h>
 #include <kernel/filesystem/virtual.h>
+#include <kernel/interrupts/handler.h>
 #include <kernel/memory/mmap.h>
 #include <kernel/memory/virtual.h>
 #include <stdint.h>
@@ -32,6 +33,7 @@
 #define SCHED_STACK 0x2000
 #define SCHED_HEAP 0x20000
 #define SCHED_PAGE_FAULT 0xFFFFFFFF
+#define SCHED_TIMER 2
 
 struct process
 {
@@ -56,11 +58,13 @@ enum thread_state
 
 struct thread
 {
+    int timer;
     uint32_t esp;
     uint32_t kernel_stack;
     enum thread_state state;
     struct process *process;
     struct dlist_head list;
+    struct itr_registers registers;
 };
 
 struct thread_trap
@@ -88,3 +92,4 @@ void sched_lock();
 void sched_unlock();
 void sched_open(const char *path);
 void sched_exit(int status);
+pid_t sched_fork();

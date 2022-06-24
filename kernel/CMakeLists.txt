@@ -11,7 +11,8 @@ set(ASM_SOURCES
 
         task/tss_flush.S
         task/sched_switch.S
-        task/sched_enter_user.S)
+        task/sched_enter_user.S
+        task/sched_reenter_user.S)
 
 set(C_SOURCES
         main.c
