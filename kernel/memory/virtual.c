@@ -101,6 +101,26 @@ void virt_mm_map_addr(struct page_dir *dir, uint32_t physical, uint32_t virtual,
     flush_tbl(virtual);
 }
 
+void virt_mm_unmap_addr(struct page_dir *dir, uint32_t virtual)
+{
+    if (PAGE_ALIGN(virtual) != virtual)
+    {
+        printf("Virtual MM: Virtual address = 0x%x not page aligned\n", virtual);
+        return;
+    }
+
+    if (!PAGE_IS_ENABLED(dir->entries[PAGE_DIR_INDEX(virtual)]))
+        return;
+
+    struct page_tbl *tbl = (struct page_tbl *)(PAGE_TBL_FRAME + PAGE_DIR_INDEX(virtual) * PAGE_SIZE);
+    uint32_t index = PAGE_TBL_INDEX(virtual);
+    if (!PAGE_IS_ENABLED(tbl->entries[index]))
+        return;
+    tbl->entries[index] = 0;
+
+    flush_tbl(virtual);
+}
+
 void virt_mm_init()
 {
     struct page_dir *dir = (struct page_dir *)PHYS_TO_VIRT(phys_mm_allocate(1));

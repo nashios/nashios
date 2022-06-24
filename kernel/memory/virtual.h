@@ -50,7 +50,8 @@
 enum page_dir_flags
 {
     PAGE_DIR_PRESENT = 1,
-    PAGE_DIR_WRITABLE = 2
+    PAGE_DIR_WRITABLE = 2,
+    PAGE_DIR_USER = 4
 };
 
 enum page_tbl_flags
@@ -79,5 +80,6 @@ extern struct page_dir *virt_mm_dir;
 
 void virt_mm_init();
 void virt_mm_map_addr(struct page_dir *dir, uint32_t physical, uint32_t virtual, uint32_t flags);
+void virt_mm_unmap_addr(struct page_dir *dir, uint32_t virtual);
 uint32_t virt_mm_get_phys_addr(uint32_t virtual);
 struct page_dir *virt_mm_create_address();
