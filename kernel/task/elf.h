@@ -102,3 +102,4 @@ enum elf_verify
 };
 
 struct elf_layout *elf_open(const char *path);
+void elf_close();

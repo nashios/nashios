@@ -111,3 +111,25 @@ struct elf_layout *elf_open(const char *path)
 
     return layout;
 }
+
+void elf_close()
+{
+    struct process *process = sched_current_process();
+
+    struct mmap_area *area;
+    struct mmap_area *next;
+    dlist_foreach_entry_safe(area, next, &process->mm->list, list)
+    {
+        uint32_t virtual = area->start;
+
+        while (virtual < area->end)
+        {
+            virt_mm_unmap_addr(process->page_dir, virtual);
+            virtual += PAGE_SIZE;
+        }
+
+        dlist_remove(&area->list);
+    }
+    memset(process->mm, 0x0, sizeof(struct mmap_mm));
+    dlist_head_init(&process->mm->list);
+}
