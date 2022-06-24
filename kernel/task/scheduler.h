@@ -23,10 +23,10 @@
  */
 #pragma once
 
-#include <kernel/memory/virtual.h>
-#include <kernel/memory/mmap.h>
-#include <kernel/filesystem/virtual.h>
 #include <kernel/dlist.h>
+#include <kernel/filesystem/virtual.h>
+#include <kernel/memory/mmap.h>
+#include <kernel/memory/virtual.h>
 #include <stdint.h>
 
 #define SCHED_STACK 0x2000

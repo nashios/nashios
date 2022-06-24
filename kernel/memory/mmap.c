@@ -21,13 +21,13 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
+#include <kernel/api/posix/errno.h>
+#include <kernel/math.h>
 #include <kernel/memory/mmap.h>
 #include <kernel/memory/physical.h>
-#include <kernel/task/scheduler.h>
-#include <kernel/api/posix/errno.h>
 #include <kernel/stdlib.h>
 #include <kernel/string.h>
-#include <kernel/math.h>
+#include <kernel/task/scheduler.h>
 
 struct mmap_area *mmap_find_area(uint32_t address, struct mmap_mm *mm)
 {
@@ -59,7 +59,8 @@ struct mmap_area *mmap_create_area(uint32_t address, uint32_t length, struct pro
         {
             struct mmap_area *next = dlist_next_entry(found_area, list);
             bool last_entry = dlist_is_last(&found_area->list, &mm->list);
-            if (!last_entry && (found_area->end <= address && address < next->start) && next->start - found_area->end >= length)
+            if (!last_entry && (found_area->end <= address && address < next->start) &&
+                next->start - found_area->end >= length)
             {
                 dlist_add(&area->list, &found_area->list);
                 address_found = next->start - length;
@@ -163,7 +164,8 @@ uint32_t mmap_brk(uint32_t address, uint32_t length)
         uint32_t virtual = area->end;
         while (virtual < new_area->end)
         {
-            virt_mm_map_addr(process->page_dir, physical, virtual, PAGE_TBL_PRESENT | PAGE_TBL_WRITABLE | PAGE_TBL_USER);
+            virt_mm_map_addr(process->page_dir, physical, virtual,
+                             PAGE_TBL_PRESENT | PAGE_TBL_WRITABLE | PAGE_TBL_USER);
 
             virtual += PAGE_SIZE;
             physical += PAGE_SIZE;

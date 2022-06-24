@@ -28,6 +28,18 @@
 #define ALIGN_DOWN(address, length) ((address) & -((typeof(address))(length)))
 #define ALIGN_UP(address, length) ALIGN_DOWN((address) + (length)-1, (length))
 
-#define MIN(x, y) ({ typeof(x) p_x = (x); typeof(y) p_y = (y); (void) (&p_x == &p_y);	p_x < p_y ? p_x : p_y; })
+#define MIN(x, y)                                                                                                      \
+    ({                                                                                                                 \
+        typeof(x) p_x = (x);                                                                                           \
+        typeof(y) p_y = (y);                                                                                           \
+        (void)(&p_x == &p_y);                                                                                          \
+        p_x < p_y ? p_x : p_y;                                                                                         \
+    })
 
-#define MAX(x, y) ({ typeof(x) p_x = (x); typeof(y) p_y = (y); (void) (&p_x == &p_y); p_x > p_y ? p_x : p_y; })
+#define MAX(x, y)                                                                                                      \
+    ({                                                                                                                 \
+        typeof(x) p_x = (x);                                                                                           \
+        typeof(y) p_y = (y);                                                                                           \
+        (void)(&p_x == &p_y);                                                                                          \
+        p_x > p_y ? p_x : p_y;                                                                                         \
+    })

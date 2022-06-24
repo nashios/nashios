@@ -21,47 +21,46 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
-#include <kernel/interrupts/isr.h>
-#include <kernel/interrupts/idt.h>
 #include <kernel/interrupts/handler.h>
-#include <kernel/system/sys.h>
+#include <kernel/interrupts/idt.h>
+#include <kernel/interrupts/isr.h>
 #include <kernel/stdio.h>
+#include <kernel/system/sys.h>
 #include <stddef.h>
 
 static itr_handler_t isr_entries[ISR_ENTRIES];
-static const char *isr_messages[32] = {
-    "Divide-by-zero",
-    "Debug",
-    "Non-maskable Interrupt",
-    "Breakpoint",
-    "Overflow",
-    "Bound Range Exceeded",
-    "Invalid Opcode",
-    "Device Not Available",
-    "Double fault",
-    "Reserved",
-    "Invalid TSS",
-    "Segment Not Present",
-    "Stack-Segment Fault",
-    "General Protection Fault",
-    "Page Fault",
-    "Reserved",
-    "x87 Floating-Point Exception",
-    "Alignment check",
-    "Machine check",
-    "SIMD Floating-Point Exception",
-    "Virtualization Exception",
-    "Control Protection Exception",
-    "Reserved",
-    "Reserved",
-    "Reserved",
-    "Reserved",
-    "Reserved",
-    "Reserved",
-    "Hypervisor Injection Exception",
-    "VMM Communication Exception",
-    "Security Exception",
-    "Reserved"};
+static const char *isr_messages[32] = {"Divide-by-zero",
+                                       "Debug",
+                                       "Non-maskable Interrupt",
+                                       "Breakpoint",
+                                       "Overflow",
+                                       "Bound Range Exceeded",
+                                       "Invalid Opcode",
+                                       "Device Not Available",
+                                       "Double fault",
+                                       "Reserved",
+                                       "Invalid TSS",
+                                       "Segment Not Present",
+                                       "Stack-Segment Fault",
+                                       "General Protection Fault",
+                                       "Page Fault",
+                                       "Reserved",
+                                       "x87 Floating-Point Exception",
+                                       "Alignment check",
+                                       "Machine check",
+                                       "SIMD Floating-Point Exception",
+                                       "Virtualization Exception",
+                                       "Control Protection Exception",
+                                       "Reserved",
+                                       "Reserved",
+                                       "Reserved",
+                                       "Reserved",
+                                       "Reserved",
+                                       "Reserved",
+                                       "Hypervisor Injection Exception",
+                                       "VMM Communication Exception",
+                                       "Security Exception",
+                                       "Reserved"};
 
 extern void isr0();
 extern void isr1();
@@ -97,15 +96,9 @@ extern void isr30();
 extern void isr31();
 extern void isr127();
 
-void isr_add_handler(uint8_t number, itr_handler_t handler)
-{
-    isr_entries[number] = handler;
-}
+void isr_add_handler(uint8_t number, itr_handler_t handler) { isr_entries[number] = handler; }
 
-void isr_remove_handler(uint8_t number)
-{
-    isr_entries[number] = NULL;
-}
+void isr_remove_handler(uint8_t number) { isr_entries[number] = NULL; }
 
 void isr_handler(struct itr_registers *registers)
 {
@@ -114,7 +107,8 @@ void isr_handler(struct itr_registers *registers)
         handler(registers);
     else
     {
-        printf("ISR: Unhandled exception number = %d, message = %s\n", registers->int_no, isr_messages[registers->int_no]);
+        printf("ISR: Unhandled exception number = %d, message = %s\n", registers->int_no,
+               isr_messages[registers->int_no]);
         PANIC("Unhandled interrupt exception", registers);
     }
 }

@@ -22,9 +22,9 @@
  *
  */
 #include <kernel/drivers/pci.h>
+#include <kernel/io.h>
 #include <kernel/stdio.h>
 #include <kernel/stdlib.h>
-#include <kernel/io.h>
 #include <stdint.h>
 
 static struct dlist_head pci_list;
@@ -104,7 +104,8 @@ void pci_check_function(uint8_t bus, uint8_t device, uint8_t function)
 
     dlist_add_tail(&pci_device->list, &pci_list);
 
-    printf("PCI: Device address = 0x%x, id = 0x%x, vendor = 0x%x\n", pci_device->address, pci_device->device_id, pci_device->vendor_id);
+    printf("PCI: Device address = 0x%x, id = 0x%x, vendor = 0x%x\n", pci_device->address, pci_device->device_id,
+           pci_device->vendor_id);
 }
 
 void pci_scan_bus(uint8_t bus)

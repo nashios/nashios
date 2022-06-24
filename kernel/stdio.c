@@ -21,9 +21,9 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
-#include <kernel/stdio.h>
-#include <kernel/serial.h>
 #include <kernel/ctype.h>
+#include <kernel/serial.h>
+#include <kernel/stdio.h>
 #include <kernel/string.h>
 
 int printf(const char *restrict format, ...)
@@ -245,8 +245,7 @@ int vsnprintf(char *restrict s, size_t n, const char *restrict format, va_list a
                 *p_s++ = ' ';
 
             continue;
-        case 's':
-        {
+        case 's': {
             char *string = va_arg(ap, char *);
             size_t string_len = strnlen_s(string, precision);
 
@@ -264,8 +263,7 @@ int vsnprintf(char *restrict s, size_t n, const char *restrict format, va_list a
 
             continue;
         }
-        case 'p':
-        {
+        case 'p': {
             if (width == -1)
             {
                 width = 2 * sizeof(void *);

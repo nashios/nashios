@@ -21,8 +21,8 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
-#include <kernel/interrupts/irq.h>
 #include <kernel/interrupts/idt.h>
+#include <kernel/interrupts/irq.h>
 #include <kernel/interrupts/pic.h>
 #include <kernel/stdio.h>
 #include <stddef.h>

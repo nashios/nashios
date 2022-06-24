@@ -21,10 +21,10 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
+#include <kernel/math.h>
 #include <kernel/memory/heap.h>
 #include <kernel/memory/physical.h>
 #include <kernel/memory/virtual.h>
-#include <kernel/math.h>
 #include <kernel/string.h>
 
 static struct heap_block *heap_blocks;

@@ -21,8 +21,8 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
-#include <kernel/system/sys.h>
 #include <kernel/stdio.h>
+#include <kernel/system/sys.h>
 
 void sys_panic(const char *message, const char *file, const char *function, int line, struct itr_registers *registers)
 {

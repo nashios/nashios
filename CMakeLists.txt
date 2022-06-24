@@ -31,35 +31,35 @@ set(CMAKE_FIND_ROOT_PATH_MODE_PACKAGE ONLY)
 add_compile_options(-Wall -Wextra)
 
 add_custom_target(toolchain
-    COMMAND "SOURCE_DIR=${CMAKE_SOURCE_DIR}" "SYSROOT_DIR=${CMAKE_SYSROOT}" ${CMAKE_SOURCE_DIR}/scripts/setup-toolchain.sh
-    USES_TERMINAL)
+        COMMAND "SOURCE_DIR=${CMAKE_SOURCE_DIR}" "SYSROOT_DIR=${CMAKE_SYSROOT}" ${CMAKE_SOURCE_DIR}/scripts/setup-toolchain.sh
+        USES_TERMINAL)
 
 add_custom_target(image
-    COMMAND "SOURCE_DIR=${CMAKE_SOURCE_DIR}" "SYSROOT_DIR=${CMAKE_SYSROOT}" ${CMAKE_SOURCE_DIR}/scripts/setup-image.sh
-    USES_TERMINAL)
+        COMMAND "SOURCE_DIR=${CMAKE_SOURCE_DIR}" "SYSROOT_DIR=${CMAKE_SYSROOT}" ${CMAKE_SOURCE_DIR}/scripts/setup-image.sh
+        USES_TERMINAL)
 
 add_custom_target(run
-    COMMAND ${CMAKE_SOURCE_DIR}/scripts/run.sh
-    USES_TERMINAL)
+        COMMAND ${CMAKE_SOURCE_DIR}/scripts/run.sh
+        USES_TERMINAL)
 
 include_directories(.)
 include_directories(libraries/c)
 
 function(nashios_install_headers target_name)
     file(GLOB_RECURSE headers RELATIVE ${CMAKE_CURRENT_SOURCE_DIR} "*.h")
-    foreach(header ${headers})
+    foreach (header ${headers})
         get_filename_component(subdirectory ${header} DIRECTORY)
         install(FILES ${header} DESTINATION usr/include/${target_name}/${subdirectory})
-    endforeach()
+    endforeach ()
 endfunction()
 
 function(nashios_install_sources)
     cmake_path(RELATIVE_PATH CMAKE_CURRENT_SOURCE_DIR BASE_DIRECTORY ${CMAKE_SOURCE_DIR} OUTPUT_VARIABLE relative_dir)
     file(GLOB_RECURSE sources RELATIVE ${CMAKE_CURRENT_SOURCE_DIR} "*.h" "*.c")
-    foreach(source ${sources})
+    foreach (source ${sources})
         get_filename_component(subdirectory ${source} DIRECTORY)
         install(FILES ${source} DESTINATION usr/src/nashios/${relative_dir}/${subdirectory} OPTIONAL)
-    endforeach()
+    endforeach ()
 endfunction()
 
 function(nashios_libc lib_name fs_name)

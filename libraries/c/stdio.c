@@ -1,8 +1,8 @@
-#include <stdio.h>
 #include <ctype.h>
-#include <string.h>
 #include <errno.h>
 #include <stdint.h>
+#include <stdio.h>
+#include <string.h>
 
 FILE *stdin;
 FILE *stdout;
@@ -14,10 +14,7 @@ int vfprintf(FILE *restrict stream, const char *restrict format, va_list ap)
     return -1;
 }
 
-int vprintf(const char *restrict format, va_list ap)
-{
-    return vfprintf(stdout, format, ap);
-}
+int vprintf(const char *restrict format, va_list ap) { return vfprintf(stdout, format, ap); }
 
 int vsnprintf_skip(const char *restrict *s)
 {
@@ -224,8 +221,7 @@ int vsnprintf(char *restrict s, size_t n, const char *restrict format, va_list a
                 *p_s++ = ' ';
 
             continue;
-        case 's':
-        {
+        case 's': {
             char *string = va_arg(ap, char *);
             size_t string_len = strnlen_s(string, precision);
 
@@ -243,8 +239,7 @@ int vsnprintf(char *restrict s, size_t n, const char *restrict format, va_list a
 
             continue;
         }
-        case 'p':
-        {
+        case 'p': {
             if (width == -1)
             {
                 width = 2 * sizeof(void *);
@@ -301,10 +296,7 @@ int vsnprintf(char *restrict s, size_t n, const char *restrict format, va_list a
     return p_s - s;
 }
 
-int vsprintf(char *restrict s, const char *restrict format, va_list ap)
-{
-    return vsnprintf(s, INT32_MAX, format, ap);
-}
+int vsprintf(char *restrict s, const char *restrict format, va_list ap) { return vsnprintf(s, INT32_MAX, format, ap); }
 
 int fprintf(FILE *restrict stream, const char *restrict format, ...)
 {
@@ -342,7 +334,4 @@ int sprintf(char *restrict s, const char *restrict format, ...)
     return result;
 }
 
-void perror(const char *s)
-{
-    fprintf(stderr, "perror(): %s - %s\n", s, strerror(errno));
-}
+void perror(const char *s) { fprintf(stderr, "perror(): %s - %s\n", s, strerror(errno)); }

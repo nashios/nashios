@@ -132,8 +132,7 @@ struct multiboot_info
     uint32_t mods_count;
     uint32_t mods_addr;
 
-    union
-    {
+    union {
         struct multiboot_aout_symbol_table aout_sym;
         struct multiboot_elf_section_header_table elf_sec;
     } u;
@@ -163,8 +162,7 @@ struct multiboot_info
     uint32_t framebuffer_height;
     uint8_t framebuffer_bpp;
     uint8_t framebuffer_type;
-    union
-    {
+    union {
         struct
         {
             uint32_t framebuffer_palette_addr;

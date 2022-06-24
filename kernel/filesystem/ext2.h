@@ -52,8 +52,7 @@ struct ext2_inode
     uint16_t i_links_count;
     uint32_t i_blocks;
     uint32_t i_flags;
-    union
-    {
+    union {
         struct
         {
             uint32_t l_i_reserved1;
@@ -72,8 +71,7 @@ struct ext2_inode
     uint32_t i_file_acl;
     uint32_t i_dir_acl;
     uint32_t i_faddr;
-    union
-    {
+    union {
         struct linux2
         {
             uint8_t l_i_frag;

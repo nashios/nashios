@@ -23,8 +23,8 @@
  */
 #pragma once
 
-#include <stdint.h>
 #include <stddef.h>
+#include <stdint.h>
 
 #define SERIAL_PORT 0x3F8
 

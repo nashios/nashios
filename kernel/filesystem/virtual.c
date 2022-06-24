@@ -21,15 +21,15 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
-#include <kernel/filesystem/virtual.h>
-#include <kernel/drivers/ata.h>
-#include <kernel/task/scheduler.h>
 #include <kernel/api/posix/errno.h>
 #include <kernel/api/posix/limits.h>
-#include <kernel/stdio.h>
-#include <kernel/string.h>
-#include <kernel/stdlib.h>
+#include <kernel/drivers/ata.h>
+#include <kernel/filesystem/virtual.h>
 #include <kernel/math.h>
+#include <kernel/stdio.h>
+#include <kernel/stdlib.h>
+#include <kernel/string.h>
+#include <kernel/task/scheduler.h>
 
 static struct dlist_head vfs_type_list;
 static struct dlist_head vfs_mount_list;
@@ -228,7 +228,8 @@ int virt_fs_open(const char *pathname, int flags, ...)
     return fd;
 }
 
-int virt_fs_mount(const char *source, const char *target, const char *filesystemtype, unsigned long mountflags, const void *)
+int virt_fs_mount(const char *source, const char *target, const char *filesystemtype, unsigned long mountflags,
+                  const void *)
 {
     struct ata_device *device = ata_get_device(source);
     if (!device)
@@ -251,7 +252,8 @@ int virt_fs_mount(const char *source, const char *target, const char *filesystem
         process->root = mount->root;
     }
 
-    printf("Virtual FS: Mounted source = %s, target = %s, type = %s, flags = 0x%x\n", source, target, filesystemtype, mountflags);
+    printf("Virtual FS: Mounted source = %s, target = %s, type = %s, flags = 0x%x\n", source, target, filesystemtype,
+           mountflags);
     return 0;
 }
 

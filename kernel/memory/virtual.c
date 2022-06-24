@@ -21,12 +21,12 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
-#include <kernel/memory/virtual.h>
-#include <kernel/memory/physical.h>
 #include <kernel/memory/heap.h>
+#include <kernel/memory/physical.h>
+#include <kernel/memory/virtual.h>
 #include <kernel/stdio.h>
-#include <kernel/string.h>
 #include <kernel/stdlib.h>
+#include <kernel/string.h>
 
 struct page_dir *virt_mm_dir = NULL;
 
@@ -59,7 +59,8 @@ void virt_mm_identity_map(struct page_dir *dir, uint32_t physical, uint32_t virt
     struct page_tbl *tbl = (struct page_tbl *)PHYS_TO_VIRT(phys_mm_allocate(1));
     memset(tbl, 0x0, sizeof(struct page_tbl));
 
-    for (uint32_t i = 0, i_physical = physical, i_virtual = virtual; i < PAGES_PER_TBL; i++, i_physical += PAGE_SIZE, i_virtual += PAGE_SIZE)
+    for (uint32_t i = 0, i_physical = physical, i_virtual = virtual; i < PAGES_PER_TBL;
+         i++, i_physical += PAGE_SIZE, i_virtual += PAGE_SIZE)
     {
         uint32_t *entry = &tbl->entries[PAGE_TBL_INDEX(i_virtual)];
         *entry = i_physical | PAGE_TBL_PRESENT;

@@ -21,13 +21,13 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
+#include <kernel/bitmap.h>
+#include <kernel/boot/multiboot.h>
+#include <kernel/math.h>
 #include <kernel/memory/physical.h>
 #include <kernel/memory/virtual.h>
-#include <kernel/boot/multiboot.h>
-#include <kernel/bitmap.h>
 #include <kernel/stdio.h>
 #include <kernel/string.h>
-#include <kernel/math.h>
 
 static uint32_t *phys_mm_bitmap = (uint32_t *)KERNEL_END;
 static uint32_t phys_mm_max_frames;
@@ -109,7 +109,9 @@ void phys_mm_init()
     phys_mm_used_frames = bitmap_frames;
     phys_mm_max_frames = bitmap_frames;
 
-    for (struct multiboot_mmap_entry *mmap = (struct multiboot_mmap_entry *)PHYS_TO_VIRT(mbi->mmap_addr); (unsigned long)mmap < PHYS_TO_VIRT(mbi->mmap_addr) + mbi->mmap_length; mmap = (struct multiboot_mmap_entry *)((unsigned long)mmap + mmap->size + sizeof(mmap->size)))
+    for (struct multiboot_mmap_entry *mmap = (struct multiboot_mmap_entry *)PHYS_TO_VIRT(mbi->mmap_addr);
+         (unsigned long)mmap < PHYS_TO_VIRT(mbi->mmap_addr) + mbi->mmap_length;
+         mmap = (struct multiboot_mmap_entry *)((unsigned long)mmap + mmap->size + sizeof(mmap->size)))
     {
         if (mmap->type != MULTIBOOT_MEMORY_AVAILABLE)
             continue;
@@ -120,7 +122,8 @@ void phys_mm_init()
         uint32_t diff_addr = mmap->addr % PHYS_MM_FRAMES_SIZE;
         if (diff_addr != 0)
         {
-            printf("Physical MM: Unaligned region address = 0x%08lx by %d bytes\n", (unsigned long)mmap->addr, diff_addr);
+            printf("Physical MM: Unaligned region address = 0x%08lx by %d bytes\n", (unsigned long)mmap->addr,
+                   diff_addr);
             diff_addr = PHYS_MM_FRAMES_SIZE - diff_addr;
             mmap->addr += diff_addr;
             mmap->len -= diff_addr;
@@ -135,7 +138,8 @@ void phys_mm_init()
 
         if (mmap->len < PHYS_MM_FRAMES_SIZE)
         {
-            printf("Physical MM: Small region length = 0x%08lx, expected = %d bytes\n", (unsigned long)mmap->len, PHYS_MM_FRAMES_SIZE);
+            printf("Physical MM: Small region length = 0x%08lx, expected = %d bytes\n", (unsigned long)mmap->len,
+                   PHYS_MM_FRAMES_SIZE);
             continue;
         }
 
@@ -145,7 +149,8 @@ void phys_mm_init()
     phys_mm_unset_region(0x0, KERNEL_BOOT);
     phys_mm_unset_region(KERNEL_BOOT, KERNEL_END - KERNEL_START + bitmap_size);
 
-    printf("Physical MM: Bitmap address = 0x%x, size = 0x%x, frames = %d, used = %d\n", phys_mm_bitmap, bitmap_size, phys_mm_max_frames, phys_mm_used_frames);
+    printf("Physical MM: Bitmap address = 0x%x, size = 0x%x, frames = %d, used = %d\n", phys_mm_bitmap, bitmap_size,
+           phys_mm_max_frames, phys_mm_used_frames);
     printf("Physical MM: Kernel start = 0x%X, end = 0x%X\n", KERNEL_START, KERNEL_END);
     printf("Physical MM: Initialized\n");
 }

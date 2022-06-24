@@ -1,7 +1,7 @@
-#include <unistd.h>
-#include <syscall.h>
 #include <stddef.h>
 #include <string.h>
+#include <syscall.h>
+#include <unistd.h>
 
 char **environ;
 
@@ -23,10 +23,7 @@ int execlp(const char *file, const char *arg, ...)
     return execvpe(file, NULL, environ);
 }
 
-int execv(const char *path, char *const argv[])
-{
-    return execve(path, argv, environ);
-}
+int execv(const char *path, char *const argv[]) { return execve(path, argv, environ); }
 
 _syscall3(execve, const char *, char *const *, char *const *);
 int execve(const char *filename, char *const argv[], char *const envp[])
@@ -34,10 +31,7 @@ int execve(const char *filename, char *const argv[], char *const envp[])
     SYSCALL_RETURN(syscall_execve(filename, argv, envp));
 }
 
-int execvp(const char *file, char *const argv[])
-{
-    return execvpe(file, argv, environ);
-}
+int execvp(const char *file, char *const argv[]) { return execvpe(file, argv, environ); }
 
 int execvpe(const char *file, char *const argv[], char *const envp[])
 {
@@ -49,16 +43,10 @@ int execvpe(const char *file, char *const argv[], char *const envp[])
 }
 
 _syscall0(fork);
-pid_t fork(void)
-{
-    SYSCALL_RETURN(syscall_fork());
-}
+pid_t fork(void) { SYSCALL_RETURN(syscall_fork()); }
 
 _syscall1(brk, void *);
-int brk(void *addr)
-{
-    SYSCALL_RETURN(syscall_brk(addr));
-}
+int brk(void *addr) { SYSCALL_RETURN(syscall_brk(addr)); }
 
 void *sbrk(intptr_t increment)
 {

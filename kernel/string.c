@@ -21,8 +21,8 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
-#include <kernel/string.h>
 #include <kernel/stdlib.h>
+#include <kernel/string.h>
 #include <stdint.h>
 
 void *memset(void *s, int c, size_t n)

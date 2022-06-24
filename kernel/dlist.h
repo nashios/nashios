@@ -26,10 +26,11 @@
 #include <stdbool.h>
 #include <stddef.h>
 
-#define dlist_container(head, type, name) ({          \
-    const typeof(((type *)0)->name) *p_head = (head); \
-    (type *)((char *)p_head - offsetof(type, name));  \
-})
+#define dlist_container(head, type, name)                                                                              \
+    ({                                                                                                                 \
+        const typeof(((type *)0)->name) *p_head = (head);                                                              \
+        (type *)((char *)p_head - offsetof(type, name));                                                               \
+    })
 
 #define dlist_entry(head, type, name) dlist_container(head, type, name)
 
@@ -37,9 +38,8 @@
 
 #define dlist_next_entry(entry, name) dlist_entry((entry)->name.next, typeof(*entry), name)
 
-#define dlist_foreach_entry(entry, head, name)                  \
-    for (entry = dlist_first_entry(head, typeof(*entry), name); \
-         &entry->name != (head);                                \
+#define dlist_foreach_entry(entry, head, name)                                                                         \
+    for (entry = dlist_first_entry(head, typeof(*entry), name); &entry->name != (head);                                \
          entry = dlist_next_entry(entry, name))
 
 struct dlist_head
@@ -54,10 +54,7 @@ static inline void dlist_head_init(struct dlist_head *list)
     list->previous = list;
 }
 
-static inline bool dlist_is_empty(const struct dlist_head *head)
-{
-    return head->next == head;
-}
+static inline bool dlist_is_empty(const struct dlist_head *head) { return head->next == head; }
 
 static inline bool dlist_is_last(const struct dlist_head *list, const struct dlist_head *head)
 {
@@ -88,10 +85,7 @@ static inline void dlist_remove_internal(struct dlist_head *previous, struct dli
     previous->next = next;
 }
 
-static inline void dlist_remove_entry(struct dlist_head *list)
-{
-    dlist_remove_internal(list->previous, list->next);
-}
+static inline void dlist_remove_entry(struct dlist_head *list) { dlist_remove_internal(list->previous, list->next); }
 
 static inline void dlist_remove_init(struct dlist_head *list)
 {

@@ -26,9 +26,9 @@
 #define VFS_MAX_FD 256
 #define VFS_BYTES_P_SECTOR 512
 
+#include <kernel/api/posix/fcntl.h>
 #include <kernel/api/posix/stat.h>
 #include <kernel/api/posix/types.h>
-#include <kernel/api/posix/fcntl.h>
 #include <kernel/dlist.h>
 #include <stdint.h>
 
@@ -106,7 +106,8 @@ void virt_fs_init();
 void virt_fs_add_type(struct vfs_type *type);
 void virt_fs_remove_type(struct vfs_type *type);
 struct vfs_dentry *virt_fs_create_dentry(const char *name, struct vfs_dentry *parent);
-int virt_fs_mount(const char *source, const char *target, const char *filesystemtype, unsigned long mountflags, const void *data);
+int virt_fs_mount(const char *source, const char *target, const char *filesystemtype, unsigned long mountflags,
+                  const void *data);
 int virt_fs_open(const char *pathname, int flags, ...);
 int virt_fs_fstat(int fd, struct stat *buf);
 ssize_t virt_fs_read(int fd, void *buf, size_t count);

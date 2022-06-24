@@ -23,20 +23,11 @@
  */
 #include <kernel/bitmap.h>
 
-void bitmap_set(uint32_t *bitmap, uint32_t bit)
-{
-    bitmap[BITMAP_INDEX(bit)] |= BITMAP_OFFSET(bit);
-}
+void bitmap_set(uint32_t *bitmap, uint32_t bit) { bitmap[BITMAP_INDEX(bit)] |= BITMAP_OFFSET(bit); }
 
-void bitmap_unset(uint32_t *bitmap, uint32_t bit)
-{
-    bitmap[BITMAP_INDEX(bit)] &= ~BITMAP_OFFSET(bit);
-}
+void bitmap_unset(uint32_t *bitmap, uint32_t bit) { bitmap[BITMAP_INDEX(bit)] &= ~BITMAP_OFFSET(bit); }
 
-bool bitmap_test(uint32_t *bitmap, uint32_t bit)
-{
-    return bitmap[BITMAP_INDEX(bit)] & BITMAP_OFFSET(bit);
-}
+bool bitmap_test(uint32_t *bitmap, uint32_t bit) { return bitmap[BITMAP_INDEX(bit)] & BITMAP_OFFSET(bit); }
 
 uint32_t bitmap_first_free(uint32_t *bitmap, uint32_t frames, size_t size)
 {

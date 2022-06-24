@@ -21,19 +21,19 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
-#include <kernel/serial.h>
+#include <kernel/boot/multiboot.h>
+#include <kernel/drivers/ata.h>
+#include <kernel/drivers/pci.h>
+#include <kernel/filesystem/ext2.h>
+#include <kernel/filesystem/virtual.h>
 #include <kernel/gdt.h>
 #include <kernel/interrupts/idt.h>
-#include <kernel/system/sys.h>
-#include <kernel/system/syscall.h>
-#include <kernel/boot/multiboot.h>
 #include <kernel/memory/physical.h>
 #include <kernel/memory/virtual.h>
+#include <kernel/serial.h>
+#include <kernel/system/sys.h>
+#include <kernel/system/syscall.h>
 #include <kernel/task/scheduler.h>
-#include <kernel/drivers/pci.h>
-#include <kernel/drivers/ata.h>
-#include <kernel/filesystem/virtual.h>
-#include <kernel/filesystem/ext2.h>
 #include <stdbool.h>
 
 void kernel_init()

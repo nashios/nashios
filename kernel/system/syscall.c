@@ -1,15 +1,12 @@
-#include <kernel/system/syscall.h>
-#include <kernel/api/posix/unistd.h>
 #include <kernel/api/posix/errno.h>
+#include <kernel/api/posix/unistd.h>
 #include <kernel/interrupts/isr.h>
-#include <kernel/task/scheduler.h>
 #include <kernel/memory/mmap.h>
 #include <kernel/stdio.h>
+#include <kernel/system/syscall.h>
+#include <kernel/task/scheduler.h>
 
-void syscall_exit(int status)
-{
-    sched_exit(status);
-}
+void syscall_exit(int status) { sched_exit(status); }
 
 int syscall_brk(void *addr)
 {
@@ -28,9 +25,7 @@ int syscall_brk(void *addr)
     return 0;
 }
 
-static void *syscall_list[] = {
-    [__NR_exit] = syscall_exit,
-    [__NR_brk] = syscall_brk};
+static void *syscall_list[] = {[__NR_exit] = syscall_exit, [__NR_brk] = syscall_brk};
 
 static size_t syscall_size = sizeof(syscall_list) / sizeof(syscall_list[0]);
 

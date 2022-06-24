@@ -1,6 +1,6 @@
 #include <stdlib.h>
-#include <unistd.h>
 #include <string.h>
+#include <unistd.h>
 
 static struct malloc_block *malloc_blocks = NULL;
 static uint32_t malloc_address = 0;
@@ -61,7 +61,8 @@ void *malloc(size_t size)
             block->allocated = true;
             if (block->size > size + sizeof(struct malloc_block))
             {
-                struct malloc_block *new_block = (struct malloc_block *)((char *)block + sizeof(struct malloc_block) + size);
+                struct malloc_block *new_block =
+                    (struct malloc_block *)((char *)block + sizeof(struct malloc_block) + size);
                 new_block->allocated = false;
                 new_block->size = block->size - size - sizeof(struct malloc_block);
                 new_block->next = block->next;
@@ -102,12 +103,6 @@ void free(void *ptr)
     block->allocated = false;
 }
 
-void exit(int status)
-{
-    _exit(status);
-}
+void exit(int status) { _exit(status); }
 
-void _Exit(int status)
-{
-    exit(status);
-}
+void _Exit(int status) { exit(status); }

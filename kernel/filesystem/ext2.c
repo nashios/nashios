@@ -21,10 +21,10 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
+#include <kernel/api/posix/errno.h>
+#include <kernel/api/posix/limits.h>
 #include <kernel/filesystem/ext2.h>
 #include <kernel/filesystem/virtual.h>
-#include <kernel/api/posix/limits.h>
-#include <kernel/api/posix/errno.h>
 #include <kernel/stdio.h>
 #include <kernel/stdlib.h>
 #include <kernel/string.h>
@@ -33,10 +33,8 @@ struct vfs_inode *ext2_fs_lookup(struct vfs_inode *inode, struct vfs_dentry *den
 ssize_t ext2_fs_read(struct vfs_file *file, void *buffer, size_t count);
 
 static struct vfs_inode_op ext2_file_inode_op = {};
-static struct vfs_file_op ext2_file_op = {
-    .read = ext2_fs_read};
-static struct vfs_inode_op ext2_dir_inode_op = {
-    .lookup = ext2_fs_lookup};
+static struct vfs_file_op ext2_file_op = {.read = ext2_fs_read};
+static struct vfs_inode_op ext2_dir_inode_op = {.lookup = ext2_fs_lookup};
 static struct vfs_file_op ext2_dir_op = {};
 
 char *ext2_fs_bread(struct vfs_superblock *sb, uint32_t block, uint32_t size)
@@ -44,10 +42,7 @@ char *ext2_fs_bread(struct vfs_superblock *sb, uint32_t block, uint32_t size)
     return virt_fs_bread(sb->devname, block * (sb->blocksize / VFS_BYTES_P_SECTOR), size);
 }
 
-char *ext2_fs_bread_block(struct vfs_superblock *sb, uint32_t block)
-{
-    return ext2_fs_bread(sb, block, sb->blocksize);
-}
+char *ext2_fs_bread_block(struct vfs_superblock *sb, uint32_t block) { return ext2_fs_bread(sb, block, sb->blocksize); }
 
 struct ext2_group_desc *ext2_get_group_desc(struct vfs_superblock *sb, uint32_t group)
 {
@@ -75,12 +70,14 @@ struct ext2_inode *ext2_fs_get_inode(struct vfs_superblock *sb, ino_t ino)
     if (!group_desc)
         return NULL;
 
-    uint32_t block = group_desc->bg_inode_table + EXT2_GET_RELATIVE_INODE_IN_GROUP(ext2_sb, ino) / EXT2_INODES_P_BLOCK(ext2_sb);
+    uint32_t block =
+        group_desc->bg_inode_table + EXT2_GET_RELATIVE_INODE_IN_GROUP(ext2_sb, ino) / EXT2_INODES_P_BLOCK(ext2_sb);
     char *buffer = ext2_fs_bread_block(sb, block);
     if (!buffer)
         return NULL;
 
-    uint32_t offset = (EXT2_GET_RELATIVE_INODE_IN_GROUP(ext2_sb, ino) % EXT2_INODES_P_BLOCK(ext2_sb)) * sizeof(struct ext2_inode);
+    uint32_t offset =
+        (EXT2_GET_RELATIVE_INODE_IN_GROUP(ext2_sb, ino) % EXT2_INODES_P_BLOCK(ext2_sb)) * sizeof(struct ext2_inode);
     return (struct ext2_inode *)(buffer + offset);
 }
 
@@ -151,7 +148,9 @@ ssize_t ext2_fs_read(struct vfs_file *file, void *buffer, size_t count)
             return -ENOMEM;
 
         loff_t pos_start = (file->pos > current_pos) ? file->pos - current_pos : 0;
-        loff_t pos_end = ((file->pos + count) < (current_pos + sb->blocksize)) ? (current_pos + sb->blocksize - file->pos - count) : 0;
+        loff_t pos_end = ((file->pos + count) < (current_pos + sb->blocksize))
+                             ? (current_pos + sb->blocksize - file->pos - count)
+                             : 0;
         memcpy(buffer, ext2_buffer + pos_start, sb->blocksize - pos_start - pos_end);
 
         current_pos += sb->blocksize;
@@ -193,9 +192,8 @@ void ext2_fs_read_inode(struct vfs_inode *inode)
     }
 }
 
-static struct vfs_superblock_op ext2_superblock_op = {
-    .create_inode = ext2_fs_create_inode,
-    .read_inode = ext2_fs_read_inode};
+static struct vfs_superblock_op ext2_superblock_op = {.create_inode = ext2_fs_create_inode,
+                                                      .read_inode = ext2_fs_read_inode};
 
 struct vfs_mount *ext2_fs_mount(const char *pathname, const char *devname)
 {
@@ -240,9 +238,7 @@ struct vfs_mount *ext2_fs_mount(const char *pathname, const char *devname)
     return mount;
 }
 
-static struct vfs_type ext2_type = {
-    .name = "ext2",
-    .mount = ext2_fs_mount};
+static struct vfs_type ext2_type = {.name = "ext2", .mount = ext2_fs_mount};
 
 void ext2_fs_init()
 {

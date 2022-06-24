@@ -21,14 +21,11 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
+#include <kernel/memory/heap.h>
 #include <kernel/stdlib.h>
 #include <kernel/string.h>
-#include <kernel/memory/heap.h>
 
-void *malloc(size_t size)
-{
-    return heap_allocate(size);
-}
+void *malloc(size_t size) { return heap_allocate(size); }
 
 void *calloc(size_t nelem, size_t elsize)
 {

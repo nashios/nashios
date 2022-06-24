@@ -21,13 +21,13 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
-#include <kernel/drivers/ata.h>
-#include <kernel/system/sys.h>
 #include <kernel/api/posix/errno.h>
-#include <kernel/stdlib.h>
-#include <kernel/stdio.h>
-#include <kernel/string.h>
+#include <kernel/drivers/ata.h>
 #include <kernel/io.h>
+#include <kernel/stdio.h>
+#include <kernel/stdlib.h>
+#include <kernel/string.h>
+#include <kernel/system/sys.h>
 
 static struct dlist_head ata_list;
 

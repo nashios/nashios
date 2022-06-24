@@ -21,14 +21,14 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
+#include <kernel/interrupts/irq.h>
+#include <kernel/stdio.h>
+#include <kernel/stdlib.h>
+#include <kernel/string.h>
+#include <kernel/system/sys.h>
+#include <kernel/task/elf.h>
 #include <kernel/task/scheduler.h>
 #include <kernel/task/tss.h>
-#include <kernel/task/elf.h>
-#include <kernel/interrupts/irq.h>
-#include <kernel/system/sys.h>
-#include <kernel/stdlib.h>
-#include <kernel/stdio.h>
-#include <kernel/string.h>
 
 static pid_t sched_next_pid = 0;
 static struct process *sched_process = NULL;
@@ -41,15 +41,9 @@ static struct dlist_head sched_exit_list = {};
 extern void sched_switch(uint32_t *old_esp, uint32_t new_esp, uint32_t physical);
 extern void sched_enter_user(uint32_t eip, uint32_t esp, uint32_t failed_addr);
 
-struct thread *sched_current_thread()
-{
-    return sched_thread;
-}
+struct thread *sched_current_thread() { return sched_thread; }
 
-struct process *sched_current_process()
-{
-    return sched_process;
-}
+struct process *sched_current_process() { return sched_process; }
 
 void sched_lock()
 {
@@ -265,7 +259,8 @@ void sched_schedule()
 
     tss_set_stack(sched_thread->kernel_stack);
 
-    printf("Scheduler: Switch thread old esp = 0x%x, new esp = 0x%x, page dir = 0x%x\n", &p_thread->esp, sched_thread->esp, physical);
+    printf("Scheduler: Switch thread old esp = 0x%x, new esp = 0x%x, page dir = 0x%x\n", &p_thread->esp,
+           sched_thread->esp, physical);
     sched_switch(&p_thread->esp, sched_thread->esp, physical);
 
     sched_unlock();

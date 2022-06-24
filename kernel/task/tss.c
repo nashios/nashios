@@ -21,16 +21,13 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
-#include <kernel/task/tss.h>
 #include <kernel/gdt.h>
 #include <kernel/stdio.h>
+#include <kernel/task/tss.h>
 
 static struct tss_entry tss_entry;
 
-void tss_set_stack(uint32_t esp)
-{
-    tss_entry.esp0 = esp;
-}
+void tss_set_stack(uint32_t esp) { tss_entry.esp0 = esp; }
 
 void tss_init(uint8_t index, uint16_t ss0, uint32_t esp0)
 {

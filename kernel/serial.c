@@ -21,8 +21,8 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
-#include <kernel/serial.h>
 #include <kernel/io.h>
+#include <kernel/serial.h>
 #include <kernel/stdio.h>
 
 void serial_init()

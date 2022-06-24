@@ -21,17 +21,18 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
-#include <kernel/task/elf.h>
-#include <kernel/task/scheduler.h>
 #include <kernel/filesystem/virtual.h>
 #include <kernel/memory/mmap.h>
+#include <kernel/stdio.h>
 #include <kernel/stdlib.h>
 #include <kernel/string.h>
-#include <kernel/stdio.h>
+#include <kernel/task/elf.h>
+#include <kernel/task/scheduler.h>
 
 int elf_verify_header(struct elf_ehdr *header)
 {
-    if (!(header->e_ident[EI_MAG0] == ELFMAG0 && header->e_ident[EI_MAG1] == ELFMAG1 && header->e_ident[EI_MAG2] == ELFMAG2 && header->e_ident[EI_MAG3] == ELFMAG3))
+    if (!(header->e_ident[EI_MAG0] == ELFMAG0 && header->e_ident[EI_MAG1] == ELFMAG1 &&
+          header->e_ident[EI_MAG2] == ELFMAG2 && header->e_ident[EI_MAG3] == ELFMAG3))
         return ELF_NOT_ELF_FILE;
 
     if (header->e_ident[EI_CLASS] != ELFCLASS32)
@@ -74,7 +75,8 @@ struct elf_layout *elf_open(const char *path)
         return NULL;
 
     struct elf_phdr *program_header = (struct elf_phdr *)(buffer + elf_header->e_phoff);
-    while (program_header && (char *)program_header < (buffer + elf_header->e_phoff + elf_header->e_phentsize * elf_header->e_phnum))
+    while (program_header &&
+           (char *)program_header < (buffer + elf_header->e_phoff + elf_header->e_phentsize * elf_header->e_phnum))
     {
         if (program_header->p_type != PT_LOAD)
             goto next;

@@ -1,7 +1,7 @@
 #pragma once
 
-#include <kernel/api/posix/sys/wait.h>
 #include <kernel/api/posix/signal.h>
+#include <kernel/api/posix/sys/wait.h>
 #include <sys/types.h>
 
 pid_t wait(int *stat_loc);

@@ -2,8 +2,7 @@
 
 #include <kernel/api/posix/types.h>
 
-union sigval
-{
+union sigval {
     int sival_int;
     void *sival_ptr;
 };
