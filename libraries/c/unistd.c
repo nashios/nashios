@@ -1,26 +1,86 @@
+#include <stdarg.h>
 #include <stddef.h>
+#include <stdlib.h>
 #include <string.h>
 #include <syscall.h>
 #include <unistd.h>
 
 char **environ;
 
+int execve_get_argc(va_list list, const char *arg)
+{
+    int argc = arg ? 1 : 0;
+    while (arg && va_arg(list, const char *))
+        argc++;
+    return argc;
+}
+
+char **execve_get_argv(va_list list, int argc, const char *arg)
+{
+    char **argv = calloc(argc + 1, sizeof(char *));
+    argv[0] = (char *)arg;
+
+    for (int i = 1; i < argc; ++i)
+        argv[i] = (char *)va_arg(list, const char *);
+
+    argv[argc] = NULL;
+    return argv;
+}
+
 int execl(const char *path, const char *arg, ...)
 {
-    // FIXME Read args
-    return execve(path, NULL, environ);
+    va_list list;
+    va_start(list, arg);
+    int argc = execve_get_argc(list, arg);
+    va_end(list);
+
+    va_start(list, arg);
+    char **argv = execve_get_argv(list, argc, arg);
+    va_end(list);
+
+    int result = execve(path, argv, environ);
+
+    free(argv);
+
+    return result;
 }
 
 int execle(const char *path, const char *arg, ...)
 {
-    // FIXME Read args
-    return execve(path, NULL, NULL);
+    va_list list;
+    va_start(list, arg);
+    int argc = execve_get_argc(list, arg);
+    va_end(list);
+
+    va_start(list, arg);
+    char **argv = execve_get_argv(list, argc, arg);
+    char **envp = va_arg(list, char **);
+    va_end(list);
+
+    int result = execve(path, argv, envp);
+
+    free(argv);
+    free(envp);
+
+    return result;
 }
 
 int execlp(const char *file, const char *arg, ...)
 {
-    // FIXME Read args
-    return execvpe(file, NULL, environ);
+    va_list list;
+    va_start(list, arg);
+    int argc = execve_get_argc(list, arg);
+    va_end(list);
+
+    va_start(list, arg);
+    char **argv = execve_get_argv(list, argc, arg);
+    va_end(list);
+
+    int result = execvpe(file, argv, environ);
+
+    free(argv);
+
+    return result;
 }
 
 int execv(const char *path, char *const argv[]) { return execve(path, argv, environ); }
