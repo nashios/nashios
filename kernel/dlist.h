@@ -42,6 +42,10 @@
     for (entry = dlist_first_entry(head, typeof(*entry), name); &entry->name != (head);                                \
          entry = dlist_next_entry(entry, name))
 
+#define dlist_foreach_entry_safe(entry, n, head, name)                                                                 \
+    for (entry = dlist_first_entry(head, typeof(*entry), name), n = dlist_next_entry(entry, name);                     \
+         &entry->name != (head); entry = n, n = dlist_next_entry(n, name))
+
 struct dlist_head
 {
     struct dlist_head *next;
