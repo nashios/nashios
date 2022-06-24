@@ -60,7 +60,7 @@ if [ $IMAGE_EXIST -ne 1 ]; then
 fi
 
 printf "Mounting filesystem..."
-mkdir -p $MOUNT_DIR
+mkdir -p "$MOUNT_DIR"
 if ! eval "fuse2fs $IMAGE_ARCHIVE $MOUNT_DIR/ -o fakeroot,rw"; then
     fail "Mounting filesystem"
 else
@@ -68,9 +68,9 @@ else
 fi
 
 cleanup() {
-    if [ -d $MOUNT_DIR ]; then
+    if [ -d "$MOUNT_DIR" ]; then
         printf "Unmounting filesystem..."
-        fusermount -u $MOUNT_DIR || (sleep 1 && sync && fusermount -u $MOUNT_DIR)
+        fusermount -u "$MOUNT_DIR" || (sleep 1 && sync && fusermount -u "$MOUNT_DIR")
         echo "OK"
     fi
 }

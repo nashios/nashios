@@ -21,7 +21,7 @@ if [ "$USE_CACHED" = "true" ] ; then
     if [ -r "$CACHE_FILE" ] ; then
         echo "Toolchain cache $CACHE_FILE exists"
         echo "Extracting cache"
-        if tar -xf "$CACHE_FILE" -C $TOOLS_DIR ; then
+        if tar -xf "$CACHE_FILE" -C "$TOOLS_DIR" ; then
             echo "Successfully extracted cache"
             exit 0
         else
@@ -34,50 +34,50 @@ if [ "$USE_CACHED" = "true" ] ; then
     echo "Starting the toolchain building process"
 fi
 
-mkdir -p $CACHE_DIR
-cd $CACHE_DIR
+mkdir -p "$CACHE_DIR"
+cd "$CACHE_DIR" || exit
 wget -nc $MIRROR/binutils/$BINUTILS_ARCHIVE
 wget -nc $MIRROR/gcc/$GCC_PACKAGE/$GCC_ARCHIVE
 
-mkdir -p $BUILD_DIR
-if [ ! -d $BUILD_DIR/$BINUTILS_PACKAGE ];then
-    cd $BUILD_DIR || exit
-    tar -xf $CACHE_DIR/$BINUTILS_ARCHIVE
+mkdir -p "$BUILD_DIR"
+if [ ! -d "$BUILD_DIR/$BINUTILS_PACKAGE" ];then
+    cd "$BUILD_DIR" || exit
+    tar -xf "$CACHE_DIR/$BINUTILS_ARCHIVE"
     
-    cd $BUILD_DIR/$BINUTILS_PACKAGE
-    patch -p1 < $SOURCE_DIR/scripts/patches/binutils.patch > /dev/null
+    cd "$BUILD_DIR/$BINUTILS_PACKAGE" || exit
+    patch -p1 < "$SOURCE_DIR/scripts/patches/binutils.patch" > /dev/null
 fi
 
-if [ ! -d $BUILD_DIR/$GCC_PACKAGE ];then
-    cd $BUILD_DIR || exit
-    tar -xf $CACHE_DIR/$GCC_ARCHIVE
+if [ ! -d "$BUILD_DIR/$GCC_PACKAGE" ];then
+    cd "$BUILD_DIR" || exit
+    tar -xf "$CACHE_DIR/$GCC_ARCHIVE"
 
-    cd $BUILD_DIR/$GCC_PACKAGE
-    patch -p1 < $SOURCE_DIR/scripts/patches/gcc.patch > /dev/null
+    cd "$BUILD_DIR/$GCC_PACKAGE" || exit
+    patch -p1 < "$SOURCE_DIR/scripts/patches/gcc.patch" > /dev/null
 fi
 
-mkdir -p $SYSROOT_DIR/usr/include
-cd $SYSROOT_DIR
-rsync -a --include='*.h' --include='*/' --exclude='*' --inplace $SOURCE_DIR/libraries/c/ $SYSROOT_DIR/usr/include/
-rsync -a --include='*.h' --include='*/' --exclude='*' --inplace $SOURCE_DIR/kernel $SYSROOT_DIR/usr/include/
+mkdir -p "$SYSROOT_DIR/usr/include"
+cd "$SYSROOT_DIR" || exit
+rsync -a --include='*.h' --include='*/' --exclude='*' --inplace "$SOURCE_DIR/libraries/c/" "$SYSROOT_DIR/usr/include/"
+rsync -a --include='*.h' --include='*/' --exclude='*' --inplace "$SOURCE_DIR/kernel" "$SYSROOT_DIR/usr/include/"
 
-mkdir -p $BUILD_DIR/build-binutils
-cd $BUILD_DIR/build-binutils
-../$BINUTILS_PACKAGE/configure --target=$TARGET --prefix="$PREFIX" --with-sysroot=$SYSROOT_DIR --disable-nls --disable-werror
-make -j $CORES
+mkdir -p "$BUILD_DIR/build-binutils"
+cd "$BUILD_DIR/build-binutils" || exit
+../$BINUTILS_PACKAGE/configure --target=$TARGET --prefix="$PREFIX" --with-sysroot="$SYSROOT_DIR" --disable-nls --disable-werror
+make -j "$CORES"
 make install
 
-cd $BUILD_DIR/$GCC_PACKAGE || exit
+cd "$BUILD_DIR/$GCC_PACKAGE" || exit
 ./contrib/download_prerequisites
 
-mkdir -p $BUILD_DIR/build-gcc
-cd $BUILD_DIR/build-gcc
-../$GCC_PACKAGE/configure --target=$TARGET --prefix="$PREFIX" --with-sysroot=$SYSROOT_DIR --disable-nls --enable-languages=c
-make -j $CORES all-gcc all-target-libgcc
+mkdir -p "$BUILD_DIR/build-gcc"
+cd "$BUILD_DIR/build-gcc" || exit
+../$GCC_PACKAGE/configure --target=$TARGET --prefix="$PREFIX" --with-sysroot="$SYSROOT_DIR" --disable-nls --enable-languages=c
+make -j "$CORES" all-gcc all-target-libgcc
 make install-gcc install-target-libgcc
 
 if [ "$USE_CACHED" = "true" ] ; then
-    cd $TOOLS_DIR
+    cd "$TOOLS_DIR" || exit
     echo "Generating cache tar file"
-    tar -cf $CACHE_FILE cross/
+    tar -cf "$CACHE_FILE" cross/
 fi
