@@ -7,6 +7,11 @@
 #include <kernel/system/syscall.h>
 #include <kernel/task/scheduler.h>
 
+int syscall_execve(const char *filename, char *const argv[], char *const envp[])
+{
+    return sched_execve(filename, argv, envp);
+}
+
 pid_t syscall_fork() { return sched_fork(); }
 
 void syscall_exit(int status) { sched_exit(status); }
@@ -28,7 +33,8 @@ int syscall_brk(void *addr)
     return 0;
 }
 
-static void *syscall_list[] = {[__NR_exit] = syscall_exit, [__NR_brk] = syscall_brk, [__NR_fork] = syscall_fork};
+static void *syscall_list[] = {
+    [__NR_exit] = syscall_exit, [__NR_fork] = syscall_fork, [__NR_execve] = syscall_execve, [__NR_brk] = syscall_brk};
 
 static size_t syscall_size = sizeof(syscall_list) / sizeof(syscall_list[0]);
 

@@ -93,3 +93,4 @@ void sched_unlock();
 void sched_open(const char *path);
 void sched_exit(int status);
 pid_t sched_fork();
+int sched_execve(const char *filename, char *const argv[], char *const envp[]);

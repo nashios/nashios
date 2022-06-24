@@ -21,6 +21,7 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
  */
+#include <kernel/api/posix/errno.h>
 #include <kernel/interrupts/irq.h>
 #include <kernel/memory/heap.h>
 #include <kernel/stdio.h>
@@ -301,6 +302,70 @@ void sched_open(const char *path)
     thread->state = THREAD_READY;
     sched_add_thread(thread);
     printf("Scheduler: Queued elf process path = %s\n", path);
+}
+
+int sched_count_array(void *array)
+{
+    if (!array)
+        return 0;
+
+    const int32_t *p_array = array;
+    while (*p_array)
+        p_array++;
+    return p_array - (int32_t *)array;
+}
+
+int sched_execve(const char *filename, char *const argv[], char *const envp[])
+{
+    int argv_length = sched_count_array((void *)argv);
+    char **kernel_argv = calloc(argv_length, sizeof(char *));
+    if (!kernel_argv)
+        return -ENOMEM;
+
+    for (int i = 0; i < argv_length; i++)
+    {
+        size_t length = strlen(argv[i]);
+        kernel_argv[i] = calloc(length + 1, sizeof(char));
+        memcpy(kernel_argv[i], argv[i], length);
+    }
+
+    int envp_length = sched_count_array((void *)envp);
+    char **kernel_envp = calloc(envp_length, sizeof(char *));
+    for (int i = 0; i < envp_length; i++)
+    {
+        size_t length = strlen(envp[i]);
+        kernel_envp[i] = calloc(length + 1, sizeof(char));
+        memcpy(kernel_envp[i], envp[i], length);
+    }
+
+    char *p_filename = strdup(filename);
+    elf_close();
+    struct elf_layout *elf = elf_open(p_filename);
+    free(p_filename);
+
+    char **user_argv = (char **)mmap_sbrk(argv_length + 1);
+    memset(user_argv, 0, argv_length + 1);
+    for (int i = 0; i < argv_length; i++)
+    {
+        size_t length = strlen(kernel_argv[i]);
+        user_argv[i] = (char *)mmap_sbrk((int)length + 1);
+        memcpy(user_argv[i], kernel_argv[i], length);
+    }
+
+    char **user_envp = (char **)mmap_sbrk(envp_length + 1);
+    memset(user_envp, 0, envp_length + 1);
+    for (int i = 0; i < envp_length; i++)
+    {
+        size_t length = strlen(kernel_envp[i]);
+        user_envp[i] = (char *)mmap_sbrk((int)length + 1);
+        memcpy(user_envp[i], kernel_envp[i], length);
+    }
+
+    sched_elf_init_stack(elf, argv_length, user_argv, user_envp);
+    tss_set_stack(sched_thread->kernel_stack);
+
+    sched_enter_user(elf->stack, elf->entry, SCHED_PAGE_FAULT);
+    return 0;
 }
 
 pid_t sched_fork()
