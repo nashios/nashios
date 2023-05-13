@@ -4,7 +4,8 @@ set(ASM_SOURCES
 set(C_SOURCES
     main.c
     io.c
-    serial.c)
+    serial.c
+    string.c)
 
 add_executable(kernel ${ASM_SOURCES} ${C_SOURCES})
 target_compile_options(kernel PRIVATE -ffreestanding -O2)
