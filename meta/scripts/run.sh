@@ -5,7 +5,8 @@
 [ -z "$NASHIOS_QEMU_ARGS" ] && NASHIOS_QEMU_ARGS="
     -kernel $NASHIOS_QEMU_KERNEL
     -m $NASHIOS_QEMU_RAM
-    -cpu $NASHIOS_QEMU_CPU"
+    -cpu $NASHIOS_QEMU_CPU
+    -serial stdio"
 
 [ -e /dev/kvm ] && [ -r /dev/kvm ] && [ -w /dev/kvm ] && NASHIOS_QEMU_VIRT="-enable-kvm"
 
