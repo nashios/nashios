@@ -6,6 +6,11 @@
             "generator": "Ninja",
             "binaryDir": "${sourceDir}/binary/build/i686",
             "installDir": "${sourceDir}/binary/install/i686",
+            "cacheVariables": {
+                "NASHIOS_ARCHITECTURE": "i686",
+                "NASHIOS_PROCESSOR": "x86",
+                "TOOLCHAIN_PATH": "${sourceDir}/binary/toolchain/i686"
+            },
             "condition": {
                 "type": "equals",
                 "lhs": "${hostSystemName}",
