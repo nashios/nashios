@@ -1,0 +1,22 @@
+{
+    "version": 6,
+    "configurePresets": [
+        {
+            "name": "i686",
+            "generator": "Ninja",
+            "binaryDir": "${sourceDir}/binary/build/i686",
+            "installDir": "${sourceDir}/binary/install/i686",
+            "condition": {
+                "type": "equals",
+                "lhs": "${hostSystemName}",
+                "rhs": "Linux"
+            }
+        }
+    ],
+    "buildPresets": [
+        {
+            "name": "i686",
+            "configurePreset": "i686"
+        }
+    ]
+}
