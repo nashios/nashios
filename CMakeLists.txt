@@ -30,4 +30,8 @@ add_custom_target(toolchain
     COMMAND "TARGET=${TOOLCHAIN_TARGET}" "TARGET_DIR=${TOOLCHAIN_PATH}" ${CMAKE_SOURCE_DIR}/meta/scripts/setup-toolchain.sh
     USES_TERMINAL)
 
+add_custom_target(run
+    COMMAND ${CMAKE_SOURCE_DIR}/meta/scripts/run.sh
+    USES_TERMINAL)
+
 add_subdirectory(kernel)
