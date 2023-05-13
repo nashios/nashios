@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.26)
-project(nashios)
+project(nashios ASM C)
 
 set(CMAKE_SYSTEM_NAME ${CMAKE_PROJECT_NAME})
 set(CMAKE_SYSTEM_PROCESSOR ${NASHIOS_PROCESSOR})
@@ -24,6 +24,10 @@ set(CMAKE_FIND_ROOT_PATH_MODE_LIBRARY ONLY)
 set(CMAKE_FIND_ROOT_PATH_MODE_INCLUDE ONLY)
 set(CMAKE_FIND_ROOT_PATH_MODE_PACKAGE ONLY)
 
+add_compile_options(-Wall -Wextra)
+
 add_custom_target(toolchain
     COMMAND "TARGET=${TOOLCHAIN_TARGET}" "TARGET_DIR=${TOOLCHAIN_PATH}" ${CMAKE_SOURCE_DIR}/meta/scripts/setup-toolchain.sh
     USES_TERMINAL)
+
+add_subdirectory(kernel)
