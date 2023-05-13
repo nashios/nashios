@@ -2,7 +2,8 @@ set(ASM_SOURCES
     boot.s)
 
 set(C_SOURCES
-    main.c)
+    main.c
+    io.c)
 
 add_executable(kernel ${ASM_SOURCES} ${C_SOURCES})
 target_compile_options(kernel PRIVATE -ffreestanding -O2)
