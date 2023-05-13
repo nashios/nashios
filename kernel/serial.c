@@ -1,5 +1,6 @@
 #include <kernel/io.h>
 #include <kernel/serial.h>
+#include <kernel/stdio.h>
 
 static enum SerialPort s_serial_port = SERIAL_INVALID;
 
@@ -24,6 +25,7 @@ void serial_init(enum SerialPort port)
         return;
 
     io_outb(s_serial_port + 4, 0x0F);
+    printf("Serial: Initialized\n");
 }
 
 void serial_write_char(char character)
