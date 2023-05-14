@@ -27,12 +27,6 @@
 #define MULTIBOOT_FRAMEBUFFER_TYPE_RGB 1
 #define MULTIBOOT_FRAMEBUFFER_TYPE_EGA_TEXT 2
 
-#define MULTIBOOT_MEMORY_AVAILABLE 1
-#define MULTIBOOT_MEMORY_RESERVED 2
-#define MULTIBOOT_MEMORY_ACPI_RECLAIMABLE 3
-#define MULTIBOOT_MEMORY_NVS 4
-#define MULTIBOOT_MEMORY_BADRAM 5
-
 #define MULTIBOOT_CHECK_FLAG(flags, bit) ((flags) & (1 << (bit)))
 
 struct multiboot_header
@@ -55,98 +49,12 @@ struct multiboot_header
     uint32_t depth;
 };
 
-struct multiboot_aout_symbol_table
-{
-    uint32_t tabsize;
-    uint32_t strsize;
-    uint32_t addr;
-    uint32_t reserved;
-};
-
-struct multiboot_elf_section_header_table
-{
-    uint32_t num;
-    uint32_t size;
-    uint32_t addr;
-    uint32_t shndx;
-};
-
-struct multiboot_info
-{
-    uint32_t flags;
-
-    uint32_t mem_lower;
-    uint32_t mem_upper;
-
-    uint32_t boot_device;
-
-    uint32_t cmdline;
-
-    uint32_t mods_count;
-    uint32_t mods_addr;
-
-    union {
-        struct multiboot_aout_symbol_table aout_sym;
-        struct multiboot_elf_section_header_table elf_sec;
-    } u;
-
-    uint32_t mmap_length;
-    uint32_t mmap_addr;
-
-    uint32_t drives_length;
-    uint32_t drives_addr;
-
-    uint32_t config_table;
-
-    uint32_t boot_loader_name;
-
-    uint32_t apm_table;
-
-    uint32_t vbe_control_info;
-    uint32_t vbe_mode_info;
-    uint16_t vbe_mode;
-    uint16_t vbe_interface_seg;
-    uint16_t vbe_interface_off;
-    uint16_t vbe_interface_len;
-
-    uint64_t framebuffer_addr;
-    uint32_t framebuffer_pitch;
-    uint32_t framebuffer_width;
-    uint32_t framebuffer_height;
-    uint8_t framebuffer_bpp;
-    uint8_t framebuffer_type;
-    union {
-        struct
-        {
-            uint32_t framebuffer_palette_addr;
-            uint16_t framebuffer_palette_num_colors;
-        };
-        struct
-        {
-            uint8_t framebuffer_red_field_position;
-            uint8_t framebuffer_red_mask_size;
-            uint8_t framebuffer_green_field_position;
-            uint8_t framebuffer_green_mask_size;
-            uint8_t framebuffer_blue_field_position;
-            uint8_t framebuffer_blue_mask_size;
-        };
-    };
-};
-
 struct multiboot_color
 {
     uint8_t red;
     uint8_t green;
     uint8_t blue;
 };
-
-struct multiboot_mmap_entry
-{
-    uint32_t size;
-    uint64_t addr;
-    uint64_t len;
-    uint32_t type;
-} __attribute__((packed));
 
 struct multiboot_mod_list
 {
@@ -183,7 +91,7 @@ enum MultibootFlag
     MULTIBOOT_FRAMEBUFFER_FLAG = 12,
 };
 
-struct multiboot_info *s_multiboot_info = NULL;
+struct multiboot_info *g_multiboot_info = NULL;
 
 void multiboot_init(uint32_t magic, uint32_t address)
 {
@@ -193,26 +101,26 @@ void multiboot_init(uint32_t magic, uint32_t address)
         return;
     }
 
-    s_multiboot_info = (struct multiboot_info *)address;
-    printf("Multiboot: Flags = 0x%x\n", s_multiboot_info->flags);
+    g_multiboot_info = (struct multiboot_info *)address;
+    printf("Multiboot: Flags = 0x%x\n", g_multiboot_info->flags);
 
-    if (MULTIBOOT_CHECK_FLAG(s_multiboot_info->flags, MULTIBOOT_MEMORY_FLAG))
-        printf("Multiboot: Memory lower = %dKB, upper = %dKB\n", s_multiboot_info->mem_lower,
-               s_multiboot_info->mem_upper);
+    if (MULTIBOOT_CHECK_FLAG(g_multiboot_info->flags, MULTIBOOT_MEMORY_FLAG))
+        printf("Multiboot: Memory lower = %dKB, upper = %dKB\n", g_multiboot_info->mem_lower,
+               g_multiboot_info->mem_upper);
 
-    if (MULTIBOOT_CHECK_FLAG(s_multiboot_info->flags, MULTIBOOT_BOOT_DEVICE_FLAG))
-        printf("Multiboot: Boot device = 0x%x\n", s_multiboot_info->boot_device);
+    if (MULTIBOOT_CHECK_FLAG(g_multiboot_info->flags, MULTIBOOT_BOOT_DEVICE_FLAG))
+        printf("Multiboot: Boot device = 0x%x\n", g_multiboot_info->boot_device);
 
-    if (MULTIBOOT_CHECK_FLAG(s_multiboot_info->flags, MULTIBOOT_COMMAND_LINE_FLAG))
-        printf("Multiboot: Command-line = %s\n", s_multiboot_info->cmdline);
+    if (MULTIBOOT_CHECK_FLAG(g_multiboot_info->flags, MULTIBOOT_COMMAND_LINE_FLAG))
+        printf("Multiboot: Command-line = %s\n", g_multiboot_info->cmdline);
 
-    if (MULTIBOOT_CHECK_FLAG(s_multiboot_info->flags, MULTIBOOT_MODULES_FLAG))
+    if (MULTIBOOT_CHECK_FLAG(g_multiboot_info->flags, MULTIBOOT_MODULES_FLAG))
     {
-        printf("Multiboot: Modules count = %d, address = 0x%x\n", s_multiboot_info->mods_count,
-               s_multiboot_info->mods_addr);
+        printf("Multiboot: Modules count = %d, address = 0x%x\n", g_multiboot_info->mods_count,
+               g_multiboot_info->mods_addr);
 
-        struct multiboot_mod_list *module = (struct multiboot_mod_list *)s_multiboot_info->mods_addr;
-        for (uint32_t i = 0; i < s_multiboot_info->mods_count; i++)
+        struct multiboot_mod_list *module = (struct multiboot_mod_list *)g_multiboot_info->mods_addr;
+        for (uint32_t i = 0; i < g_multiboot_info->mods_count; i++)
         {
             printf("Multiboot: * Module start = 0x%x, end = 0x%x, command-line = %s\n", module->mod_start,
                    module->mod_end, module->cmdline);
@@ -220,34 +128,34 @@ void multiboot_init(uint32_t magic, uint32_t address)
         }
     }
 
-    if (MULTIBOOT_CHECK_FLAG(s_multiboot_info->flags, MULTIBOOT_SYMBOL_FLAG) &&
-        MULTIBOOT_CHECK_FLAG(s_multiboot_info->flags, MULTIBOOT_ELF_TABLE_FLAG))
+    if (MULTIBOOT_CHECK_FLAG(g_multiboot_info->flags, MULTIBOOT_SYMBOL_FLAG) &&
+        MULTIBOOT_CHECK_FLAG(g_multiboot_info->flags, MULTIBOOT_ELF_TABLE_FLAG))
     {
         printf("Multiboot: Both bits 4 and 5 are set\n");
         return;
     }
 
-    if (MULTIBOOT_CHECK_FLAG(s_multiboot_info->flags, MULTIBOOT_SYMBOL_FLAG))
+    if (MULTIBOOT_CHECK_FLAG(g_multiboot_info->flags, MULTIBOOT_SYMBOL_FLAG))
     {
-        struct multiboot_aout_symbol_table *symbol = &s_multiboot_info->u.aout_sym;
+        struct multiboot_aout_symbol_table *symbol = &g_multiboot_info->u.aout_sym;
         printf("Multiboot: Aout symbol table tabsize = 0x%x, strsize = 0x%x, address = 0x%x\n", symbol->tabsize,
                symbol->strsize, symbol->addr);
     }
 
-    if (MULTIBOOT_CHECK_FLAG(s_multiboot_info->flags, MULTIBOOT_ELF_TABLE_FLAG))
+    if (MULTIBOOT_CHECK_FLAG(g_multiboot_info->flags, MULTIBOOT_ELF_TABLE_FLAG))
     {
-        struct multiboot_elf_section_header_table *section = &s_multiboot_info->u.elf_sec;
+        struct multiboot_elf_section_header_table *section = &g_multiboot_info->u.elf_sec;
         printf("Multiboot: Elf section number = %d, size = 0x%x, address = 0x%x, shndx = %d\n", section->num,
                section->size, section->addr, section->shndx);
     }
 
-    if (MULTIBOOT_CHECK_FLAG(s_multiboot_info->flags, MULTIBOOT_MMAP_FLAG))
+    if (MULTIBOOT_CHECK_FLAG(g_multiboot_info->flags, MULTIBOOT_MMAP_FLAG))
     {
-        printf("Multiboot: Mmap address = 0x%x, length = 0x%x\n", s_multiboot_info->mmap_addr,
-               s_multiboot_info->mmap_length);
+        printf("Multiboot: Mmap address = 0x%x, length = 0x%x\n", g_multiboot_info->mmap_addr,
+               g_multiboot_info->mmap_length);
 
-        for (struct multiboot_mmap_entry *mmap = (struct multiboot_mmap_entry *)s_multiboot_info->mmap_addr;
-             (unsigned long)mmap < s_multiboot_info->mmap_addr + s_multiboot_info->mmap_length;
+        for (struct multiboot_mmap_entry *mmap = (struct multiboot_mmap_entry *)g_multiboot_info->mmap_addr;
+             (unsigned long)mmap < g_multiboot_info->mmap_addr + g_multiboot_info->mmap_length;
              mmap = (struct multiboot_mmap_entry *)((unsigned long)mmap + mmap->size + sizeof(mmap->size)))
         {
             printf("Multiboot: * Mmap size = 0x%x, address = 0x%x%08x, length = 0x%x%08x, type = %d\n",
@@ -256,28 +164,28 @@ void multiboot_init(uint32_t magic, uint32_t address)
         }
     }
 
-    if (MULTIBOOT_CHECK_FLAG(s_multiboot_info->flags, MULTIBOOT_FRAMEBUFFER_FLAG))
+    if (MULTIBOOT_CHECK_FLAG(g_multiboot_info->flags, MULTIBOOT_FRAMEBUFFER_FLAG))
     {
-        printf("Multiboot: Framebuffer address 0x%x, type = %d\n", s_multiboot_info->framebuffer_addr,
-               s_multiboot_info->framebuffer_type);
+        printf("Multiboot: Framebuffer address 0x%x, type = %d\n", g_multiboot_info->framebuffer_addr,
+               g_multiboot_info->framebuffer_type);
 
         printf("Multiboot: Framebuffer width = %d, height = %d, bpp = %d, pitch = %d\n",
-               s_multiboot_info->framebuffer_width, s_multiboot_info->framebuffer_height,
-               s_multiboot_info->framebuffer_bpp, s_multiboot_info->framebuffer_pitch);
+               g_multiboot_info->framebuffer_width, g_multiboot_info->framebuffer_height,
+               g_multiboot_info->framebuffer_bpp, g_multiboot_info->framebuffer_pitch);
 
-        if (s_multiboot_info->framebuffer_type == MULTIBOOT_FRAMEBUFFER_TYPE_INDEXED)
+        if (g_multiboot_info->framebuffer_type == MULTIBOOT_FRAMEBUFFER_TYPE_INDEXED)
         {
             printf("Multiboot: Framebuffer palette address = 0x%x, colors = %d\n",
-                   s_multiboot_info->framebuffer_palette_addr, s_multiboot_info->framebuffer_palette_num_colors);
+                   g_multiboot_info->framebuffer_palette_addr, g_multiboot_info->framebuffer_palette_num_colors);
         }
-        else if (s_multiboot_info->framebuffer_type == MULTIBOOT_FRAMEBUFFER_TYPE_RGB)
+        else if (g_multiboot_info->framebuffer_type == MULTIBOOT_FRAMEBUFFER_TYPE_RGB)
         {
             printf("Multiboot: * Framebuffer red position = %d, mask = %d\n",
-                   s_multiboot_info->framebuffer_red_field_position, s_multiboot_info->framebuffer_red_mask_size);
+                   g_multiboot_info->framebuffer_red_field_position, g_multiboot_info->framebuffer_red_mask_size);
             printf("Multiboot: * Framebuffer green position = %d, mask = %d\n",
-                   s_multiboot_info->framebuffer_green_field_position, s_multiboot_info->framebuffer_green_mask_size);
+                   g_multiboot_info->framebuffer_green_field_position, g_multiboot_info->framebuffer_green_mask_size);
             printf("Multiboot: * Framebuffer blue position = %d, mask = %d\n",
-                   s_multiboot_info->framebuffer_blue_field_position, s_multiboot_info->framebuffer_blue_mask_size);
+                   g_multiboot_info->framebuffer_blue_field_position, g_multiboot_info->framebuffer_blue_mask_size);
         }
     }
 
