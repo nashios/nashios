@@ -3,23 +3,24 @@ ENTRY(_start)
 SECTIONS
 {
 	_kernel_boot = 0x00100000;
-	. = _kernel_boot;
+	_kernel_higher_half = 0xC0000000;
+	. = _kernel_higher_half + _kernel_boot;
 
 	_kernel_start = .;
-	.text BLOCK(4K) : ALIGN(4K)
+	.text ALIGN(4096) : AT(ADDR(.text) - _kernel_higher_half)
 	{
 		*(.multiboot)
 		*(.text)
 	}
-	.rodata BLOCK(4K) : ALIGN(4K)
+	.rodata ALIGN(4096) : AT(ADDR(.rodata) - _kernel_higher_half)
 	{
 		*(.rodata)
 	}
-	.data BLOCK(4K) : ALIGN(4K)
+	.data ALIGN(4096) : AT(ADDR(.data) - _kernel_higher_half)
 	{
 		*(.data)
 	}
-	.bss BLOCK(4K) : ALIGN(4K)
+	.bss ALIGN(4096) : AT(ADDR(.bss) - _kernel_higher_half)
 	{
 		_kernel_bss_start = .;
 		*(COMMON)

@@ -31,15 +31,46 @@ stack_bottom:
     .space 16384
 stack_top:
 
+.set VIRTUAL_ADDRESS, 0xC0000000
+.set PAGE_NUMBER, (VIRTUAL_ADDRESS >> 22)
+
+.section .data
+.align 4096
+boot_directory:
+	.long 0x00000083
+	.fill (PAGE_NUMBER - 1), 4, 0x00
+	.long 0x00000083
+	.fill (1024 - PAGE_NUMBER - 1), 4, 0x00
+
 .section .text
 .global _start
 .type _start, @function
 _start:
+	movl $(boot_directory - VIRTUAL_ADDRESS), %ecx
+	movl %ecx, %cr3
+
+	movl %cr4, %ecx
+	or $0x00000010, %ecx
+	movl %ecx, %cr4
+
+	movl %cr0, %ecx
+	or $0x80000000, %ecx
+	movl %ecx, %cr0
+	
+	lea (higher_half), %ecx
+	jmp *%ecx
+
+.section .text
+higher_half:
+	movl $0x00, (boot_directory)
+	invlpg (0)
+
 	mov $stack_top, %esp
 
 	pushl $0
 	popf
 
+	add $VIRTUAL_ADDRESS, %ebx
 	pushl %ebx
 	pushl %eax
 

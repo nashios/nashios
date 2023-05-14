@@ -1,6 +1,9 @@
 set(ASM_SOURCES
     boot.S
-    gdt.S)
+    gdt.S
+    
+    memory/page_enable.S
+    memory/flush_tbl.S)
 
 set(C_SOURCES
     main.c
@@ -13,7 +16,8 @@ set(C_SOURCES
     gdt.c
     bitmap.c
     
-    memory/physical.c)
+    memory/physical.c
+    memory/virtual.c)
 
 add_executable(kernel ${ASM_SOURCES} ${C_SOURCES})
 target_compile_options(kernel PRIVATE -ffreestanding -O2)

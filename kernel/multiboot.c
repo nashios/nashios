@@ -1,3 +1,4 @@
+#include <kernel/memory/virtual.h>
 #include <kernel/multiboot.h>
 #include <kernel/stdio.h>
 
@@ -112,7 +113,7 @@ void multiboot_init(uint32_t magic, uint32_t address)
         printf("Multiboot: Boot device = 0x%x\n", g_multiboot_info->boot_device);
 
     if (MULTIBOOT_CHECK_FLAG(g_multiboot_info->flags, MULTIBOOT_COMMAND_LINE_FLAG))
-        printf("Multiboot: Command-line = %s\n", g_multiboot_info->cmdline);
+        printf("Multiboot: Command-line = %s\n", PHYS_TO_VIRT(g_multiboot_info->cmdline));
 
     if (MULTIBOOT_CHECK_FLAG(g_multiboot_info->flags, MULTIBOOT_MODULES_FLAG))
     {
@@ -154,8 +155,9 @@ void multiboot_init(uint32_t magic, uint32_t address)
         printf("Multiboot: Mmap address = 0x%x, length = 0x%x\n", g_multiboot_info->mmap_addr,
                g_multiboot_info->mmap_length);
 
-        for (struct multiboot_mmap_entry *mmap = (struct multiboot_mmap_entry *)g_multiboot_info->mmap_addr;
-             (unsigned long)mmap < g_multiboot_info->mmap_addr + g_multiboot_info->mmap_length;
+        for (struct multiboot_mmap_entry *mmap =
+                 (struct multiboot_mmap_entry *)PHYS_TO_VIRT(g_multiboot_info->mmap_addr);
+             (unsigned long)mmap < PHYS_TO_VIRT(g_multiboot_info->mmap_addr) + g_multiboot_info->mmap_length;
              mmap = (struct multiboot_mmap_entry *)((unsigned long)mmap + mmap->size + sizeof(mmap->size)))
         {
             printf("Multiboot: * Mmap size = 0x%x, address = 0x%x%08x, length = 0x%x%08x, type = %d\n",

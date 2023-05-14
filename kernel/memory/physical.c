@@ -2,6 +2,7 @@
 #include <kernel/bitmap.h>
 #include <kernel/math.h>
 #include <kernel/memory/physical.h>
+#include <kernel/memory/virtual.h>
 #include <kernel/multiboot.h>
 #include <kernel/stdio.h>
 #include <kernel/string.h>
@@ -64,8 +65,8 @@ void physical_mm_init()
     s_physical_bitmap = (uint32_t *)KERNEL_END;
     memset(s_physical_bitmap, 0x00, bitmap_size);
 
-    for (struct multiboot_mmap_entry *mmap = (struct multiboot_mmap_entry *)g_multiboot_info->mmap_addr;
-         (unsigned long)mmap < g_multiboot_info->mmap_addr + g_multiboot_info->mmap_length;
+    for (struct multiboot_mmap_entry *mmap = (struct multiboot_mmap_entry *)PHYS_TO_VIRT(g_multiboot_info->mmap_addr);
+         (unsigned long)mmap < PHYS_TO_VIRT(g_multiboot_info->mmap_addr) + g_multiboot_info->mmap_length;
          mmap = (struct multiboot_mmap_entry *)((unsigned long)mmap + mmap->size + sizeof(mmap->size)))
     {
         if (mmap->type != MULTIBOOT_MEMORY_AVAILABLE)
@@ -120,8 +121,6 @@ void *physical_mm_allocate()
 
     bitmap_set(s_physical_bitmap, frame);
     s_physical_used++;
-
-    printf("Physical MM: Used = %d\n", s_physical_used);
 
     uint32_t address = frame * PAGE_SIZE;
     return (void *)address;
