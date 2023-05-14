@@ -18,6 +18,30 @@ MIRROR=https://ftp.gnu.org/gnu
 mkdir -p ${CACHE_DIR}
 cd ${CACHE_DIR}
 
+if [ "${USE_CACHE}" = "true" ] ; then
+    CACHE_ARCHIVE="${CACHE_DIR}/toolchain.tar.gz"
+    if [ -r "${CACHE_ARCHIVE}" ] ; then
+        echo "Cache file ${CACHE_ARCHIVE} exists"
+        echo "Extracting toolchain from cache"
+
+        mkdir -p ${CROSS_DIR}
+        cd ${CROSS_DIR}
+
+        if tar -xzf "${CACHE_ARCHIVE}" ; then
+            echo "Cache unchanged"
+            exit 0
+        else
+            echo "Failed to extract cached toolchain archive"
+            echo "This means the cache is broken and will be removed"
+            echo "Github Actions cannot update a cache, this will unnecessarily"
+            echo "slow down all future builds for this hash, until the cache is resetted"
+            rm -f "${CACHE_ARCHIVE}"
+        fi
+    else
+        echo "Cache file ${CACHE_ARCHIVE} does not exist"
+    fi
+fi
+
 md5=""
 if [ -e "${BINUTILS_ARCHIVE}" ]; then
     md5="$(md5sum $BINUTILS_ARCHIVE | cut -f1 -d' ')"
@@ -77,3 +101,9 @@ cd ${BUILD_DIR}/build-gcc
 ../${GCC_PACKAGE}/configure --target=${TARGET} --prefix=${CROSS_DIR} --disable-nls --enable-languages=c --without-headers
 make -j ${CORES} all-gcc all-target-libgcc
 make install-gcc install-target-libgcc
+
+if [ "${USE_CACHE}" = "true" ] ; then
+    cd ${CROSS_DIR}
+    echo "Creating toolchain cache"
+    tar -czf "${CACHE_ARCHIVE}" .
+fi
