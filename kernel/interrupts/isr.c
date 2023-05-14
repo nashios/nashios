@@ -1,5 +1,6 @@
 #include <kernel/interrupts/idt.h>
 #include <kernel/interrupts/isr.h>
+#include <kernel/panic.h>
 #include <kernel/processor.h>
 #include <kernel/stdio.h>
 
@@ -129,6 +130,7 @@ void isr_handler(struct registers *registers)
     {
         printf("ISR: Unhandled exception number = %d, message = %s\n", registers->number,
                s_isr_messages[registers->number]);
+        PANIC("Unhandled exception number = %d\n", registers->number);
         STOP();
     }
 }

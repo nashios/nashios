@@ -21,6 +21,7 @@ set(C_SOURCES
     bitmap.c
     stdlib.c
     pit.c
+    panic.c
     
     memory/physical.c
     memory/virtual.c
