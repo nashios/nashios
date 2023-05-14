@@ -22,6 +22,7 @@ set(C_SOURCES
     stdlib.c
     pit.c
     panic.c
+    assert.c
     
     memory/physical.c
     memory/virtual.c

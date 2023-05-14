@@ -1,3 +1,4 @@
+#include <kernel/assert.h>
 #include <kernel/gdt.h>
 #include <kernel/interrupts/idt.h>
 #include <kernel/interrupts/irq.h>
@@ -24,7 +25,5 @@ void kernel_main(uint32_t magic, uint32_t address)
     virtual_mm_init();
 
     ENABLE_INTERRUPTS();
-
-    while (true)
-        ;
+    NOT_REACHED();
 }
