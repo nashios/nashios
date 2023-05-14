@@ -11,7 +11,9 @@ set(C_SOURCES
     stdio.c
     multiboot.c
     gdt.c
-    bitmap.c)
+    bitmap.c
+    
+    memory/physical.c)
 
 add_executable(kernel ${ASM_SOURCES} ${C_SOURCES})
 target_compile_options(kernel PRIVATE -ffreestanding -O2)

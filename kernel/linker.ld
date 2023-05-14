@@ -2,7 +2,8 @@ ENTRY(_start)
 
 SECTIONS
 {
-	. = 1M;
+	_kernel_boot = 0x00100000;
+	. = _kernel_boot;
 
 	_kernel_start = .;
 	.text BLOCK(4K) : ALIGN(4K)
@@ -26,4 +27,5 @@ SECTIONS
 		_kernel_bss_end = .;
 	}
 	_kernel_end = .;
+	_kernel_size = _kernel_end - _kernel_start;
 }
