@@ -1,6 +1,5 @@
 #include <kernel/interrupts/idt.h>
 #include <kernel/interrupts/irq.h>
-#include <kernel/interrupts/pic.h>
 #include <kernel/stdio.h>
 
 #define IRQ_CHAIN_SIZE 16

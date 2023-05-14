@@ -20,6 +20,7 @@ set(C_SOURCES
     gdt.c
     bitmap.c
     stdlib.c
+    pit.c
     
     memory/physical.c
     memory/virtual.c

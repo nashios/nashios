@@ -5,6 +5,7 @@
 #include <kernel/memory/physical.h>
 #include <kernel/memory/virtual.h>
 #include <kernel/multiboot.h>
+#include <kernel/pit.h>
 #include <kernel/processor.h>
 #include <kernel/serial.h>
 
@@ -18,6 +19,7 @@ void kernel_main(uint32_t magic, uint32_t address)
     idt_init();
     irq_init();
     isr_init();
+    pit_init();
     physical_mm_init();
     virtual_mm_init();
 
