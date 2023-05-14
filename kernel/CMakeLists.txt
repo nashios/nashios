@@ -25,6 +25,8 @@ set(C_SOURCES
     panic.c
     assert.c
     tss.c
+    dlist.c
+    plist.c
     
     memory/physical.c
     memory/virtual.c
