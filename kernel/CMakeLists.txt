@@ -3,7 +3,11 @@ set(ASM_SOURCES
     gdt.S
     
     memory/page_enable.S
-    memory/flush_tbl.S)
+    memory/flush_tbl.S
+    
+    interrupts/idt_flush.S
+    interrupts/irq_common.S
+    interrupts/isr_common.S)
 
 set(C_SOURCES
     main.c
@@ -17,7 +21,12 @@ set(C_SOURCES
     bitmap.c
     
     memory/physical.c
-    memory/virtual.c)
+    memory/virtual.c
+    
+    interrupts/idt.c
+    interrupts/pic.c
+    interrupts/irq.c
+    interrupts/isr.c)
 
 add_executable(kernel ${ASM_SOURCES} ${C_SOURCES})
 target_compile_options(kernel PRIVATE -ffreestanding -O2)
