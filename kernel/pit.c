@@ -4,7 +4,7 @@
 
 static uint32_t s_pit_ticks = 0;
 
-bool pit_handler(struct registers *registers)
+bool pit_handler(struct registers *)
 {
     s_pit_ticks++;
 

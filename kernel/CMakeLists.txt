@@ -8,7 +8,9 @@ set(ASM_SOURCES
     
     interrupts/idt_flush.S
     interrupts/irq_common.S
-    interrupts/isr_common.S)
+    interrupts/isr_common.S
+    
+    task/scheduler_switch.S)
 
 set(C_SOURCES
     main.c
@@ -35,7 +37,9 @@ set(C_SOURCES
     interrupts/idt.c
     interrupts/pic.c
     interrupts/irq.c
-    interrupts/isr.c)
+    interrupts/isr.c
+    
+    task/scheduler.c)
 
 add_executable(kernel ${ASM_SOURCES} ${C_SOURCES})
 target_compile_options(kernel PRIVATE -ffreestanding -O2)

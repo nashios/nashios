@@ -9,6 +9,19 @@
 #include <kernel/pit.h>
 #include <kernel/processor.h>
 #include <kernel/serial.h>
+#include <kernel/stdio.h>
+#include <kernel/task/scheduler.h>
+
+void kernel_init()
+{
+    scheduler_unlock();
+
+    scheduler_update_thread(g_scheduler_thread, THREAD_WAITING_STATE);
+    scheduler_schedule();
+
+    while (true)
+        ;
+}
 
 void kernel_main(uint32_t magic, uint32_t address)
 {
@@ -23,7 +36,10 @@ void kernel_main(uint32_t magic, uint32_t address)
     pit_init();
     physical_mm_init();
     virtual_mm_init();
+    scheduler_init(kernel_init);
+    scheduler_schedule();
 
     ENABLE_INTERRUPTS();
-    NOT_REACHED();
+    while (true)
+        ;
 }

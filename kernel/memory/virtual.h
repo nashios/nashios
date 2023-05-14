@@ -11,5 +11,13 @@ enum table_flags
     PAGE_TBL_WRITABLE = 2
 };
 
+struct page_directory
+{
+    uint32_t entries[1024];
+};
+
+extern struct page_directory *g_virtual_directory;
+
 void virtual_mm_init();
 void virtual_mm_map(uint32_t physical, uint32_t virtual, uint32_t flags);
+uint32_t virtual_mm_get_physical(uint32_t virtual);

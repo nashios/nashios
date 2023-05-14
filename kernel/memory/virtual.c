@@ -1,6 +1,7 @@
 #include <kernel/api/posix/sys/limits.h>
 #include <kernel/memory/virtual.h>
 #include <kernel/stdio.h>
+#include <kernel/stdlib.h>
 #include <kernel/string.h>
 
 #define PAGE_TBL_ADDRESS 0xFFC00000
@@ -18,18 +19,13 @@ struct page_table
     uint32_t entries[1024];
 };
 
-struct page_directory
-{
-    uint32_t entries[1024];
-};
-
 enum directory_flags
 {
     PAGE_DIR_PRESENT = 1,
     PAGE_DIR_WRITABLE = 2
 };
 
-static struct page_directory *s_virtual_directory = NULL;
+struct page_directory *g_virtual_directory = NULL;
 
 void page_enable(uint32_t address);
 void flush_tbl(uint32_t address);
@@ -48,11 +44,11 @@ void virtual_mm_identity_map(uint32_t physical_address, uint32_t virtual_address
         physical_mm_mark(i_physical_address);
     }
 
-    uint32_t *entry = &s_virtual_directory->entries[PAGE_DIR_INDEX(virtual_address)];
+    uint32_t *entry = &g_virtual_directory->entries[PAGE_DIR_INDEX(virtual_address)];
     *entry = physical_table | PAGE_DIR_PRESENT | PAGE_DIR_WRITABLE;
 
     printf("Virtual MM: Identity mapped physical = 0x%08x, virtual = 0x%x, directory = 0x%x\n", physical_address,
-           virtual_address, &s_virtual_directory);
+           virtual_address, &g_virtual_directory);
 }
 
 void virtual_mm_init()
@@ -60,7 +56,7 @@ void virtual_mm_init()
     uint32_t physical_directory = (uint32_t)physical_mm_allocate();
     struct page_directory *directory = (struct page_directory *)PHYS_TO_VIRT(physical_directory);
     memset(directory, 0x00, sizeof(struct page_directory));
-    s_virtual_directory = directory;
+    g_virtual_directory = directory;
 
     virtual_mm_identity_map(0x00000000, 0xC0000000);
 
@@ -73,11 +69,11 @@ void virtual_mm_init()
 
 void virtual_mm_create_page_table(uint32_t virtual, uint32_t flags)
 {
-    if (PAGE_IS_ENABLED(s_virtual_directory->entries[PAGE_DIR_INDEX(virtual)]))
+    if (PAGE_IS_ENABLED(g_virtual_directory->entries[PAGE_DIR_INDEX(virtual)]))
         return;
 
     uint32_t table_address = (uint32_t)physical_mm_allocate();
-    s_virtual_directory->entries[PAGE_DIR_INDEX(virtual)] = table_address | flags;
+    g_virtual_directory->entries[PAGE_DIR_INDEX(virtual)] = table_address | flags;
     flush_tbl(virtual);
 
     memset((char *)PAGE_TBL_ADDRESS + PAGE_DIR_INDEX(virtual) * PAGE_SIZE, 0x00, sizeof(struct page_table));
@@ -88,10 +84,16 @@ void virtual_mm_map(uint32_t physical, uint32_t virtual, uint32_t flags)
     if (!PAGE_IS_ALIGNED(virtual))
         printf("Virtual MM: Virtual address = 0x%x is not page aligned\n", virtual);
 
-    if (!PAGE_IS_ENABLED(s_virtual_directory->entries[PAGE_DIR_INDEX(virtual)]))
+    if (!PAGE_IS_ENABLED(g_virtual_directory->entries[PAGE_DIR_INDEX(virtual)]))
         virtual_mm_create_page_table(virtual, flags);
 
     uint32_t *table = (uint32_t *)((char *)PAGE_TBL_ADDRESS + PAGE_DIR_INDEX(virtual) * PAGE_SIZE);
     table[PAGE_TBL_INDEX(virtual)] = physical | flags;
     flush_tbl(virtual);
+}
+
+uint32_t virtual_mm_get_physical(uint32_t virtual)
+{
+    uint32_t *table = (uint32_t *)((char *)PAGE_TBL_ADDRESS + PAGE_DIR_INDEX(virtual) * PAGE_SIZE);
+    return table[PAGE_TBL_INDEX(virtual)];
 }
