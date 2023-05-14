@@ -27,3 +27,11 @@ void *memcpy(void *dest, const void *src, size_t n)
         *p_dest++ = *p_src++;
     return dest;
 }
+
+void *memset(void *str, int c, size_t n)
+{
+    unsigned char *p_str = (unsigned char *)str;
+    for (size_t i = 0; i < n; i++)
+        *p_str++ = (char)c;
+    return str;
+}
