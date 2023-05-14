@@ -1,8 +1,8 @@
 #include <kernel/gdt.h>
 #include <kernel/stdio.h>
-#include <stdint.h>
+#include <kernel/tss.h>
 
-#define GDT_ENTRIES 5
+#define GDT_ENTRIES 6
 
 struct GDTEntry
 {
@@ -50,6 +50,8 @@ void gdt_init()
     uint32_t address = (uint32_t)&s_gdt_pointer;
     gdt_flush(address);
     printf("GDT: Flushed address = 0x%x\n", address);
+
+    tss_init(5, 0x10, 0);
 
     printf("GDT: Initialized\n");
 }

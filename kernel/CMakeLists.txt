@@ -1,6 +1,7 @@
 set(ASM_SOURCES
     boot.S
     gdt.S
+    tss_flush.S
     
     memory/page_enable.S
     memory/flush_tbl.S
@@ -23,6 +24,7 @@ set(C_SOURCES
     pit.c
     panic.c
     assert.c
+    tss.c
     
     memory/physical.c
     memory/virtual.c
