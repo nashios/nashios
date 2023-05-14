@@ -1,5 +1,5 @@
 set(ASM_SOURCES
-    boot.s)
+    boot.S)
 
 set(C_SOURCES
     main.c
@@ -7,7 +7,8 @@ set(C_SOURCES
     serial.c
     string.c
     ctype.c
-    stdio.c)
+    stdio.c
+    multiboot.c)
 
 add_executable(kernel ${ASM_SOURCES} ${C_SOURCES})
 target_compile_options(kernel PRIVATE -ffreestanding -O2)
