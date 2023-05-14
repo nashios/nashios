@@ -19,9 +19,11 @@ set(C_SOURCES
     multiboot.c
     gdt.c
     bitmap.c
+    stdlib.c
     
     memory/physical.c
     memory/virtual.c
+    memory/heap.c
     
     interrupts/idt.c
     interrupts/pic.c

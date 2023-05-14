@@ -147,3 +147,13 @@ void *physical_mm_allocate_size(size_t size)
     uint32_t address = frame * PAGE_SIZE;
     return (void *)address;
 }
+
+void physical_mm_mark(uint32_t address)
+{
+    uint32_t frame = address / PAGE_SIZE;
+    if (bitmap_test(s_physical_bitmap, frame))
+        return;
+
+    bitmap_set(s_physical_bitmap, frame);
+    s_physical_used++;
+}

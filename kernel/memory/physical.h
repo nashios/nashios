@@ -10,3 +10,4 @@ extern void *_kernel_higher_half;
 void physical_mm_init();
 void *physical_mm_allocate();
 void *physical_mm_allocate_size(size_t size);
+void physical_mm_mark(uint32_t address);
