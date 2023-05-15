@@ -48,3 +48,6 @@ target_compile_options(kernel PRIVATE -ffreestanding -O2)
 target_link_options(kernel PRIVATE -T ${CMAKE_CURRENT_SOURCE_DIR}/linker.ld -ffreestanding -O2 -nostdlib)
 target_link_libraries(kernel PRIVATE gcc)
 install(TARGETS kernel DESTINATION boot)
+
+nashios_install_headers(kernel)
+nashios_install_sources(kernel)
