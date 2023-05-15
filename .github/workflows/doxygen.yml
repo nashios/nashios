@@ -10,7 +10,7 @@ jobs:
             - name: Install dependencies
               run: |
                 sudo apt update
-                sudo apt install cmake doxygen graphviz
+                sudo apt install cmake ninja-build doxygen graphviz
 
             - name: Configure
               run: cmake --preset i686
