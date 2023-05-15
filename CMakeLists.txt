@@ -41,4 +41,13 @@ add_custom_target(run
     COMMAND ${CMAKE_SOURCE_DIR}/meta/scripts/run.sh
     USES_TERMINAL)
 
+find_package(Doxygen)
+if(DOXYGEN_FOUND)
+    set(DOXYGEN_IN ${CMAKE_CURRENT_SOURCE_DIR}/meta/configs/Doxyfile)
+    set(DOXYGEN_OUT ${CMAKE_CURRENT_BINARY_DIR}/Doxyfile)
+    configure_file(${DOXYGEN_IN} ${DOXYGEN_OUT} @ONLY)
+
+    add_custom_target(doxygen COMMAND ${DOXYGEN_EXECUTABLE} ${DOXYGEN_OUT} WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR} VERBATIM)
+endif()
+
 add_subdirectory(kernel)
