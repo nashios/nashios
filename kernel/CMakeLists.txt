@@ -39,7 +39,9 @@ set(C_SOURCES
     interrupts/irq.c
     interrupts/isr.c
     
-    task/scheduler.c)
+    task/scheduler.c
+    
+    filesystem/virtual.c)
 
 add_executable(kernel ${ASM_SOURCES} ${C_SOURCES})
 target_compile_options(kernel PRIVATE -ffreestanding -O2)

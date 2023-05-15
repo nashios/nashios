@@ -1,4 +1,5 @@
 #include <kernel/assert.h>
+#include <kernel/filesystem/virtual.h>
 #include <kernel/gdt.h>
 #include <kernel/interrupts/idt.h>
 #include <kernel/interrupts/irq.h>
@@ -15,6 +16,8 @@
 void kernel_init()
 {
     scheduler_unlock();
+
+    virtual_fs_init();
 
     scheduler_update_thread(g_scheduler_thread, THREAD_WAITING_STATE);
     scheduler_schedule();
