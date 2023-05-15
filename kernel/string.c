@@ -19,6 +19,25 @@ size_t strnlen(const char *s, size_t maxlen)
     return length;
 }
 
+int strcmp(const char *str1, const char *str2)
+{
+    const unsigned char *p_str1 = (const unsigned char *)str1;
+    const unsigned char *p_str2 = (const unsigned char *)str2;
+    unsigned char c1;
+    unsigned char c2;
+
+    do
+    {
+        c1 = (unsigned char)*p_str1++;
+        c2 = (unsigned char)*p_str2++;
+
+        if (c1 == '\0')
+            return c1 - c2;
+    } while (c1 == c2);
+
+    return c1 - c2;
+}
+
 void *memcpy(void *dest, const void *src, size_t n)
 {
     char *p_dest = (char *)dest;
