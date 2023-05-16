@@ -4,7 +4,7 @@
 
 #define GDT_ENTRIES 6
 
-struct GDTEntry
+struct gdt_entry
 {
     uint16_t limit;
     uint16_t base_low;
@@ -14,14 +14,14 @@ struct GDTEntry
     uint8_t base_high;
 } __attribute__((packed));
 
-struct GDTPointer
+struct gdt_pointer
 {
     uint16_t limit;
     uint32_t base;
 } __attribute__((packed));
 
-struct GDTEntry s_gdt_entries[GDT_ENTRIES] = {};
-struct GDTPointer s_gdt_pointer = {};
+struct gdt_entry s_gdt_entries[GDT_ENTRIES] = {};
+struct gdt_pointer s_gdt_pointer = {};
 
 void gdt_flush(uint32_t);
 
@@ -38,7 +38,7 @@ void gdt_add(uint8_t index, uint32_t base, uint32_t limit, uint8_t access, uint8
 
 void gdt_init()
 {
-    s_gdt_pointer.limit = (sizeof(struct GDTEntry) * GDT_ENTRIES) - 1;
+    s_gdt_pointer.limit = (sizeof(struct gdt_entry) * GDT_ENTRIES) - 1;
     s_gdt_pointer.base = (uint32_t)s_gdt_entries;
 
     gdt_add(0, 0, 0, 0, 0);
