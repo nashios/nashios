@@ -41,7 +41,9 @@ set(C_SOURCES
     
     task/scheduler.c
     
-    filesystem/virtual.c)
+    filesystem/virtual.c
+    
+    drivers/pci.c)
 
 add_executable(kernel ${ASM_SOURCES} ${C_SOURCES})
 target_compile_options(kernel PRIVATE -ffreestanding -O2)
