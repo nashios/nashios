@@ -10,21 +10,21 @@ SECTIONS
 	.text ALIGN(4096) : AT(ADDR(.text) - _kernel_higher_half)
 	{
 		*(.multiboot)
-		*(.text)
+		*(.text .text.*)
 	}
 	.rodata ALIGN(4096) : AT(ADDR(.rodata) - _kernel_higher_half)
 	{
-		*(.rodata)
+		*(.rodata .rodata.*)
 	}
 	.data ALIGN(4096) : AT(ADDR(.data) - _kernel_higher_half)
 	{
-		*(.data)
+		*(.data .data.*)
 	}
 	.bss ALIGN(4096) : AT(ADDR(.bss) - _kernel_higher_half)
 	{
 		_kernel_bss_start = .;
 		*(COMMON)
-		*(.bss)
+		*(.bss .bss.*)
 		_kernel_bss_end = .;
 	}
 	_kernel_end = .;
