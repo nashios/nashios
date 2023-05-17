@@ -26,6 +26,8 @@ struct dlist_head
 
 void dlist_head_init(struct dlist_head *list);
 bool dlist_empty(const struct dlist_head *head);
+bool dlist_is_last(const struct dlist_head *list, const struct dlist_head *head);
 void dlist_add(struct dlist_head *new, struct dlist_head *head);
 void dlist_add_tail(struct dlist_head *new, struct dlist_head *head);
+void dlist_remove(struct dlist_head *entry);
 void dlist_remove_init(struct dlist_head *entry);
