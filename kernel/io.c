@@ -21,10 +21,20 @@ uint32_t io_inl(uint16_t port)
     return value;
 }
 
+void io_insw(uint16_t port, void *buffer, size_t size)
+{
+    asm volatile("rep insw" : "+D"(buffer), "+c"(size) : "d"(port));
+}
+
 void io_outb(uint16_t port, uint8_t value) { asm volatile("outb %0, %1" : : "a"(value), "Nd"(port)); }
 
 void io_outw(uint16_t port, uint16_t value) { asm volatile("outw %0, %1" : : "a"(value), "Nd"(port)); }
 
 void io_outl(uint16_t port, uint32_t value) { asm volatile("outl %0, %1" : : "a"(value), "Nd"(port)); }
+
+void io_outsw(uint16_t port, const void *buffer, size_t size)
+{
+    asm volatile("rep outsw" : "+S"(buffer), "+c"(size) : "d"(port));
+}
 
 void io_wait() { io_outb(0x80, 0x00); }
