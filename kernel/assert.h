@@ -1,11 +1,6 @@
 #pragma once
 
-#define ASSERT(expression)                                                                                             \
-    do                                                                                                                 \
-    {                                                                                                                  \
-        if (!(bool)expression) [[unlikely]]                                                                            \
-            assert(#expression, __FILE__, __PRETTY_FUNCTION__, __LINE__);                                              \
-    } while (0);
+#define ASSERT(expression) ((expression) ? (void)0 : assert(#expression, __FILE__, __PRETTY_FUNCTION__, __LINE__))
 
 #define NOT_REACHED() assert("NOT REACHED", __FILE__, __PRETTY_FUNCTION__, __LINE__);
 #define TODO() assert("TODO", __FILE__, __PRETTY_FUNCTION__, __LINE__);
