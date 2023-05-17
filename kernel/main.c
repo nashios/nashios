@@ -1,4 +1,5 @@
 #include <kernel/assert.h>
+#include <kernel/drivers/ata.h>
 #include <kernel/drivers/pci.h>
 #include <kernel/filesystem/virtual.h>
 #include <kernel/gdt.h>
@@ -19,6 +20,7 @@ void kernel_init()
     scheduler_unlock();
 
     pci_init();
+    ata_init();
 
     virtual_fs_init();
 

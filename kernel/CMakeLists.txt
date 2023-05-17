@@ -43,7 +43,8 @@ set(C_SOURCES
     
     filesystem/virtual.c
     
-    drivers/pci.c)
+    drivers/pci.c
+    drivers/ata.c)
 
 add_executable(kernel ${ASM_SOURCES} ${C_SOURCES})
 target_compile_options(kernel PRIVATE -ffreestanding -O2)
