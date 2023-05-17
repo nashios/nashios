@@ -1,4 +1,3 @@
-#include <kernel/api/posix/sys/limits.h>
 #include <kernel/memory/virtual.h>
 #include <kernel/stdio.h>
 #include <kernel/stdlib.h>
@@ -6,11 +5,9 @@
 
 #define PAGE_TBL_ADDRESS 0xFFC00000
 #define PAGE_DIR_ADDRESS 0xFFFFF000
-#define PAGE_MASK (~(PAGE_SIZE - 1))
 
 #define PAGE_TBL_INDEX(address) (((address) >> 12) & 0x3FF)
 #define PAGE_DIR_INDEX(address) (((address) >> 22) & 0x3FF)
-#define PAGE_ALIGN(address) (((address) + PAGE_SIZE - 1) & PAGE_MASK)
 #define PAGE_IS_ENABLED(address) (address & 0x01)
 #define PAGE_IS_ALIGNED(address) ((address) == PAGE_ALIGN(address))
 
@@ -67,25 +64,25 @@ void virtual_mm_init()
     printf("Virtual MM: Initialized\n");
 }
 
-void virtual_mm_create_page_table(uint32_t virtual, uint32_t flags)
+void virtual_mm_create_page_table(struct page_directory *directory, uint32_t virtual, uint32_t flags)
 {
-    if (PAGE_IS_ENABLED(g_virtual_directory->entries[PAGE_DIR_INDEX(virtual)]))
+    if (PAGE_IS_ENABLED(directory->entries[PAGE_DIR_INDEX(virtual)]))
         return;
 
     uint32_t table_address = (uint32_t)physical_mm_allocate();
-    g_virtual_directory->entries[PAGE_DIR_INDEX(virtual)] = table_address | flags;
+    directory->entries[PAGE_DIR_INDEX(virtual)] = table_address | flags;
     flush_tbl(virtual);
 
     memset((char *)PAGE_TBL_ADDRESS + PAGE_DIR_INDEX(virtual) * PAGE_SIZE, 0x00, sizeof(struct page_table));
 }
 
-void virtual_mm_map(uint32_t physical, uint32_t virtual, uint32_t flags)
+void virtual_mm_map(struct page_directory *directory, uint32_t physical, uint32_t virtual, uint32_t flags)
 {
     if (!PAGE_IS_ALIGNED(virtual))
         printf("Virtual MM: Virtual address = 0x%x is not page aligned\n", virtual);
 
-    if (!PAGE_IS_ENABLED(g_virtual_directory->entries[PAGE_DIR_INDEX(virtual)]))
-        virtual_mm_create_page_table(virtual, flags);
+    if (!PAGE_IS_ENABLED(directory->entries[PAGE_DIR_INDEX(virtual)]))
+        virtual_mm_create_page_table(directory, virtual, flags);
 
     uint32_t *table = (uint32_t *)((char *)PAGE_TBL_ADDRESS + PAGE_DIR_INDEX(virtual) * PAGE_SIZE);
     table[PAGE_TBL_INDEX(virtual)] = physical | flags;
@@ -95,5 +92,6 @@ void virtual_mm_map(uint32_t physical, uint32_t virtual, uint32_t flags)
 uint32_t virtual_mm_get_physical(uint32_t virtual)
 {
     uint32_t *table = (uint32_t *)((char *)PAGE_TBL_ADDRESS + PAGE_DIR_INDEX(virtual) * PAGE_SIZE);
-    return table[PAGE_TBL_INDEX(virtual)];
+    uint32_t address = table[PAGE_TBL_INDEX(virtual)];
+    return (address & ~0xfff) | (virtual & 0xfff);
 }
