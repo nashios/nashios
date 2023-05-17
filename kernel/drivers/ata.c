@@ -7,6 +7,7 @@
 #include <kernel/string.h>
 
 #define ATA0_IO_ADDR 0x1F0
+#define ATA1_IO_ADDR 0x170
 
 #define ATA_SR_BSY 0x80
 #define ATA_SR_DRQ 0x08
@@ -107,7 +108,7 @@ struct ata_device *ata_find_device(const char *name)
 
 bool ata_handler(struct registers *registers)
 {
-    pic_send_eoi(14);
+    pic_send_eoi(registers->number - 40);
     return true;
 }
 
@@ -116,9 +117,12 @@ void ata_init()
     dlist_head_init(&s_ata_device_list);
 
     irq_set_handler(14, ata_handler);
+    irq_set_handler(15, ata_handler);
 
-    if (!ata_detect("/dev/hda", ATA0_IO_ADDR, true))
-        PANIC("ATA: Failed to find primary device\n");
+    ata_detect("/dev/hda", ATA0_IO_ADDR, true);
+    ata_detect("/dev/hdb", ATA0_IO_ADDR, false);
+    ata_detect("/dev/hdc", ATA1_IO_ADDR, true);
+    ata_detect("/dev/hdd", ATA1_IO_ADDR, false);
 
     printf("ATA: Initialized\n");
 }
