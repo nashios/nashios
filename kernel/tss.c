@@ -1,5 +1,6 @@
 #include <kernel/gdt.h>
 #include <kernel/stdio.h>
+#include <kernel/string.h>
 #include <kernel/tss.h>
 
 struct tss_entry
@@ -43,9 +44,11 @@ void tss_set_stack(uint32_t ss, uint32_t esp)
     s_tss_entry.esp0 = esp;
 }
 
-void tss_init(uint32_t index, uint32_t ss, uint32_t esp)
+void tss_add(uint32_t index, uint32_t ss, uint32_t esp)
 {
     uint32_t base = (uint32_t)&s_tss_entry;
+    memset(&s_tss_entry, 0x00, sizeof(struct tss_entry));
+
     uint32_t limit = base + sizeof(struct tss_entry);
     gdt_add(index, base, limit, 0xE9, 0x00);
 
@@ -58,7 +61,11 @@ void tss_init(uint32_t index, uint32_t ss, uint32_t esp)
     s_tss_entry.fs = 0x13;
     s_tss_entry.gs = 0x13;
     s_tss_entry.iomap = sizeof(struct tss_entry);
+}
 
+void tss_init()
+{
     tss_flush();
+    printf("TSS: Flushed address = 0x%x\n", &s_tss_entry);
     printf("TSS: Initialized\n");
 }
