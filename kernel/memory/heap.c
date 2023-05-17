@@ -1,4 +1,3 @@
-#include <kernel/api/posix/sys/limits.h>
 #include <kernel/math.h>
 #include <kernel/memory/heap.h>
 #include <kernel/memory/virtual.h>
@@ -45,36 +44,33 @@ int heap_get_index(uint32_t size)
     return shift - 1;
 }
 
-void *heap_request_space(int pages)
+void *heap_sbrk(size_t size)
 {
-    uint32_t size = pages * PAGE_SIZE;
-    char *buffer = (char *)s_heap_address;
-    if (!buffer)
-        return NULL;
+    if (size == 0)
+        return (char *)s_heap_address;
 
+    char *base = (char *)s_heap_address;
     if (size <= s_heap_remaining)
         s_heap_remaining -= size;
     else
     {
-        uint32_t physical_size = DIV_ROUND_UP(size - s_heap_remaining, PAGE_SIZE);
-        uint32_t physical_address = (uint32_t)physical_mm_allocate_size(physical_size);
-        if (!physical_address)
-            return NULL;
-        uint32_t virtual_address = DIV_ROUND_UP(s_heap_address, PAGE_SIZE) * PAGE_SIZE;
-        while (virtual_address < s_heap_address + size)
+        uint32_t request = DIV_ROUND_UP(size - s_heap_remaining, PAGE_SIZE);
+        uint32_t physical = (uint32_t)physical_mm_allocate_size(request);
+        uint32_t virtual = DIV_ROUND_UP(s_heap_address, PAGE_SIZE) * PAGE_SIZE;
+        while (virtual < s_heap_address + size)
         {
-            virtual_mm_map(physical_address, virtual_address, PAGE_TBL_PRESENT | PAGE_TBL_WRITABLE);
+            virtual_mm_map(g_virtual_directory, physical, virtual, PAGE_TBL_PRESENT | PAGE_TBL_WRITABLE);
 
-            virtual_address += PAGE_SIZE;
-            physical_address += PAGE_SIZE;
+            virtual += PAGE_SIZE;
+            physical += PAGE_SIZE;
         }
-
-        s_heap_remaining = virtual_address - (s_heap_address + size);
+        s_heap_remaining = virtual - (s_heap_address + size);
     }
-    s_heap_address += size;
-    memset(buffer, 0x00, size);
 
-    return buffer;
+    s_heap_address += size;
+    memset(base, 0, size);
+
+    return base;
 }
 
 struct heap_block *heap_allocate_block(uint32_t size)
@@ -87,10 +83,7 @@ struct heap_block *heap_allocate_block(uint32_t size)
     if (pages < HEAP_MAX_COUNT)
         pages = HEAP_MAX_COUNT;
 
-    struct heap_block *block = (struct heap_block *)heap_request_space(pages);
-    if (!block)
-        return NULL;
-
+    struct heap_block *block = (struct heap_block *)heap_sbrk(pages * PAGE_SIZE);
     block->magic = HEAP_MAGIC;
     block->size = size;
     block->real_size = pages * PAGE_SIZE;
