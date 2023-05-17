@@ -1,3 +1,4 @@
+#include <kernel/stdlib.h>
 #include <kernel/string.h>
 
 size_t strlen(const char *str)
@@ -36,6 +37,15 @@ int strcmp(const char *str1, const char *str2)
     } while (c1 == c2);
 
     return c1 - c2;
+}
+
+char *strdup(const char *string)
+{
+    size_t length = strlen(string) + 1;
+    char *new_string = (char *)calloc(length, sizeof(char));
+    if (!new_string)
+        return NULL;
+    return (char *)memcpy(new_string, string, length);
 }
 
 void *memcpy(void *dest, const void *src, size_t n)
