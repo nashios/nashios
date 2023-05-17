@@ -29,18 +29,6 @@ set(CMAKE_FIND_ROOT_PATH_MODE_LIBRARY ONLY)
 set(CMAKE_FIND_ROOT_PATH_MODE_INCLUDE ONLY)
 set(CMAKE_FIND_ROOT_PATH_MODE_PACKAGE ONLY)
 
-include_directories(.)
-
-add_compile_options(-Wall -Wextra)
-
-add_custom_target(toolchain
-    COMMAND "TARGET=${TOOLCHAIN_TARGET}" "TARGET_DIR=${TOOLCHAIN_PATH}" ${CMAKE_SOURCE_DIR}/meta/scripts/setup-toolchain.sh
-    USES_TERMINAL)
-
-add_custom_target(run
-    COMMAND ${CMAKE_SOURCE_DIR}/meta/scripts/run.sh
-    USES_TERMINAL)
-
 find_package(Doxygen)
 if(DOXYGEN_FOUND)
     set(DOXYGEN_IN ${CMAKE_CURRENT_SOURCE_DIR}/meta/configs/Doxyfile)
@@ -66,5 +54,21 @@ function(nashios_install_sources)
         install(FILES ${source} DESTINATION usr/src/nashios/${relative_dir}/${subdirectory} OPTIONAL)
     endforeach()
 endfunction()
+
+include_directories(.)
+
+add_compile_options(-Wall -Wextra)
+
+add_custom_target(toolchain
+    COMMAND "TARGET=${TOOLCHAIN_TARGET}" "TARGET_DIR=${TOOLCHAIN_PATH}" ${CMAKE_SOURCE_DIR}/meta/scripts/setup-toolchain.sh
+    USES_TERMINAL)
+    
+add_custom_target(image
+    COMMAND "SOURCE_DIR=${CMAKE_SOURCE_DIR}" ${CMAKE_SOURCE_DIR}/meta/scripts/setup-image.sh
+    USES_TERMINAL)
+
+add_custom_target(run
+    COMMAND ${CMAKE_SOURCE_DIR}/meta/scripts/run.sh
+    USES_TERMINAL)
 
 add_subdirectory(kernel)
