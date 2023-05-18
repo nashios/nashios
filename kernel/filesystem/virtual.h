@@ -1,6 +1,10 @@
 #pragma once
 
+#include <kernel/api/posix/sys/types.h>
 #include <kernel/dlist.h>
+#include <stdint.h>
+
+#define VFS_BYTES_P_SECTOR 512
 
 struct vfs_type
 {
@@ -10,3 +14,4 @@ struct vfs_type
 
 void virtual_fs_init();
 int virtual_fs_set_type(struct vfs_type *type);
+char *virtual_fs_read_block(const char *source, sector_t sector, uint32_t size);
