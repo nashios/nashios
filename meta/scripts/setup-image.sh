@@ -8,7 +8,7 @@ fail() {
 
 FUSE2FS_FOUND=0
 if [ "$(id -u)" != 0 ]; then
-    if [ -x fuse2fs ] && fuse2fs --help 2>&1 |grep fakeroot > /dev/null; then
+    if fuse2fs --help 2>&1 |grep fakeroot > /dev/null; then
         FUSE2FS_FOUND=1
     else
         set +e
@@ -45,7 +45,7 @@ DISK_SIZE_BYTES=$((DISK_SIZE_BYTES + (INODE_COUNT * INODE_SIZE)))
 
 if [ -z "$NASHIOS_DISK_SIZE_BYTES" ]; then
     DISK_SIZE_BYTES=$((DISK_SIZE_BYTES * 2))
-    INODE_COUNT=$((INODE_COUNT * 7))
+    INODE_COUNT=$((INODE_COUNT))
 else
     if [ "$DISK_SIZE_BYTES" -gt "$NASHIOS_DISK_SIZE_BYTES" ]; then
         fail "NASHIOS_DISK_SIZE_BYTES is set to $NASHIOS_DISK_SIZE_BYTES bytes, but required disk size is $DISK_SIZE_BYTES bytes"
