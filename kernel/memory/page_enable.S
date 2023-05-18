@@ -7,11 +7,11 @@ page_enable:
     movl %eax, %cr3
 
     movl %cr4, %ebx
-    and $~0x00000010, %ebx
+    andl $~0x00000010, %ebx
     movl %ebx, %cr4
 
     movl %cr0, %ecx
-    or $0x80000000, %ecx
+    orl $0x80000000, %ecx
     movl %ecx, %cr0
     
     ret
