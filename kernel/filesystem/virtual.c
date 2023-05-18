@@ -7,6 +7,7 @@
 #include <kernel/string.h>
 
 static struct dlist_head s_virtual_type_list;
+static struct dlist_head s_virtual_mount_list;
 
 char *virtual_fs_read_block(const char *source, sector_t sector, uint32_t size)
 {
@@ -48,9 +49,31 @@ int virtual_fs_set_type(struct vfs_type *type)
     return 0;
 }
 
+int virtual_fs_mount(const char *source, const char *target, const char *filesystemtype, unsigned long mountflags,
+                     const void *data)
+{
+    struct ata_device *device = ata_find_device(source);
+    if (!device)
+        return -EINVAL;
+
+    struct vfs_type *type = virtual_fs_find_type(filesystemtype);
+    if (!type || !type->mount)
+        return -EEXIST;
+
+    struct vfs_mount *mount = type->mount(source, target, filesystemtype, mountflags, data);
+    if (!mount)
+        return -EINVAL;
+
+    dlist_add_tail(&mount->list, &s_virtual_mount_list);
+    printf("Virtual FS: Mounted filesystem name = %s, source = %s, target = %s, flags = 0x%x\n", type->name, source,
+           target, mountflags);
+    return 0;
+}
+
 void virtual_fs_init()
 {
     dlist_head_init(&s_virtual_type_list);
+    dlist_head_init(&s_virtual_mount_list);
 
     printf("Virtual FS: Initialized\n");
 }

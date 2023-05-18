@@ -6,12 +6,27 @@
 
 #define VFS_BYTES_P_SECTOR 512
 
+struct vfs_superblock
+{
+    const char *device;
+    uint32_t block_size;
+};
+
+struct vfs_mount
+{
+    struct dlist_head list;
+};
+
 struct vfs_type
 {
     const char *name;
+    struct vfs_mount *(*mount)(const char *source, const char *target, const char *filesystemtype,
+                               unsigned long mountflags, const void *data);
     struct dlist_head list;
 };
 
 void virtual_fs_init();
 int virtual_fs_set_type(struct vfs_type *type);
 char *virtual_fs_read_block(const char *source, sector_t sector, uint32_t size);
+int virtual_fs_mount(const char *source, const char *target, const char *filesystemtype, unsigned long mountflags,
+                     const void *data);
