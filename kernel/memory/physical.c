@@ -76,13 +76,13 @@ void physical_mm_init()
 
         uint32_t address = mmap->addr;
         uint32_t length = mmap->len;
-        uint32_t diff = address % PAGE_SIZE;
-        if (diff != 0)
+        uint32_t offset = address % PAGE_SIZE;
+        if (offset != 0)
         {
-            printf("Physical MM: Unaligned region address = 0x%x of 0x%x\n", address, diff);
-            diff = PAGE_SIZE - diff;
-            address += diff;
-            length -= diff;
+            printf("Physical MM: Unaligned region address = 0x%x of 0x%x\n", address, offset);
+            offset = PAGE_SIZE - offset;
+            address += offset;
+            length -= offset;
         }
 
         if ((length % PAGE_SIZE) != 0)
@@ -112,11 +112,11 @@ void physical_mm_init()
 void *physical_mm_allocate()
 {
     if (s_physical_max <= s_physical_used)
-        return 0;
+        return NULL;
 
     uint32_t frame = bitmap_first_free(s_physical_bitmap, s_physical_max);
     if ((int)frame == -1)
-        return 0;
+        return NULL;
 
     bitmap_set(s_physical_bitmap, frame);
     s_physical_used++;
@@ -128,14 +128,14 @@ void *physical_mm_allocate()
 void *physical_mm_allocate_size(size_t size)
 {
     if (s_physical_max <= s_physical_used)
-        return 0;
+        return NULL;
 
     if (s_physical_max - s_physical_used < size)
-        return 0;
+        return NULL;
 
     uint32_t frame = bitmap_first_free_size(s_physical_bitmap, s_physical_max, size);
     if ((int)frame == -1)
-        return 0;
+        return NULL;
 
     for (uint32_t i = 0; i < size; i++)
     {
