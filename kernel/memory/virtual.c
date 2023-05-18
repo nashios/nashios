@@ -27,25 +27,25 @@ struct page_directory *g_virtual_directory = NULL;
 void page_enable(uint32_t address);
 void flush_tbl(uint32_t address);
 
-void virtual_mm_identity_map(uint32_t physical_address, uint32_t virtual_address)
+void virtual_mm_identity_map(struct page_directory *directory, uint32_t physical_address, uint32_t virtual_address)
 {
     uint32_t physical_table = (uint32_t)physical_mm_allocate();
     struct page_table *table = (struct page_table *)PHYS_TO_VIRT(physical_table);
-    memset((void *)table, 0x00, sizeof(struct page_table));
+    memset(table, 0x00, sizeof(struct page_table));
 
     for (uint32_t i = 0, i_physical_address = physical_address, i_virtual_address = virtual_address; i < 1024;
          i++, i_physical_address += PAGE_SIZE, i_virtual_address += PAGE_SIZE)
     {
         uint32_t *page = &table->entries[PAGE_TBL_INDEX(i_virtual_address)];
         *page = i_physical_address | PAGE_TBL_PRESENT | PAGE_TBL_WRITABLE;
-        physical_mm_mark(i_physical_address);
+        // physical_mm_mark(i_physical_address);
     }
 
-    uint32_t *entry = &g_virtual_directory->entries[PAGE_DIR_INDEX(virtual_address)];
+    uint32_t *entry = &directory->entries[PAGE_DIR_INDEX(virtual_address)];
     *entry = physical_table | PAGE_DIR_PRESENT | PAGE_DIR_WRITABLE;
 
     printf("Virtual MM: Identity mapped physical = 0x%08x, virtual = 0x%08x, directory = 0x%x\n", physical_address,
-           virtual_address, &g_virtual_directory);
+           virtual_address, &directory);
 }
 
 void virtual_mm_allocate_tbl(struct page_directory *directory, int index)
@@ -62,15 +62,15 @@ void virtual_mm_init()
     uint32_t physical_directory = (uint32_t)physical_mm_allocate();
     struct page_directory *directory = (struct page_directory *)PHYS_TO_VIRT(physical_directory);
     memset(directory, 0x00, sizeof(struct page_directory));
-    g_virtual_directory = directory;
 
-    virtual_mm_identity_map(0x00000000, 0xC0000000);
+    virtual_mm_identity_map(directory, 0x00000000, 0xC0000000);
 
     for (int i = 769; i < 1024; i++)
         virtual_mm_allocate_tbl(directory, i);
 
     directory->entries[1023] = (physical_directory & PAGE_DIR_ADDRESS) | PAGE_DIR_PRESENT | PAGE_DIR_WRITABLE;
 
+    g_virtual_directory = directory;
     page_enable(physical_directory);
     printf("Virtual MM: Page enable with page directory address = 0x%x\n", physical_directory);
     printf("Virtual MM: Initialized\n");
@@ -106,4 +106,13 @@ uint32_t virtual_mm_get_physical(uint32_t virtual)
     uint32_t *table = (uint32_t *)((char *)PAGE_TBL_ADDRESS + PAGE_DIR_INDEX(virtual) * PAGE_SIZE);
     uint32_t address = table[PAGE_TBL_INDEX(virtual)];
     return (address & ~0xfff) | (virtual & 0xfff);
+}
+
+struct page_directory *virtual_mm_create_address(struct page_directory *old_directory)
+{
+    uint32_t physical_directory = (uint32_t)physical_mm_allocate();
+    struct page_directory *directory = (struct page_directory *)PHYS_TO_VIRT(physical_directory);
+    memcpy(&directory->entries[768], &old_directory->entries[768], 255 * sizeof(uint32_t));
+    directory->entries[1023] = virtual_mm_get_physical((uint32_t)directory);
+    return directory;
 }

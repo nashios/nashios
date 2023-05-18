@@ -59,7 +59,10 @@ struct process *scheduler_create_process(struct process *parent)
     process->directory = g_virtual_directory;
 
     if (process->parent)
+    {
+        process->directory = virtual_mm_create_address(parent->directory);
         dlist_add_tail(&process->sibling, &parent->children);
+    }
 
     dlist_head_init(&process->children);
 
