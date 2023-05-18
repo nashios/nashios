@@ -34,7 +34,7 @@ void virtual_mm_identity_map(uint32_t physical_address, uint32_t virtual_address
     memset((void *)table, 0x00, sizeof(struct page_table));
 
     for (uint32_t i = 0, i_physical_address = physical_address, i_virtual_address = virtual_address; i < 1024;
-         i++, i_physical_address += 4096, i_virtual_address += 4096)
+         i++, i_physical_address += PAGE_SIZE, i_virtual_address += PAGE_SIZE)
     {
         uint32_t *page = &table->entries[PAGE_TBL_INDEX(i_virtual_address)];
         *page = i_physical_address | PAGE_TBL_PRESENT | PAGE_TBL_WRITABLE;
@@ -44,7 +44,7 @@ void virtual_mm_identity_map(uint32_t physical_address, uint32_t virtual_address
     uint32_t *entry = &g_virtual_directory->entries[PAGE_DIR_INDEX(virtual_address)];
     *entry = physical_table | PAGE_DIR_PRESENT | PAGE_DIR_WRITABLE;
 
-    printf("Virtual MM: Identity mapped physical = 0x%08x, virtual = 0x%x, directory = 0x%x\n", physical_address,
+    printf("Virtual MM: Identity mapped physical = 0x%08x, virtual = 0x%08x, directory = 0x%x\n", physical_address,
            virtual_address, &g_virtual_directory);
 }
 
