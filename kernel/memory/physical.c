@@ -25,7 +25,7 @@ static uint32_t s_physical_max = 0;
 void physical_mm_set_region(uint32_t address, uint32_t length)
 {
     uint32_t frame = address / PAGE_SIZE;
-    uint32_t frames = length / PAGE_SIZE;
+    uint32_t frames = DIV_ROUND_UP(length, PAGE_SIZE);
 
     for (uint32_t i = 0; i < frames; i++)
     {
@@ -41,7 +41,7 @@ void physical_mm_set_region(uint32_t address, uint32_t length)
 void physical_mm_unset_region(uint32_t address, uint32_t length)
 {
     uint32_t frame = address / PAGE_SIZE;
-    uint32_t frames = length / PAGE_SIZE;
+    uint32_t frames = DIV_ROUND_UP(length, PAGE_SIZE);
 
     for (uint32_t i = 0; i < frames; i++)
     {
