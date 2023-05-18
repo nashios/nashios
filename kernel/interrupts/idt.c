@@ -1,4 +1,6 @@
 #include <kernel/interrupts/idt.h>
+#include <kernel/interrupts/irq.h>
+#include <kernel/interrupts/isr.h>
 #include <kernel/stdio.h>
 
 #define IDT_ENTRIES 256
@@ -43,6 +45,9 @@ void idt_init()
     for (uint16_t i = 0; i < IDT_ENTRIES; i++)
         idt_add(i, 0x8E, 0x08, idt_default_handler);
     printf("IDT: Added default handlers\n");
+
+    isr_init();
+    irq_init();
 
     uint32_t address = (uint32_t)&s_idt_pointer;
     idt_flush(address);
