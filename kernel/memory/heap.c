@@ -84,6 +84,9 @@ struct heap_block *heap_allocate_block(uint32_t size)
         pages = HEAP_MAX_COUNT;
 
     struct heap_block *block = (struct heap_block *)heap_sbrk(pages * PAGE_SIZE);
+    if (!block)
+        return NULL;
+
     block->magic = HEAP_MAGIC;
     block->size = size;
     block->real_size = pages * PAGE_SIZE;
