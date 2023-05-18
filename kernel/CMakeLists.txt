@@ -42,6 +42,7 @@ set(C_SOURCES
     task/scheduler.c
     
     filesystem/virtual.c
+    filesystem/ext2.c
     
     drivers/pci.c
     drivers/ata.c)

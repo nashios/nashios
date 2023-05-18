@@ -1,6 +1,7 @@
 #include <kernel/assert.h>
 #include <kernel/drivers/ata.h>
 #include <kernel/drivers/pci.h>
+#include <kernel/filesystem/ext2.h>
 #include <kernel/filesystem/virtual.h>
 #include <kernel/gdt.h>
 #include <kernel/interrupts/idt.h>
@@ -19,8 +20,8 @@ void kernel_init()
 
     pci_init();
     ata_init();
-
     virtual_fs_init();
+    ext2_fs_init();
 
     scheduler_update_thread(g_scheduler_thread, THREAD_WAITING_STATE);
     scheduler_schedule();
