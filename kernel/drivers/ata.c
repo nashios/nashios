@@ -108,7 +108,7 @@ struct ata_device *ata_find_device(const char *name)
 
 bool ata_handler(struct registers *registers)
 {
-    pic_send_eoi(registers->number - 40);
+    pic_send_eoi(registers->number - 32);
     return true;
 }
 
