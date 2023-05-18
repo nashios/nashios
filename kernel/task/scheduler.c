@@ -281,6 +281,8 @@ void scheduler_init(void *init)
 {
     plist_head_init(&s_scheduler_kernel_list);
     plist_head_init(&s_scheduler_app_list);
+    plist_head_init(&s_scheduler_waiting_list);
+    plist_head_init(&s_scheduler_terminated_list);
 
     g_scheduler_process = scheduler_create_process(NULL);
     g_scheduler_thread = scheduler_create_thread(g_scheduler_process, 0x00, THREAD_KERNEL_TYPE, THREAD_RUNNING_STATE);
