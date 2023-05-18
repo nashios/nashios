@@ -25,18 +25,18 @@ void pic_remap(uint8_t offset1, uint8_t offset2)
     io_wait();
     io_outb(PIC1_DATA, offset1);
     io_wait();
-    io_outb(PIC1_DATA, offset2);
+    io_outb(PIC2_DATA, offset2);
     io_wait();
     io_outb(PIC1_DATA, 4);
     io_wait();
-    io_outb(PIC1_DATA, 2);
+    io_outb(PIC2_DATA, 2);
     io_wait();
     io_outb(PIC1_DATA, PIC_ICW4_8086);
     io_wait();
-    io_outb(PIC1_DATA, PIC_ICW4_8086);
+    io_outb(PIC2_DATA, PIC_ICW4_8086);
     io_wait();
     io_outb(PIC1_DATA, mask1);
-    io_outb(PIC1_DATA, mask2);
+    io_outb(PIC2_DATA, mask2);
 }
 
 void pic_send_eoi(uint8_t irq)
