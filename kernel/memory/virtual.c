@@ -48,6 +48,15 @@ void virtual_mm_identity_map(uint32_t physical_address, uint32_t virtual_address
            virtual_address, &g_virtual_directory);
 }
 
+void virtual_mm_allocate_tbl(struct page_directory *directory, int index)
+{
+    if (PAGE_IS_ENABLED(directory->entries[index]))
+        return;
+
+    uint32_t physical = (uint32_t)physical_mm_allocate();
+    directory->entries[index] = physical | PAGE_TBL_PRESENT | PAGE_TBL_WRITABLE;
+}
+
 void virtual_mm_init()
 {
     uint32_t physical_directory = (uint32_t)physical_mm_allocate();
@@ -56,6 +65,9 @@ void virtual_mm_init()
     g_virtual_directory = directory;
 
     virtual_mm_identity_map(0x00000000, 0xC0000000);
+
+    for (int i = 769; i < 1024; i++)
+        virtual_mm_allocate_tbl(directory, i);
 
     directory->entries[1023] = (physical_directory & PAGE_DIR_ADDRESS) | PAGE_DIR_PRESENT | PAGE_DIR_WRITABLE;
 
