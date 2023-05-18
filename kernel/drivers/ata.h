@@ -13,3 +13,5 @@ struct ata_device
 };
 
 void ata_init();
+struct ata_device *ata_find_device(const char *name);
+int ata_read(struct ata_device *device, uint32_t lba, uint8_t sectors, uint16_t *buffer);
