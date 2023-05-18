@@ -130,6 +130,16 @@ void isr_handler(struct registers *registers)
     {
         printf("ISR: Unhandled exception number = %d, message = %s\n", registers->number,
                s_isr_messages[registers->number]);
+
+        printf("ISR: * EAX = 0x%p, EBX = 0x%p\n", registers->eax, registers->ebx);
+        printf("ISR: * ECX = 0x%p, EDX = 0x%p\n", registers->ecx, registers->edx);
+        printf("ISR: * ESI = 0x%p, EDI = 0x%p\n", registers->esi, registers->edi);
+        printf("ISR: * EBP = 0x%p, ESP = 0x%p\n", registers->ebp, registers->esp);
+        printf("ISR: * EIP = 0x%p, EFL = 0x%p\n", registers->eip, registers->eflags);
+        printf("ISR: * ES = 0x%p, CS = 0x%p\n", registers->es, registers->cs);
+        printf("ISR: * SS = 0x%p, DS = 0x%p\n", registers->ss, registers->ds);
+        printf("ISR: * FS = 0x%p, GS = 0x%p\n", registers->fs, registers->gs);
+
         PANIC("Unhandled exception number = %d\n", registers->number);
     }
 }
