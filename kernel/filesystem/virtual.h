@@ -2,9 +2,21 @@
 
 #include <kernel/api/posix/sys/types.h>
 #include <kernel/dlist.h>
+#include <kernel/task/scheduler.h>
 #include <stdint.h>
 
 #define VFS_BYTES_P_SECTOR 512
+
+struct vfs_file;
+struct vfs_file_op
+{
+    int (*mmap)(struct vfs_file *file, struct process_vm *memory);
+};
+
+struct vfs_file
+{
+    struct vfs_file_op *op;
+};
 
 struct vfs_superblock
 {

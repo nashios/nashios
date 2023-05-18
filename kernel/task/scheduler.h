@@ -18,10 +18,40 @@ enum thread_type
     THREAD_APPLICATION_TYPE
 };
 
+struct process_mm
+{
+    uint32_t cache;
+    uint32_t code_start;
+    uint32_t code_end;
+    uint32_t data_start;
+    uint32_t data_end;
+    uint32_t brk_start;
+    uint32_t brk_middle;
+    uint32_t brk_end;
+    struct dlist_head list;
+};
+
+struct vfs_file;
+struct process_vm
+{
+    uint32_t start;
+    uint32_t end;
+    struct process_mm *memory;
+    struct vfs_file *file;
+    struct dlist_head list;
+};
+
+struct process_files
+{
+    struct vfs_file *fd[MAX_FD];
+};
+
 struct process
 {
     pid_t pid;
     struct process *parent;
+    struct process_mm *memory;
+    struct process_files *files;
     struct page_directory *directory;
     struct dlist_head sibling;
     struct dlist_head children;
