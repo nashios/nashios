@@ -5,7 +5,7 @@
             "name": "i686",
             "generator": "Ninja",
             "binaryDir": "${sourceDir}/binary/build/i686",
-            "installDir": "${sourceDir}/binary/install/i686",
+            "installDir": "${sourceDir}/binary/build/i686/sysroot",
             "cacheVariables": {
                 "NASHIOS_ARCHITECTURE": "i686",
                 "NASHIOS_PROCESSOR": "x86",

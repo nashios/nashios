@@ -55,6 +55,14 @@ function(nashios_install_sources)
     endforeach()
 endfunction()
 
+function(nashios_libc target_name fs_name)
+    nashios_install_headers("")
+    nashios_install_sources()
+    add_library(${target_name} ${SOURCES})
+    install(TARGETS ${target_name} DESTINATION usr/lib)
+    set_target_properties(${target_name} PROPERTIES OUTPUT_NAME ${fs_name})
+endfunction()
+
 include_directories(.)
 
 add_compile_options(-Wall -Wextra)
@@ -72,3 +80,4 @@ add_custom_target(run
     USES_TERMINAL)
 
 add_subdirectory(kernel)
+add_subdirectory(libraries)
