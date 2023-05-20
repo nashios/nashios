@@ -9,16 +9,21 @@
 
 #define VFS_BYTES_P_SECTOR 512
 
+#define FMODE_CAN_READ 0x20000
+
 struct vfs_inode;
 struct vfs_file;
 struct vfs_file_op
 {
     int (*open)(struct vfs_inode *inode, struct vfs_file *file);
+    ssize_t (*read)(struct vfs_file *file, char *buf, size_t count, loff_t ppos);
     int (*mmap)(struct vfs_file *file, struct process_vm *memory);
 };
 
 struct vfs_file
 {
+    fmode_t mode;
+    loff_t position;
     struct vfs_file_op *op;
     struct vfs_dentry *dentry;
     struct vfs_mount *mount;
@@ -89,3 +94,4 @@ int virtual_fs_mount(const char *source, const char *target, const char *filesys
 struct vfs_dentry *virtual_fs_create_dentry(const char *name);
 int virtual_fs_open(const char *pathname, int flags, mode_t mode);
 int virtual_fs_fstat(int fd, struct stat *buf);
+ssize_t virtual_fs_read(int fd, void *buf, size_t count);

@@ -228,6 +228,21 @@ int virtual_fs_fstat(int fd, struct stat *buf)
     return virtual_fs_getattr(file->mount, file->dentry, buf);
 }
 
+ssize_t virtual_fs_read(int fd, void *buf, size_t count)
+{
+    if (fd < 0)
+        return -EBADF;
+
+    struct vfs_file *file = g_scheduler_process->files->fd[fd];
+    if (!file)
+        return -EBADF;
+
+    if (file->mode & FMODE_CAN_READ && file->op->read)
+        return file->op->read(file, buf, count, file->position);
+
+    return -EINVAL;
+}
+
 int virtual_fs_mount(const char *source, const char *target, const char *filesystemtype, unsigned long mountflags,
                      const void *data)
 {
