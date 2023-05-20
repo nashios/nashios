@@ -63,6 +63,12 @@ function(nashios_libc target_name fs_name)
     set_target_properties(${target_name} PROPERTIES OUTPUT_NAME ${fs_name})
 endfunction()
 
+function(nashios_bin target_name)
+    nashios_install_sources()
+    add_executable(${target_name} ${SOURCES})
+    install(TARGETS ${target_name} DESTINATION bin)
+endfunction()
+
 include_directories(.)
 
 add_compile_options(-Wall -Wextra)
@@ -81,3 +87,4 @@ add_custom_target(run
 
 add_subdirectory(kernel)
 add_subdirectory(libraries)
+add_subdirectory(services)
