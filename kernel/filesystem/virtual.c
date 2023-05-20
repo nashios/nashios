@@ -180,19 +180,52 @@ int virtual_fs_open(const char *pathname, int flags, mode_t mode)
         return -EINVAL;
 
     file->op = nameidata.dentry->inode->fop;
-    if (!file->op && !file->op->open)
-        return -EINVAL;
-
-    result = file->op->open(nameidata.dentry->inode, file);
-    if (result < 0)
+    if (file->op && file->op->open)
     {
-        free(file);
-        return result;
+        result = file->op->open(nameidata.dentry->inode, file);
+        if (result < 0)
+        {
+            free(file);
+            return result;
+        }
     }
 
     g_scheduler_process->files->fd[fd] = file;
 
     return fd;
+}
+
+int virtual_fs_getattr(struct vfs_mount *mount, struct vfs_dentry *dentry, struct stat *stat)
+{
+    struct vfs_inode *inode = dentry->inode;
+    if (inode->iop->getattr)
+        return inode->iop->getattr(mount, dentry, stat);
+
+    stat->st_size = inode->size;
+    stat->st_blocks = inode->blocks;
+    stat->st_blksize = inode->block_size;
+
+    if (!stat->st_blksize)
+    {
+        struct vfs_superblock *superblock = inode->superblock;
+        uint32_t blocks = (stat->st_size + superblock->block_size - 1) >> superblock->block_size_bits;
+        stat->st_blocks = (superblock->block_size / VFS_BYTES_P_SECTOR) * blocks;
+        stat->st_blksize = superblock->block_size;
+    }
+
+    return 0;
+}
+
+int virtual_fs_fstat(int fd, struct stat *buf)
+{
+    if (fd < 0)
+        return -EBADF;
+
+    struct vfs_file *file = g_scheduler_process->files->fd[fd];
+    if (!file)
+        return -EBADF;
+
+    return virtual_fs_getattr(file->mount, file->dentry, buf);
 }
 
 int virtual_fs_mount(const char *source, const char *target, const char *filesystemtype, unsigned long mountflags,

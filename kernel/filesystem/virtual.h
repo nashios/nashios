@@ -20,18 +20,24 @@ struct vfs_file_op
 struct vfs_file
 {
     struct vfs_file_op *op;
+    struct vfs_dentry *dentry;
+    struct vfs_mount *mount;
 };
 
 struct vfs_inode_op
 {
     struct vfs_inode *(*create)(struct vfs_inode *inode, struct vfs_dentry *dentry, mode_t mode);
     struct vfs_inode *(*lookup)(struct vfs_inode *inode, struct vfs_dentry *dentry);
+    int (*getattr)(struct vfs_mount *mount, struct vfs_dentry *dentry, struct stat *stat);
 };
 
 struct vfs_inode
 {
     ino_t ino;
     umode_t mode;
+    uint32_t size;
+    uint32_t blocks;
+    uint32_t block_size;
     struct vfs_inode_op *iop;
     struct vfs_file_op *fop;
     struct vfs_superblock *superblock;
@@ -56,6 +62,7 @@ struct vfs_superblock
 {
     const char *device;
     uint32_t block_size;
+    uint32_t block_size_bits;
     struct vfs_superblock_op *op;
     void *info;
 };
@@ -81,3 +88,4 @@ int virtual_fs_mount(const char *source, const char *target, const char *filesys
                      const void *data);
 struct vfs_dentry *virtual_fs_create_dentry(const char *name);
 int virtual_fs_open(const char *pathname, int flags, mode_t mode);
+int virtual_fs_fstat(int fd, struct stat *buf);

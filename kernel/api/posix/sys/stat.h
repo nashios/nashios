@@ -11,5 +11,7 @@
 
 struct stat
 {
-    off_t st_size;
+    long long st_size;
+    long long st_blksize;
+    long long st_blocks;
 };

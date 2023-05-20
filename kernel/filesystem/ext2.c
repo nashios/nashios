@@ -320,6 +320,9 @@ void ext2_fs_read_inode(struct vfs_inode *inode)
         return;
 
     inode->mode = ext2_inode->i_mode;
+    inode->size = ext2_inode->i_size;
+    inode->blocks = ext2_inode->i_blocks;
+    inode->block_size = PAGE_SIZE;
     inode->info = ext2_inode;
 
     if (S_ISREG(inode->mode))
