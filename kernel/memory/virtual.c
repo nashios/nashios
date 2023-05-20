@@ -1,3 +1,4 @@
+#include <kernel/memory/heap.h>
 #include <kernel/memory/virtual.h>
 #include <kernel/stdio.h>
 #include <kernel/stdlib.h>
@@ -38,7 +39,7 @@ void virtual_mm_identity_map(struct page_directory *directory, uint32_t physical
     {
         uint32_t *page = &table->entries[PAGE_TBL_INDEX(i_virtual_address)];
         *page = i_physical_address | PAGE_TBL_PRESENT | PAGE_TBL_WRITABLE;
-        // physical_mm_mark(i_physical_address);
+        physical_mm_mark(i_physical_address);
     }
 
     uint32_t *entry = &directory->entries[PAGE_DIR_INDEX(virtual_address)];
@@ -104,15 +105,19 @@ void virtual_mm_map(struct page_directory *directory, uint32_t physical, uint32_
 uint32_t virtual_mm_get_physical(uint32_t virtual)
 {
     uint32_t *table = (uint32_t *)((char *)PAGE_TBL_ADDRESS + PAGE_DIR_INDEX(virtual) * PAGE_SIZE);
-    uint32_t address = table[PAGE_TBL_INDEX(virtual)];
-    return (address & ~0xfff) | (virtual & 0xfff);
+    return table[PAGE_TBL_INDEX(virtual)];
 }
 
-struct page_directory *virtual_mm_create_address(struct page_directory *old_directory)
+struct page_directory *virtual_mm_create_address()
 {
-    uint32_t physical_directory = (uint32_t)physical_mm_allocate();
-    struct page_directory *directory = (struct page_directory *)PHYS_TO_VIRT(physical_directory);
-    memcpy(&directory->entries[768], &old_directory->entries[768], 255 * sizeof(uint32_t));
+    char *aligned = heap_align(PAGE_SIZE);
+    struct page_directory *directory = calloc(1, sizeof(struct page_directory));
+    if (aligned)
+        free(aligned);
+
+    for (int i = 768; i < 1023; i++)
+        directory->entries[i] = virtual_mm_get_physical(PAGE_TBL_ADDRESS + i * PAGE_SIZE);
+
     directory->entries[1023] = virtual_mm_get_physical((uint32_t)directory);
     return directory;
 }
