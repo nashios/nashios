@@ -45,7 +45,7 @@ DISK_SIZE_BYTES=$((DISK_SIZE_BYTES + (INODE_COUNT * INODE_SIZE)))
 
 if [ -z "$NASHIOS_DISK_SIZE_BYTES" ]; then
     DISK_SIZE_BYTES=$((DISK_SIZE_BYTES * 2))
-    INODE_COUNT=$((INODE_COUNT))
+    INODE_COUNT=$((INODE_COUNT * 7))
 else
     if [ "$DISK_SIZE_BYTES" -gt "$NASHIOS_DISK_SIZE_BYTES" ]; then
         fail "NASHIOS_DISK_SIZE_BYTES is set to $NASHIOS_DISK_SIZE_BYTES bytes, but required disk size is $DISK_SIZE_BYTES bytes"
