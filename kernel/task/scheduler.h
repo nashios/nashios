@@ -4,6 +4,10 @@
 #include <kernel/memory/virtual.h>
 #include <kernel/plist.h>
 
+#define SCHED_STACK_SIZE 0x2000
+#define SCHED_HEAP_SIZE 0x20000
+#define SCHED_HEAP_TOP 0x40000000
+
 enum thread_state
 {
     THREAD_READY_STATE,
@@ -46,12 +50,20 @@ struct process_files
     struct vfs_file *fd[MAX_FD];
 };
 
+struct vfs_mount;
+struct process_fs
+{
+    struct vfs_dentry *dentry;
+    struct vfs_mount *mount;
+};
+
 struct process
 {
     pid_t pid;
     struct process *parent;
     struct process_mm *memory;
     struct process_files *files;
+    struct process_fs *fs;
     struct page_directory *directory;
     struct dlist_head sibling;
     struct dlist_head children;
@@ -63,6 +75,7 @@ struct thread
     uint32_t timing;
     uint32_t esp;
     uint32_t kernel_stack;
+    uint32_t user_stack;
     enum thread_type type;
     enum thread_state state;
     struct process *process;
@@ -77,3 +90,4 @@ void scheduler_schedule();
 void scheduler_lock();
 void scheduler_unlock();
 void scheduler_update_thread(struct thread *thread, enum thread_state state);
+void scheduler_open(const char *path);

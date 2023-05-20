@@ -23,6 +23,8 @@ void kernel_init()
     virtual_fs_init();
     ext2_fs_init();
 
+    scheduler_open("/bin/system_service");
+
     scheduler_update_thread(g_scheduler_thread, THREAD_WAITING_STATE);
     scheduler_schedule();
 

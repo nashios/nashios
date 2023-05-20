@@ -1,12 +1,13 @@
 #include <kernel/interrupts/irq.h>
+#include <kernel/panic.h>
 #include <kernel/processor.h>
 #include <kernel/stdio.h>
 #include <kernel/stdlib.h>
 #include <kernel/string.h>
+#include <kernel/task/elf.h>
 #include <kernel/task/scheduler.h>
 #include <kernel/tss.h>
 
-#define SCHED_STACK_SIZE 0x2000
 #define SCHED_PAGE_FAULT 0xFFFFFFFF
 
 struct trap_frame
@@ -22,6 +23,7 @@ struct trap_frame
     uint32_t eip;
     uint32_t return_addr;
     uint32_t param1;
+    uint32_t param2;
 };
 
 static struct plist_head s_scheduler_kernel_list;
@@ -35,6 +37,7 @@ struct process *g_scheduler_process = NULL;
 struct thread *g_scheduler_thread = NULL;
 
 extern void scheduler_switch(uint32_t *old_esp, uint32_t new_esp, uint32_t cr3);
+extern void scheduler_enter_usermode(uint32_t eip, uint32_t esp, uint32_t failed);
 
 void scheduler_lock()
 {
@@ -57,13 +60,19 @@ struct process *scheduler_create_process(struct process *parent)
     process->pid = s_scheduler_pid++;
     process->parent = parent;
     process->directory = g_virtual_directory;
+    process->fs = (struct process_fs *)calloc(1, sizeof(struct process_fs));
+    process->files = (struct process_files *)calloc(1, sizeof(struct process_files));
+    process->memory = (struct process_mm *)calloc(1, sizeof(struct process_mm));
 
     if (process->parent)
     {
-        process->directory = virtual_mm_create_address(parent->directory);
+        process->directory = virtual_mm_create_address();
+        memcpy(process->fs, parent->fs, sizeof(struct process_fs));
+        memcpy(process->files, parent->files, sizeof(struct process_files));
         dlist_add_tail(&process->sibling, &parent->children);
     }
 
+    dlist_head_init(&process->memory->list);
     dlist_head_init(&process->children);
 
     scheduler_unlock();
@@ -71,13 +80,26 @@ struct process *scheduler_create_process(struct process *parent)
     return process;
 }
 
-void scheduler_kernel_thread_entry(void *flow())
+void scheduler_kernel_thread_entry(struct thread *, void *flow())
 {
     flow();
     scheduler_schedule();
 }
 
-struct thread *scheduler_create_thread(struct process *process, uint32_t param, enum thread_type type,
+void scheduler_elf_thread_entry(struct thread *thread, const char *path)
+{
+    scheduler_unlock();
+
+    struct elf_layout *elf = elf_load(path);
+    if (!elf)
+        PANIC("Scheduler: Failed to load elf file = %s\n", path);
+
+    thread->user_stack = elf->stack;
+    tss_set_stack(0x10, thread->kernel_stack);
+    scheduler_enter_usermode(elf->stack, elf->entry, SCHED_PAGE_FAULT);
+}
+
+struct thread *scheduler_create_thread(struct process *process, uint32_t param, uint32_t eip, enum thread_type type,
                                        enum thread_state state)
 {
     scheduler_lock();
@@ -93,9 +115,10 @@ struct thread *scheduler_create_thread(struct process *process, uint32_t param, 
     struct trap_frame *frame = (struct trap_frame *)thread->esp;
     memset(frame, 0x00, sizeof(struct trap_frame));
 
-    frame->param1 = param;
+    frame->param1 = (uint32_t)thread;
+    frame->param2 = param;
     frame->return_addr = SCHED_PAGE_FAULT;
-    frame->eip = (uint32_t)scheduler_kernel_thread_entry;
+    frame->eip = eip;
     frame->eax = 0;
     frame->ecx = 0;
     frame->edx = 0;
@@ -280,6 +303,15 @@ void scheduler_schedule()
     scheduler_unlock();
 }
 
+void scheduler_open(const char *path)
+{
+    struct process *process = scheduler_create_process(g_scheduler_process);
+    struct thread *thread =
+        scheduler_create_thread(process, (uint32_t)strdup(path), (uint32_t)scheduler_elf_thread_entry,
+                                THREAD_APPLICATION_TYPE, THREAD_READY_STATE);
+    scheduler_queue_thread(thread);
+}
+
 void scheduler_init(void *init)
 {
     plist_head_init(&s_scheduler_kernel_list);
@@ -288,10 +320,12 @@ void scheduler_init(void *init)
     plist_head_init(&s_scheduler_terminated_list);
 
     g_scheduler_process = scheduler_create_process(NULL);
-    g_scheduler_thread = scheduler_create_thread(g_scheduler_process, 0x00, THREAD_KERNEL_TYPE, THREAD_RUNNING_STATE);
+    g_scheduler_thread = scheduler_create_thread(g_scheduler_process, 0x00, (uint32_t)scheduler_kernel_thread_entry,
+                                                 THREAD_KERNEL_TYPE, THREAD_RUNNING_STATE);
 
     struct process *process = scheduler_create_process(g_scheduler_process);
-    struct thread *thread = scheduler_create_thread(process, (uint32_t)init, THREAD_KERNEL_TYPE, THREAD_WAITING_STATE);
+    struct thread *thread = scheduler_create_thread(process, (uint32_t)init, (uint32_t)scheduler_kernel_thread_entry,
+                                                    THREAD_KERNEL_TYPE, THREAD_WAITING_STATE);
     scheduler_update_thread(g_scheduler_thread, THREAD_TERMINATED_STATE);
     scheduler_update_thread(thread, THREAD_READY_STATE);
 

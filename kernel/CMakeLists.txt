@@ -10,7 +10,8 @@ set(ASM_SOURCES
     interrupts/irq_common.S
     interrupts/isr_common.S
     
-    task/scheduler_switch.S)
+    task/scheduler_switch.S
+    task/scheduler_enter_usermode.S)
 
 set(C_SOURCES
     main.c
@@ -41,6 +42,7 @@ set(C_SOURCES
     interrupts/isr.c
     
     task/scheduler.c
+    task/elf.c
     
     filesystem/virtual.c
     filesystem/ext2.c
