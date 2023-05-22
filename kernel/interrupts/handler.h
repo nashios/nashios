@@ -3,6 +3,9 @@
 #include <stdbool.h>
 #include <stdint.h>
 
+#define ITR_CONTINUE false
+#define ITR_STOP true
+
 struct registers
 {
     uint32_t gs;

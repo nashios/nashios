@@ -9,7 +9,7 @@ bool pit_handler(struct registers *)
     s_pit_ticks++;
 
     pic_send_eoi(0);
-    return true;
+    return ITR_CONTINUE;
 }
 
 void pit_init()

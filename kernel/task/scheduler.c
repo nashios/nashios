@@ -239,7 +239,7 @@ struct thread *scheduler_pop_next_thread()
 bool scheduler_handler(struct registers *)
 {
     if (g_scheduler_thread->type != THREAD_KERNEL_TYPE || g_scheduler_thread->state != THREAD_RUNNING_STATE)
-        return false;
+        return ITR_CONTINUE;
 
     scheduler_lock();
 

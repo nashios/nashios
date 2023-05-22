@@ -4,9 +4,10 @@
 #include <kernel/processor.h>
 #include <kernel/stdio.h>
 
-#define ISR_ENTRIES 256
+#define ISR_CHAIN_SIZE 33
+#define ISR_CHAIN_DEPTH 4
 
-static itr_handler_t s_isr_handlers[ISR_ENTRIES] = {};
+static itr_handler_t s_isr_handlers[ISR_CHAIN_SIZE * ISR_CHAIN_DEPTH] = {};
 
 static const char *s_isr_messages[32] = {"Division Error",
                                          "Debug",
@@ -75,9 +76,23 @@ void isr30();
 void isr31();
 void isr127();
 
-void isr_set_handler(uint8_t index, itr_handler_t handler) { s_isr_handlers[index] = handler; }
+void isr_set_handler(uint8_t index, itr_handler_t handler)
+{
+    for (uint8_t i = 0; i < ISR_CHAIN_DEPTH; i++)
+    {
+        if (s_isr_handlers[i * ISR_CHAIN_SIZE + index])
+            continue;
 
-void isr_unset_handler(uint8_t index) { s_isr_handlers[index] = 0; }
+        s_isr_handlers[i * ISR_CHAIN_SIZE + index] = handler;
+        break;
+    }
+}
+
+void isr_unset_handler(uint8_t index)
+{
+    for (uint8_t i = 0; i < ISR_CHAIN_DEPTH; i++)
+        s_isr_handlers[i * ISR_CHAIN_SIZE + index] = NULL;
+}
 
 void isr_init()
 {
@@ -123,23 +138,27 @@ void isr_init()
 
 void isr_handler(struct registers *registers)
 {
-    itr_handler_t handler = s_isr_handlers[registers->number];
-    if (handler)
-        handler(registers);
-    else
+    for (size_t i = 0; i < ISR_CHAIN_DEPTH; i++)
     {
-        printf("ISR: Unhandled exception number = %d, message = %s\n", registers->number,
-               s_isr_messages[registers->number]);
+        itr_handler_t handler = s_isr_handlers[i * ISR_CHAIN_SIZE + registers->number];
+        if (!handler)
+            break;
 
-        printf("ISR: * EAX = 0x%p, EBX = 0x%p\n", registers->eax, registers->ebx);
-        printf("ISR: * ECX = 0x%p, EDX = 0x%p\n", registers->ecx, registers->edx);
-        printf("ISR: * ESI = 0x%p, EDI = 0x%p\n", registers->esi, registers->edi);
-        printf("ISR: * EBP = 0x%p, ESP = 0x%p\n", registers->ebp, registers->esp);
-        printf("ISR: * EIP = 0x%p, EFL = 0x%p\n", registers->eip, registers->eflags);
-        printf("ISR: * ES = 0x%p, CS = 0x%p\n", registers->es, registers->cs);
-        printf("ISR: * SS = 0x%p, DS = 0x%p\n", registers->ss, registers->ds);
-        printf("ISR: * FS = 0x%p, GS = 0x%p\n", registers->fs, registers->gs);
-
-        PANIC("Unhandled exception number = %d\n", registers->number);
+        if (handler(registers) == ITR_STOP)
+            return;
     }
+
+    printf("ISR: Unhandled exception number = %d, message = %s\n", registers->number,
+           s_isr_messages[registers->number]);
+
+    printf("ISR: * EAX = 0x%p, EBX = 0x%p\n", registers->eax, registers->ebx);
+    printf("ISR: * ECX = 0x%p, EDX = 0x%p\n", registers->ecx, registers->edx);
+    printf("ISR: * ESI = 0x%p, EDI = 0x%p\n", registers->esi, registers->edi);
+    printf("ISR: * EBP = 0x%p, ESP = 0x%p\n", registers->ebp, registers->esp);
+    printf("ISR: * EIP = 0x%p, EFL = 0x%p\n", registers->eip, registers->eflags);
+    printf("ISR: * ES = 0x%p, CS = 0x%p\n", registers->es, registers->cs);
+    printf("ISR: * SS = 0x%p, DS = 0x%p\n", registers->ss, registers->ds);
+    printf("ISR: * FS = 0x%p, GS = 0x%p\n", registers->fs, registers->gs);
+
+    PANIC("Unhandled exception number = %d\n", registers->number);
 }

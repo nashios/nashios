@@ -24,22 +24,22 @@ void irq13();
 void irq14();
 void irq15();
 
-void irq_set_handler(uint8_t irq, itr_handler_t handler)
+void irq_set_handler(uint8_t index, itr_handler_t handler)
 {
     for (uint8_t i = 0; i < IRQ_CHAIN_DEPTH; i++)
     {
-        if (s_irq_handlers[i * IRQ_CHAIN_SIZE + irq])
+        if (s_irq_handlers[i * IRQ_CHAIN_SIZE + index])
             continue;
 
-        s_irq_handlers[i * IRQ_CHAIN_SIZE + irq] = handler;
+        s_irq_handlers[i * IRQ_CHAIN_SIZE + index] = handler;
         break;
     }
 }
 
-void irq_unset_handler(uint8_t irq)
+void irq_unset_handler(uint8_t index)
 {
     for (uint8_t i = 0; i < IRQ_CHAIN_DEPTH; i++)
-        s_irq_handlers[i * IRQ_CHAIN_SIZE + irq] = NULL;
+        s_irq_handlers[i * IRQ_CHAIN_SIZE + index] = NULL;
 }
 
 void irq_init()
@@ -77,7 +77,7 @@ void irq_handler(struct registers *registers)
             if (!handler)
                 break;
 
-            if (handler(registers))
+            if (handler(registers) == ITR_STOP)
                 return;
         }
 
