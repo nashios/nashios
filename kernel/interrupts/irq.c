@@ -71,6 +71,7 @@ void irq_handler(struct registers *registers)
 {
     if (registers->number <= 47 && registers->number >= 32)
     {
+        bool unhandled = true;
         for (size_t i = 0; i < IRQ_CHAIN_DEPTH; i++)
         {
             itr_handler_t handler = s_irq_handlers[i * IRQ_CHAIN_SIZE + (registers->number - 32)];
@@ -79,9 +80,13 @@ void irq_handler(struct registers *registers)
 
             if (handler(registers) == ITR_STOP)
                 return;
+            unhandled = false;
         }
 
-        printf("IRQ: Unhandled interrupt number = %d\n", registers->number - 32);
-        pic_send_eoi(registers->number - 32);
+        if (unhandled)
+        {
+            printf("IRQ: Unhandled interrupt number = %d\n", registers->number - 32);
+            pic_send_eoi(registers->number - 32);
+        }
     }
 }
