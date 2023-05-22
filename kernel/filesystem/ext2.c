@@ -2,6 +2,7 @@
 #include <kernel/assert.h>
 #include <kernel/filesystem/ext2.h>
 #include <kernel/filesystem/virtual.h>
+#include <kernel/math.h>
 #include <kernel/stdio.h>
 #include <kernel/stdlib.h>
 #include <kernel/string.h>
@@ -270,8 +271,62 @@ struct vfs_inode *ext2_fs_allocate_inode(struct vfs_superblock *superblock)
     return inode;
 }
 
+void ext2_fs_read_n_block(struct vfs_superblock *superblock, uint32_t block, char **p_buffer, loff_t ppos,
+                          uint32_t *p_position, size_t count, int level)
+{
+    ASSERT(level <= 3);
+
+    if (level > 0)
+    {
+        uint32_t *buffer = (uint32_t *)ext2_fs_read_block(superblock, block);
+        uint32_t blocks = superblock->block_size / 4;
+        for (uint32_t i = 0; *p_position < ppos + count && i < blocks; ++i)
+            ext2_fs_read_n_block(superblock, buffer[i], p_buffer, ppos, p_position, count, level - 1);
+    }
+    else
+    {
+
+        char *buffer = ext2_fs_read_block(superblock, block);
+        uint32_t p_start = (ppos > *p_position) ? ppos - *p_position : 0;
+        uint32_t p_end = ((ppos + count) < (*p_position + superblock->block_size))
+                             ? (*p_position + superblock->block_size - ppos - count)
+                             : 0;
+        memcpy(*p_buffer, buffer + p_start, superblock->block_size - p_start - p_end);
+        *p_position += superblock->block_size;
+        *p_buffer += superblock->block_size - p_start - p_end;
+    }
+}
+
+ssize_t ext2_fs_read_file(struct vfs_file *file, char *buffer, size_t count, loff_t ppos)
+{
+    struct vfs_inode *vfs_inode = file->dentry->inode;
+    struct ext2_inode *ext2_inode = vfs_inode->info;
+    struct vfs_superblock *superblock = vfs_inode->superblock;
+
+    count = MIN_T(size_t, ppos + count, ext2_inode->i_size) - ppos;
+    uint32_t position = (ppos / superblock->block_size) * superblock->block_size;
+    char *p_buffer = buffer;
+    while (position < ppos + count)
+    {
+        uint32_t block = position / superblock->block_size;
+        if (block < EXT2_INO_UPPER_LEVEL0)
+            ext2_fs_read_n_block(superblock, ext2_inode->i_block[block], &p_buffer, ppos, &position, count, 0);
+        else if (block < EXT2_INO_UPPER_LEVEL1)
+            ext2_fs_read_n_block(superblock, ext2_inode->i_block[12], &p_buffer, ppos, &position, count, 1);
+        else if (block < EXT2_INO_UPPER_LEVEL2)
+            ext2_fs_read_n_block(superblock, ext2_inode->i_block[13], &p_buffer, ppos, &position, count, 2);
+        else if (block < EXT2_INO_UPPER_LEVEL3)
+            ext2_fs_read_n_block(superblock, ext2_inode->i_block[14], &p_buffer, ppos, &position, count, 3);
+        else
+            NOT_REACHED();
+    }
+
+    file->position = ppos + count;
+    return count;
+}
+
 static struct vfs_inode_op s_ext2_file_iop = {};
-static struct vfs_file_op s_ext2_file_fop = {};
+static struct vfs_file_op s_ext2_file_fop = {.read = ext2_fs_read_file};
 static struct vfs_inode_op s_ext2_dir_iop = {.lookup = ext2_fs_lookup};
 static struct vfs_file_op s_ext2_dir_fop = {};
 static struct vfs_superblock_op s_ext2_sop = {.allocate_inode = ext2_fs_allocate_inode,

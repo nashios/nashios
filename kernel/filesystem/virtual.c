@@ -255,7 +255,7 @@ ssize_t virtual_fs_read(int fd, void *buf, size_t count)
     if (!file)
         return -EBADF;
 
-    if (file->mode & FMODE_CAN_READ && file->op->read)
+    if ((file->mode & FMODE_CAN_READ) && file->op->read)
         return file->op->read(file, buf, count, file->position);
 
     return -EINVAL;
