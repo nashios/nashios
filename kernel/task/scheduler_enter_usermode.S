@@ -11,7 +11,6 @@ scheduler_enter_usermode:
 	mov %ax, %gs
 
     movl 4(%esp), %eax
-
     sub $4, %eax
 
     movl 12(%esp), %ebx

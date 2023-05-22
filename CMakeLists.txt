@@ -71,6 +71,7 @@ function(nashios_bin target_name)
 endfunction()
 
 include_directories(.)
+include_directories(libraries/c)
 
 add_compile_options(-Wall -Wextra)
 
