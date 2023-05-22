@@ -119,7 +119,7 @@ void *mmap(void *addr, size_t length, int, int fd, int, off_t)
         for (uint32_t virtual = virtual_mm->start; virtual < virtual_mm->end; virtual += PAGE_SIZE)
         {
             uint32_t physical = (uint32_t)physical_mm_allocate();
-            virtual_mm_map(process->directory, physical, virtual, PAGE_TBL_PRESENT | PAGE_TBL_WRITABLE);
+            virtual_mm_map(process->directory, physical, virtual, PAGE_TBL_PRESENT | PAGE_TBL_WRITABLE | PAGE_TBL_USER);
         }
     }
 

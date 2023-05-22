@@ -12,7 +12,8 @@
 enum table_flags
 {
     PAGE_TBL_PRESENT = 1,
-    PAGE_TBL_WRITABLE = 2
+    PAGE_TBL_WRITABLE = 2,
+    PAGE_TBL_USER = 4
 };
 
 struct page_directory
