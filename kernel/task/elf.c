@@ -98,7 +98,7 @@ char *elf_read(const char *path)
     if (virtual_fs_fstat(fd, &stat) < 0)
         return NULL;
 
-    char *buffer = (char *)calloc(1, sizeof(char));
+    char *buffer = (char *)calloc(stat.st_size, sizeof(char));
     if (!buffer)
         return NULL;
 
