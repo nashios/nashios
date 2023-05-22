@@ -20,3 +20,17 @@
         (void)(&p_x == &p_y);                                                                                          \
         p_x > p_y ? p_x : p_y;                                                                                         \
     })
+
+#define MIN_T(type, x, y)                                                                                              \
+    ({                                                                                                                 \
+        type __x = (x);                                                                                                \
+        type __y = (y);                                                                                                \
+        __x < __y ? __x : __y;                                                                                         \
+    })
+
+#define MAX_T(type, x, y)                                                                                              \
+    ({                                                                                                                 \
+        type __x = (x);                                                                                                \
+        type __y = (y);                                                                                                \
+        __x > __y ? __x : __y;                                                                                         \
+    })
