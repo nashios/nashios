@@ -57,10 +57,12 @@ struct process_fs
     struct vfs_mount *mount;
 };
 
+struct thread;
 struct process
 {
     pid_t pid;
     struct process *parent;
+    struct thread *thread;
     struct process_mm *memory;
     struct process_files *files;
     struct process_fs *fs;

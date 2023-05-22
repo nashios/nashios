@@ -88,6 +88,20 @@ void scheduler_kernel_thread_entry(struct thread *, void *flow())
     scheduler_schedule();
 }
 
+void scheduler_create_elf_thread_stack(struct elf_layout *layout, int argc, char *const argv[], char *const envp[])
+{
+    ASSERT((uint32_t)argv < KERNEL_HIGHER_HALF && (uint32_t)envp < KERNEL_HIGHER_HALF);
+
+    layout->stack -= 4;
+    *(uint32_t *)layout->stack = (uint32_t)envp;
+
+    layout->stack -= 4;
+    *(uint32_t *)layout->stack = (uint32_t)argv;
+
+    layout->stack -= 4;
+    *(uint32_t *)layout->stack = (uint32_t)argc;
+}
+
 void scheduler_elf_thread_entry(struct thread *thread, const char *path)
 {
     scheduler_unlock();
@@ -98,6 +112,7 @@ void scheduler_elf_thread_entry(struct thread *thread, const char *path)
 
     thread->user_stack = elf->stack;
     tss_set_stack(0x10, thread->kernel_stack);
+    scheduler_create_elf_thread_stack(elf, 0, NULL, NULL);
     scheduler_enter_usermode(elf->stack, elf->entry, SCHED_PAGE_FAULT);
 }
 
@@ -129,6 +144,8 @@ struct thread *scheduler_create_thread(struct process *process, uint32_t param, 
     frame->ebp = 0;
     frame->esi = 0;
     frame->edi = 0;
+
+    process->thread = thread;
 
     plist_node_init(&thread->plist, 1);
 
