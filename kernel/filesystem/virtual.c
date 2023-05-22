@@ -6,6 +6,15 @@
 #include <kernel/stdlib.h>
 #include <kernel/string.h>
 
+#define FMODE_READ ((fmode_t)0x1)
+#define FMODE_WRITE ((fmode_t)0x2)
+#define FMODE_NONOTIFY ((fmode_t)0x4000000)
+
+#define FMODE_CAN_READ ((fmode_t)0x20000)
+#define FMODE_CAN_WRITE ((fmode_t)0x40000)
+
+#define OPEN_FMODE(flag) ((fmode_t)(((flag + 1) & O_ACCMODE) | (flag & FMODE_NONOTIFY)))
+
 struct vfs_nameidata
 {
     struct vfs_mount *mount;
@@ -179,7 +188,16 @@ int virtual_fs_open(const char *pathname, int flags, mode_t mode)
     if (!file)
         return -EINVAL;
 
-    file->op = nameidata.dentry->inode->fop;
+    file->dentry = nameidata.dentry;
+    file->mount = nameidata.mount;
+    file->mode = OPEN_FMODE(flags);
+    file->op = file->dentry->inode->fop;
+
+    if (file->mode & FMODE_READ)
+        file->mode |= FMODE_CAN_READ;
+    if (file->mode & FMODE_WRITE)
+        file->mode |= FMODE_CAN_WRITE;
+
     if (file->op && file->op->open)
     {
         result = file->op->open(nameidata.dentry->inode, file);

@@ -9,8 +9,6 @@
 
 #define VFS_BYTES_P_SECTOR 512
 
-#define FMODE_CAN_READ 0x20000
-
 struct vfs_inode;
 struct vfs_file;
 struct vfs_file_op
