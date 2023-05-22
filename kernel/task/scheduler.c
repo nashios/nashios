@@ -1,4 +1,6 @@
+#include <kernel/assert.h>
 #include <kernel/interrupts/irq.h>
+#include <kernel/interrupts/isr.h>
 #include <kernel/panic.h>
 #include <kernel/processor.h>
 #include <kernel/stdio.h>
@@ -236,6 +238,19 @@ struct thread *scheduler_pop_next_thread()
     return thread;
 }
 
+void scheduler_exit(int code)
+{
+    scheduler_lock();
+
+    struct process *process = g_scheduler_process;
+    struct thread *thread = process->thread;
+    scheduler_update_thread(thread, THREAD_TERMINATED_STATE);
+    printf("Scheduler: Process pid = %d, exit code = %d\n", process->pid, process->pid);
+
+    scheduler_unlock();
+    scheduler_schedule();
+}
+
 bool scheduler_handler(struct registers *)
 {
     if (g_scheduler_thread->type != THREAD_KERNEL_TYPE || g_scheduler_thread->state != THREAD_RUNNING_STATE)
@@ -276,7 +291,25 @@ bool scheduler_handler(struct registers *)
     }
 
     pic_send_eoi(0);
-    return true;
+    return ITR_CONTINUE;
+}
+
+bool scheduler_fault_handler(struct registers *registers)
+{
+    uint32_t address = 0;
+    asm volatile("mov %%cr2, %0" : "=r"(address));
+
+    if (registers->cs == 0x1B)
+    {
+        printf("Scheduler: Userspace page fault at address = 0x%x\n", address);
+        if (address == SCHED_PAGE_FAULT)
+            scheduler_exit(registers->eax);
+
+        return ITR_STOP;
+    }
+
+    NOT_REACHED();
+    return ITR_CONTINUE;
 }
 
 void scheduler_schedule()
@@ -330,6 +363,7 @@ void scheduler_init(void *init)
     scheduler_update_thread(thread, THREAD_READY_STATE);
 
     irq_set_handler(0, scheduler_handler);
+    isr_set_handler(14, scheduler_fault_handler);
 
     printf("Scheduler: Initialized\n");
 }
