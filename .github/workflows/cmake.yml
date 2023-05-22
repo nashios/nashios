@@ -25,7 +25,7 @@ jobs:
         uses: actions/cache@v3
         with:
           path: ${{ github.workspace }}/binary/toolchain/${{ matrix.arch }}/cache/toolchain.tar.gz
-          key: ${{ runner.os }}-toolchain-${{ matrix.arch }}-${{ hashFiles('meta/scripts/setup-toolchain.sh') }}
+          key: ${{ runner.os }}-toolchain-${{ matrix.arch }}-${{ hashFiles('meta/scripts/setup-toolchain.sh', 'meta/patches/*.patch', 'libraries/c/**/*.h') }}
 
       - name: Compile toolchain
         run: USE_CACHE=true cmake --build --preset ${{ matrix.arch }} --target toolchain

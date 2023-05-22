@@ -69,36 +69,45 @@ fi
 
 mkdir -p ${BUILD_DIR}
 cd ${BUILD_DIR}
-
 if [ ! -d "${BINUTILS_PACKAGE}" ]; then
     if [ -d ${BINUTILS_PACKAGE} ]; then
         rm -rf "${BINUTILS_PACKAGE}"
     fi
     echo "Extracting binutils"
     tar -xf ${CACHE_DIR}/${BINUTILS_ARCHIVE}
+    
+    cd ${BUILD_DIR}/${BINUTILS_PACKAGE}
+    patch -p1 < "${SOURCE_DIR}/meta/patches/binutils.patch" > /dev/null
 else
     echo "Using binutils from existing source directory"
 fi
 
+cd ${BUILD_DIR}
 if [ ! -d "${GCC_PACKAGE}" ]; then
     if [ -d ${GCC_PACKAGE} ]; then
         rm -rf "${GCC_PACKAGE}"
     fi
     echo "Extracting gcc"
     tar -xf ${CACHE_DIR}/${GCC_ARCHIVE}
+    
+    cd ${BUILD_DIR}/${GCC_PACKAGE}
+    patch -p1 < "${SOURCE_DIR}/meta/patches/gcc.patch" > /dev/null
 else
     echo "Using gcc from existing source directory"
 fi
 
+mkdir -p ${SYSROOT_DIR}/usr/include
+rsync -aH --include="*/" --include="*.h" --exclude="*" ${SOURCE_DIR}/libraries/c/ ${SYSROOT_DIR}/usr/include
+
 mkdir -p ${BUILD_DIR}/build-binutils
 cd ${BUILD_DIR}/build-binutils
-../${BINUTILS_PACKAGE}/configure --target=${TARGET} --prefix=${CROSS_DIR} --with-sysroot --disable-nls --disable-werror
-make -j ${CORES}
+../${BINUTILS_PACKAGE}/configure --target=${TARGET} --prefix=${CROSS_DIR} --with-sysroot=${SYSROOT_DIR} --disable-werror
+make -j ${CORES} all
 make install
 
 mkdir ${BUILD_DIR}/build-gcc
 cd ${BUILD_DIR}/build-gcc
-../${GCC_PACKAGE}/configure --target=${TARGET} --prefix=${CROSS_DIR} --disable-nls --enable-languages=c --without-headers
+../${GCC_PACKAGE}/configure --target=${TARGET} --prefix=${CROSS_DIR} --with-sysroot=${SYSROOT_DIR} --enable-languages=c
 make -j ${CORES} all-gcc all-target-libgcc
 make install-gcc install-target-libgcc
 
