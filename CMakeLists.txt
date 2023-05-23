@@ -90,3 +90,4 @@ add_custom_target(run
 add_subdirectory(kernel)
 add_subdirectory(libraries)
 add_subdirectory(services)
+add_subdirectory(applications)
