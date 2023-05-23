@@ -15,7 +15,7 @@
 
 #define PCI_SUBCLASS_PCI_PCI_BRIDGE 0x04
 
-static struct dlist_head s_pci_device_list = {};
+struct dlist_head g_pci_device_list = {};
 
 void pci_scan_bus(uint8_t bus);
 
@@ -69,6 +69,12 @@ uint16_t pci_get_header_type(uint32_t address)
     return (value >> 16) & 0xFF;
 }
 
+uint32_t pci_read_bar(struct pci_device *device, enum pci_bar bar)
+{
+    uint32_t address = pci_read_field(device->address, PCI_BAR0);
+    return address & 0xFFFFFFF0;
+}
+
 void pci_check_function(uint8_t bus, uint8_t device, uint8_t function)
 {
     uint32_t address = pci_get_address(bus, device, function);
@@ -76,28 +82,20 @@ void pci_check_function(uint8_t bus, uint8_t device, uint8_t function)
     if (vendor_id == PCI_INVALID_VENDOR)
         return;
 
-    int class_code = pci_get_class_code(address);
+    uint16_t class_code = pci_get_class_code(address);
     if (class_code == PCI_CLASS_CODE_BRIDGE_DEVICE)
         return;
 
     struct pci_device *pci_device = (struct pci_device *)calloc(1, sizeof(struct pci_device));
     pci_device->device_id = pci_get_device_id(address);
     pci_device->vendor_id = vendor_id;
+    pci_device->class_code = class_code;
+    pci_device->subclass_code = pci_get_subclass_code(address);
+    pci_device->address = address;
 
-    dlist_add_tail(&pci_device->list, &s_pci_device_list);
+    dlist_add_tail(&pci_device->list, &g_pci_device_list);
     printf("PCI: Added device id = 0x%x, vendor id = 0x%x, bus = 0x%x, device = 0x%x, function = 0x%x\n",
            pci_device->device_id, pci_device->vendor_id, bus, device, function);
-
-    uint16_t base_class = pci_get_class_code(address);
-    if (base_class != PCI_CLASS_CODE_BRIDGE_DEVICE)
-        return;
-
-    uint16_t sub_class = pci_get_subclass_code(address);
-    if (sub_class != PCI_SUBCLASS_PCI_PCI_BRIDGE)
-        return;
-
-    uint16_t secondary_bus = pci_get_secondary_bus(address);
-    pci_scan_bus(secondary_bus);
 }
 
 void pci_scan_bus(uint8_t bus)
@@ -119,7 +117,7 @@ void pci_scan_bus(uint8_t bus)
 struct pci_device *pci_find_device(uint16_t device_id, uint16_t vendor_id)
 {
     struct pci_device *device;
-    dlist_for_each_entry(device, &s_pci_device_list, list)
+    dlist_for_each_entry(device, &g_pci_device_list, list)
     {
         if (device->device_id == device_id && device->vendor_id == vendor_id)
             return device;
@@ -127,9 +125,11 @@ struct pci_device *pci_find_device(uint16_t device_id, uint16_t vendor_id)
     return NULL;
 }
 
+bool pci_is_disabled() { return dlist_empty(&g_pci_device_list); }
+
 void pci_init()
 {
-    dlist_head_init(&s_pci_device_list);
+    dlist_head_init(&g_pci_device_list);
 
     uint16_t header_type = pci_get_header_type(pci_get_address(0, 0, 0));
     if ((header_type & PCI_MULTI_FUNC_DEVICE) != 0)
