@@ -30,6 +30,7 @@ set(C_SOURCES
     tss.c
     dlist.c
     plist.c
+    syscall.c
     
     memory/physical.c
     memory/virtual.c

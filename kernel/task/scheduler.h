@@ -1,6 +1,7 @@
 #pragma once
 
 #include <kernel/api/posix/sys/types.h>
+#include <kernel/interrupts/handler.h>
 #include <kernel/memory/virtual.h>
 #include <kernel/plist.h>
 
@@ -81,6 +82,7 @@ struct thread
     uint32_t user_stack;
     enum thread_type type;
     enum thread_state state;
+    struct registers registers;
     struct process *process;
     struct plist_node plist;
 };

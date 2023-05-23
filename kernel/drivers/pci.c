@@ -71,7 +71,7 @@ uint16_t pci_get_header_type(uint32_t address)
 
 uint32_t pci_read_bar(struct pci_device *device, enum pci_bar bar)
 {
-    uint32_t address = pci_read_field(device->address, PCI_BAR0);
+    uint32_t address = pci_read_field(device->address, bar);
     return address & 0xFFFFFFF0;
 }
 

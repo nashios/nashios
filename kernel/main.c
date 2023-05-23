@@ -13,6 +13,7 @@
 #include <kernel/processor.h>
 #include <kernel/serial.h>
 #include <kernel/stdio.h>
+#include <kernel/syscall.h>
 #include <kernel/task/scheduler.h>
 
 void kernel_init()
@@ -24,6 +25,7 @@ void kernel_init()
     virtual_fs_init();
     ext2_fs_init();
     fb_init();
+    syscall_init();
 
     scheduler_open("/bin/system_service");
 
