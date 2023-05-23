@@ -260,9 +260,11 @@ void scheduler_exit(int code)
     scheduler_lock();
 
     struct process *process = g_scheduler_process;
+    process->exit_code = code;
+
     struct thread *thread = process->thread;
     scheduler_update_thread(thread, THREAD_TERMINATED_STATE);
-    printf("Scheduler: Process pid = %d, exit code = %d\n", process->pid, process->pid);
+    printf("Scheduler: Process pid = %d, exit code = %d\n", process->pid, code);
 
     scheduler_unlock();
     scheduler_schedule();

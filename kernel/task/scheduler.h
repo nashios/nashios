@@ -60,6 +60,7 @@ struct process_fs
 struct thread;
 struct process
 {
+    int exit_code;
     pid_t pid;
     struct process *parent;
     struct thread *thread;
