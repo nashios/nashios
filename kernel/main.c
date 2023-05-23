@@ -1,5 +1,6 @@
 #include <kernel/assert.h>
 #include <kernel/drivers/ata.h>
+#include <kernel/drivers/fb.h>
 #include <kernel/drivers/pci.h>
 #include <kernel/filesystem/ext2.h>
 #include <kernel/filesystem/virtual.h>
@@ -22,6 +23,7 @@ void kernel_init()
     ata_init();
     virtual_fs_init();
     ext2_fs_init();
+    fb_init();
 
     scheduler_open("/bin/system_service");
 
