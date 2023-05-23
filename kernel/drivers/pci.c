@@ -21,7 +21,7 @@ void pci_scan_bus(uint8_t bus);
 
 uint32_t pci_read_field(uint32_t address, uint8_t offset)
 {
-    io_outl(PCI_ADDRESS_PORT, address | (offset & 0xfc));
+    io_outl(PCI_ADDRESS_PORT, address | (offset & 0xFC));
     return io_inl(PCI_VALUE_PORT);
 }
 
@@ -39,6 +39,12 @@ uint16_t pci_get_vendor_id(uint32_t address)
     return value & 0xFFFF;
 }
 
+uint16_t pci_get_device_id(uint32_t address)
+{
+    uint32_t value = pci_read_field(address, 0x00);
+    return (value >> 16) & 0xFFFF;
+}
+
 uint16_t pci_get_secondary_bus(uint32_t address)
 {
     uint32_t value = pci_read_field(address, 0x18);
@@ -47,13 +53,13 @@ uint16_t pci_get_secondary_bus(uint32_t address)
 
 uint16_t pci_get_class_code(uint32_t address)
 {
-    uint32_t value = pci_read_field(address, 0x8);
+    uint32_t value = pci_read_field(address, 0x08);
     return (value >> 24) & 0xFF;
 }
 
 uint16_t pci_get_subclass_code(uint32_t address)
 {
-    uint32_t value = pci_read_field(address, 0x8);
+    uint32_t value = pci_read_field(address, 0x08);
     return (value >> 16) & 0xFF;
 }
 
@@ -75,7 +81,7 @@ void pci_check_function(uint8_t bus, uint8_t device, uint8_t function)
         return;
 
     struct pci_device *pci_device = (struct pci_device *)calloc(1, sizeof(struct pci_device));
-    pci_device->device_id = pci_get_vendor_id(address);
+    pci_device->device_id = pci_get_device_id(address);
     pci_device->vendor_id = vendor_id;
 
     dlist_add_tail(&pci_device->list, &s_pci_device_list);
@@ -115,7 +121,7 @@ struct pci_device *pci_find_device(uint16_t device_id, uint16_t vendor_id)
     struct pci_device *device;
     dlist_for_each_entry(device, &s_pci_device_list, list)
     {
-        if (device->vendor_id == vendor_id && device->device_id == device_id)
+        if (device->device_id == device_id && device->vendor_id == vendor_id)
             return device;
     }
     return NULL;
