@@ -1,5 +1,6 @@
 #pragma once
 
+#include <errno.h>
 #include <kernel/api/posix/sys/syscall.h>
 
 #define _syscall0(name)                                                                                                \
@@ -50,3 +51,14 @@
                      : "0"(__NR_##name), "b"(arg1), "c"(arg2), "d"(arg3), "S"(arg4), "D"(arg5));                       \
         return result;                                                                                                 \
     }
+
+#define SYSCALL_RETURN(expr)                                                                                           \
+    ({                                                                                                                 \
+        int result = expr;                                                                                             \
+        if (result < 0)                                                                                                \
+        {                                                                                                              \
+            errno = -result;                                                                                           \
+            return errno;                                                                                              \
+        }                                                                                                              \
+        return 0;                                                                                                      \
+    })
