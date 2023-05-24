@@ -42,7 +42,7 @@ void gdt_add(uint8_t index, uint32_t base, uint32_t limit, uint8_t access, uint8
 void gdt_init()
 {
     s_gdt_pointer.limit = (sizeof(struct gdt_entry) * GDT_ENTRIES) - 1;
-    s_gdt_pointer.base = (uint32_t)s_gdt_entries;
+    s_gdt_pointer.base = (uint32_t)&s_gdt_entries;
 
     gdt_add(0, 0x00, 0x00000000, 0x00, 0x00);
     gdt_add(1, 0x00, 0xFFFFFFFF, 0x9A, 0xCF);

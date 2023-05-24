@@ -5,7 +5,7 @@
 
 struct tss_entry
 {
-    uint32_t prevTss;
+    uint32_t previous_tss;
     uint32_t esp0;
     uint32_t ss0;
     uint32_t esp1;
@@ -54,7 +54,7 @@ void tss_add(uint32_t index, uint32_t ss, uint32_t esp)
 
     s_tss_entry.ss0 = ss;
     s_tss_entry.esp0 = esp;
-    s_tss_entry.cs = 0x0b;
+    s_tss_entry.cs = 0x0B;
     s_tss_entry.ss = 0x13;
     s_tss_entry.es = 0x13;
     s_tss_entry.ds = 0x13;

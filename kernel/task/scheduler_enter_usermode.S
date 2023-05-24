@@ -14,7 +14,7 @@ scheduler_enter_usermode:
     sub $4, %eax
 
     movl 12(%esp), %ebx
-    movl %ebx, (%eax)
+    mov %ebx, (%eax)
 
     movl 8(%esp), %ebx
 
@@ -22,8 +22,8 @@ scheduler_enter_usermode:
     pushl %eax
 	pushf
 
-	pop %eax
-	or $0x200, %eax
+	popl %eax
+	orl $0x200, %eax
 	push %eax
 
 	push $0x1B
