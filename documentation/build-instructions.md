@@ -49,7 +49,13 @@ cmake --build --preset arch --target install
 
 ## Run
 
-The great moment of testing the system has arrived, for this we use the [QEMU](https://en.wikipedia.org/wiki/QEMU) emulator that will serve as a virtualizer of a real machine, so we can debug and test the system in a simple and fast way without having to configure a physical machine, but if you want to test the famous bare-metal, feel free.
+In order to boot the system, we need to generate an image with the ext2 file system containing all the necessary binaries for the system to work! Sounds complicated but we have a script for that, run it now:
+
+```console
+cmake --build --preset arch --target image
+```
+
+The great moment of testing the system has arrived, for this we use the [QEMU](https://en.wikipedia.org/wiki/QEMU) emulator that will serve as a virtualizer of a real machine, so we can debug and test the system in a simple and fast way without having to configure a physical machine, but if you want to test the famous bare-metal, feel free. 
 
 ```console
 cmake --build --preset arch --target run
@@ -57,4 +63,4 @@ cmake --build --preset arch --target run
 
 ## Final notes
 
-When there are updates to the code you won't need to go through the whole process again, just run through the `install` and `run` steps. You will rarely need to compile the `toolchain` again, these are specific cases and you will know if you need to recompile.
+When there are updates to the code you won't need to go through the whole process again, just run through the `install`, `image` and `run` steps. You will rarely need to compile the `toolchain` again, these are specific cases and you will know if you need to recompile.
