@@ -130,7 +130,7 @@ void isr_init()
     idt_add(31, 0x8E, 0x08, isr31);
     printf("ISR: Added interrupt service routines from 0..31\n");
 
-    idt_add(47, 0xEE, 0x08, isr127);
+    idt_add(127, 0xEE, 0x08, isr127);
     printf("ISR: Added interrupt service routines 127\n");
 
     printf("ISR: Initialized\n");
