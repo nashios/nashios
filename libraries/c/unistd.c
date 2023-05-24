@@ -7,3 +7,6 @@ void __attribute__((noreturn)) _exit(int status)
     syscall_exit(status);
     __builtin_unreachable();
 }
+
+_syscall0(fork);
+pid_t fork(void) { SYSCALL_RETURN(syscall_fork()); }
