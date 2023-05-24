@@ -5,9 +5,11 @@
 #include <kernel/syscall.h>
 #include <kernel/task/scheduler.h>
 
+#define MAX_SYSCALL (__NR_set_mempolicy_home_node + 1)
+
 void syscall_exit(int status) { scheduler_exit(status); }
 
-static void *s_syscall_list[] = {[__NR_exit] = syscall_exit};
+static void *s_syscall_list[MAX_SYSCALL] = {[__NR_exit] = syscall_exit};
 
 bool syscall_handler(struct registers *registers)
 {
