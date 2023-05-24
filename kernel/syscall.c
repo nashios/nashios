@@ -1,10 +1,13 @@
+#include <kernel/api/posix/sys/syscall.h>
 #include <kernel/interrupts/isr.h>
 #include <kernel/stdio.h>
 #include <kernel/string.h>
 #include <kernel/syscall.h>
 #include <kernel/task/scheduler.h>
 
-static void *s_syscall_list[] = {[0] = NULL};
+void syscall_exit(int status) { scheduler_exit(status); }
+
+static void *s_syscall_list[] = {[__NR_exit] = syscall_exit};
 
 bool syscall_handler(struct registers *registers)
 {

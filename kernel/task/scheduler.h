@@ -96,3 +96,4 @@ void scheduler_lock();
 void scheduler_unlock();
 void scheduler_update_thread(struct thread *thread, enum thread_state state);
 void scheduler_open(const char *path);
+void scheduler_exit(int code);
