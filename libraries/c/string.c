@@ -54,3 +54,11 @@ void *memset(void *str, int c, size_t n)
         *p_str++ = (char)c;
     return str;
 }
+
+char *strcpy(char *s1, const char *s2) { return memcpy(s1, s2, strlen(s2) + 1); }
+
+char *strcat(char *s1, const char *s2)
+{
+    strcpy(s1 + strlen(s1), s2);
+    return s1;
+}
