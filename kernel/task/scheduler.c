@@ -1,4 +1,5 @@
 #include <kernel/assert.h>
+#include <kernel/filesystem/virtual.h>
 #include <kernel/interrupts/irq.h>
 #include <kernel/interrupts/isr.h>
 #include <kernel/memory/mmap.h>
@@ -271,8 +272,32 @@ void scheduler_exit(int code)
     struct process *process = g_scheduler_process;
     process->exit_code = code;
 
+    struct process_vm *iter;
+    struct process_vm *next;
+    dlist_for_each_entry_safe(iter, next, &process->memory->list, list)
+    {
+        if (!iter->file)
+            virtual_mm_unmap_range(process->directory, iter->start, iter->end);
+
+        dlist_remove(&iter->list);
+        free(iter);
+    }
+
+    for (int i = 0; i < MAX_FD; i++)
+    {
+        struct vfs_file *file = process->files->fd[i];
+        if (file && file->op->release)
+        {
+            file->op->release(file->dentry->inode, file);
+            free(file);
+            process->files->fd[i] = 0;
+        }
+    }
+
     struct thread *thread = process->thread;
     scheduler_update_thread(thread, THREAD_TERMINATED_STATE);
+    virtual_mm_unmap_range(process->directory, thread->user_stack - SCHED_STACK_SIZE, thread->user_stack);
+
     printf("Scheduler: Process pid = %d, exit code = %d\n", process->pid, code);
 
     scheduler_unlock();

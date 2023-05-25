@@ -16,6 +16,7 @@ struct vfs_file_op
     int (*open)(struct vfs_inode *inode, struct vfs_file *file);
     ssize_t (*read)(struct vfs_file *file, char *buf, size_t count, loff_t ppos);
     int (*mmap)(struct vfs_file *file, struct process_vm *memory);
+    int (*release)(struct vfs_inode *inode, struct vfs_file *file);
 };
 
 struct vfs_file
