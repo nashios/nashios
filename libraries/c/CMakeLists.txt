@@ -6,6 +6,7 @@ set(SOURCES
     assert.c
     fcntl.c
     mqueue.c
+    poll.c
     
     sys/mman.c
     sys/stat.c)
