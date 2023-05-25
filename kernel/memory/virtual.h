@@ -27,3 +27,4 @@ void virtual_mm_init();
 void virtual_mm_map(struct page_directory *directory, uint32_t physical, uint32_t virtual, uint32_t flags);
 uint32_t virtual_mm_get_physical(uint32_t virtual);
 struct page_directory *virtual_mm_create_address();
+struct page_directory *virtual_mm_fork(struct page_directory *old_directory);

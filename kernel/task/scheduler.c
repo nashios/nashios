@@ -40,6 +40,7 @@ struct thread *g_scheduler_thread = NULL;
 
 extern void scheduler_switch(uint32_t *old_esp, uint32_t new_esp, uint32_t cr3);
 extern void scheduler_enter_usermode(uint32_t eip, uint32_t esp, uint32_t failed);
+extern void scheduler_return_usermode(struct registers *registers);
 
 void scheduler_lock()
 {
@@ -111,9 +112,16 @@ void scheduler_elf_thread_entry(struct thread *thread, const char *path)
         PANIC("Scheduler: Failed to load elf file = %s\n", path);
 
     thread->user_stack = elf->stack;
-    tss_set_stack(0x10, thread->kernel_stack);
+    tss_set_stack(thread->kernel_stack);
     scheduler_create_elf_thread_stack(elf, 0, NULL, NULL);
     scheduler_enter_usermode(elf->stack, elf->entry, SCHED_PAGE_FAULT);
+}
+
+void scheduler_user_thread_entry(struct thread *thread)
+{
+    scheduler_unlock();
+    tss_set_stack(thread->kernel_stack);
+    scheduler_return_usermode(&thread->registers);
 }
 
 struct thread *scheduler_create_thread(struct process *process, uint32_t param, uint32_t eip, enum thread_type type,
@@ -217,7 +225,7 @@ void scheduler_switch_thread(struct thread *thread)
     g_scheduler_process = g_scheduler_thread->process;
 
     uint32_t physical_address = virtual_mm_get_physical((uint32_t)g_scheduler_thread->process->directory);
-    tss_set_stack(0x10, g_scheduler_thread->kernel_stack);
+    tss_set_stack(g_scheduler_thread->kernel_stack);
     scheduler_switch(&p_thread->esp, g_scheduler_thread->esp, physical_address);
 }
 
@@ -270,9 +278,9 @@ void scheduler_exit(int code)
     scheduler_schedule();
 }
 
-bool scheduler_handler(struct registers *)
+bool scheduler_handler(struct registers *registers)
 {
-    if (g_scheduler_thread->type != THREAD_KERNEL_TYPE || g_scheduler_thread->state != THREAD_RUNNING_STATE)
+    if (g_scheduler_thread->type != THREAD_APPLICATION_TYPE || g_scheduler_thread->state != THREAD_RUNNING_STATE)
         return ITR_CONTINUE;
 
     scheduler_lock();
@@ -284,7 +292,7 @@ bool scheduler_handler(struct registers *)
         struct thread *thread = scheduler_get_next_thread();
         if (thread)
         {
-            if (thread->type == THREAD_KERNEL_TYPE)
+            if (thread->type == THREAD_APPLICATION_TYPE)
             {
                 struct thread *first_thread = plist_first_entry(&s_scheduler_app_list, struct thread, plist);
                 struct thread *last_thread = plist_last_entry(&s_scheduler_app_list, struct thread, plist);
@@ -309,7 +317,7 @@ bool scheduler_handler(struct registers *)
         scheduler_schedule();
     }
 
-    pic_send_eoi(0);
+    pic_send_eoi(registers->number);
     return ITR_CONTINUE;
 }
 
@@ -327,7 +335,6 @@ bool scheduler_fault_handler(struct registers *registers)
         return ITR_STOP;
     }
 
-    NOT_REACHED();
     return ITR_CONTINUE;
 }
 
@@ -362,6 +369,82 @@ void scheduler_open(const char *path)
         scheduler_create_thread(process, (uint32_t)strdup(path), (uint32_t)scheduler_elf_thread_entry,
                                 THREAD_APPLICATION_TYPE, THREAD_READY_STATE);
     scheduler_queue_thread(thread);
+}
+
+struct process_mm *scheduler_memory_clone(struct process *parent)
+{
+    struct process_mm *memory = calloc(1, sizeof(struct process_mm));
+    memcpy(memory, parent->memory, sizeof(struct process_mm));
+    dlist_head_init(&memory->list);
+
+    struct process_vm *virtual = NULL;
+    dlist_for_each_entry(virtual, &parent->memory->list, list)
+    {
+        struct process_vm *new_virtual = calloc(1, sizeof(struct process_vm));
+        new_virtual->start = virtual->start;
+        new_virtual->end = virtual->end;
+        new_virtual->file = virtual->file;
+        new_virtual->memory = memory;
+
+        dlist_add_tail(&new_virtual->list, &memory->list);
+    }
+
+    return memory;
+}
+
+struct process *scheduler_fork(struct process *parent)
+{
+    scheduler_lock();
+
+    struct process *process = calloc(1, sizeof(struct process));
+    process->pid = s_scheduler_pid++;
+    process->parent = parent;
+
+    process->memory = scheduler_memory_clone(parent);
+
+    dlist_head_init(&process->children);
+    dlist_add_tail(&process->sibling, &parent->children);
+
+    process->fs = (struct process_fs *)calloc(1, sizeof(struct process_fs));
+    memcpy(process->fs, parent->fs, sizeof(struct process_fs));
+
+    process->files = (struct process_files *)calloc(1, sizeof(struct process_files));
+    memcpy(process->files, parent->files, sizeof(struct process_files));
+
+    process->directory = virtual_mm_fork(parent->directory);
+
+    struct thread *thread = calloc(1, sizeof(struct thread));
+    thread->tid = s_scheduler_tid++;
+    thread->process = process;
+    thread->type = THREAD_APPLICATION_TYPE;
+    thread->state = THREAD_READY_STATE;
+    thread->kernel_stack = (uint32_t)(calloc(SCHED_STACK_SIZE, sizeof(char)) + SCHED_STACK_SIZE);
+    thread->user_stack = parent->thread->user_stack;
+    thread->esp = thread->kernel_stack - sizeof(struct trap_frame);
+
+    plist_node_init(&thread->plist, parent->thread->plist.priority);
+
+    memcpy(&thread->registers, &parent->thread->registers, sizeof(struct registers));
+    thread->registers.eax = 0;
+
+    struct trap_frame *frame = (struct trap_frame *)thread->esp;
+    frame->param1 = (uint32_t)thread;
+    frame->return_addr = SCHED_PAGE_FAULT;
+    frame->eip = (uint32_t)scheduler_user_thread_entry;
+    frame->eax = 0;
+    frame->ecx = 0;
+    frame->edx = 0;
+    frame->ebx = 0;
+    frame->esp = 0;
+    frame->ebp = 0;
+    frame->esi = 0;
+    frame->edi = 0;
+
+    process->thread = thread;
+
+    scheduler_unlock();
+
+    return process;
 }
 
 void scheduler_init(void *init)

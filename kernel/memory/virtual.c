@@ -20,7 +20,8 @@ struct page_table
 enum directory_flags
 {
     PAGE_DIR_PRESENT = 1,
-    PAGE_DIR_WRITABLE = 2
+    PAGE_DIR_WRITABLE = 2,
+    PAGE_DIR_USER = 4
 };
 
 struct page_directory *g_virtual_directory = NULL;
@@ -102,6 +103,23 @@ void virtual_mm_map(struct page_directory *directory, uint32_t physical, uint32_
     flush_tbl(virtual);
 }
 
+void virtual_mm_unmap(struct page_directory *directory, uint32_t virtual)
+{
+    if (!PAGE_IS_ALIGNED(virtual))
+        printf("Virtual MM: 2 Virtual address = 0x%x is not page aligned\n", virtual);
+
+    if (!PAGE_IS_ENABLED(directory->entries[PAGE_DIR_INDEX(virtual)]))
+        return;
+
+    struct page_table *table = (struct page_table *)(PAGE_TBL_ADDRESS + PAGE_DIR_INDEX(virtual) * PAGE_SIZE);
+    uint32_t index = PAGE_TBL_INDEX(virtual);
+    if (!PAGE_IS_ENABLED(table->entries[index]))
+        return;
+
+    table->entries[index] = 0;
+    flush_tbl(virtual);
+}
+
 uint32_t virtual_mm_get_physical(uint32_t virtual)
 {
     uint32_t *table = (uint32_t *)((char *)PAGE_TBL_ADDRESS + PAGE_DIR_INDEX(virtual) * PAGE_SIZE);
@@ -120,4 +138,57 @@ struct page_directory *virtual_mm_create_address()
 
     directory->entries[1023] = virtual_mm_get_physical((uint32_t)directory);
     return directory;
+}
+
+struct page_directory *virtual_mm_fork(struct page_directory *directory)
+{
+    struct page_directory *forked_directory = virtual_mm_create_address();
+    char *aligned = heap_align(PAGE_SIZE);
+    uint32_t heap = (uint32_t)heap_sbrk(0);
+
+    for (uint32_t i_directory = 0; i_directory < 768; i_directory++)
+    {
+        if (!PAGE_IS_ENABLED(directory->entries[i_directory]))
+            continue;
+
+        struct page_table *forked_table = (struct page_table *)heap;
+        uint32_t forked_table_physical = (uint32_t)physical_mm_allocate();
+        virtual_mm_map(directory, forked_table_physical, (uint32_t)forked_table,
+                       PAGE_TBL_PRESENT | PAGE_TBL_WRITABLE | PAGE_TBL_USER);
+        memset(forked_table, 0x00, sizeof(struct page_table));
+
+        heap += sizeof(struct page_table);
+        struct page_table *new_table = (struct page_table *)(PAGE_TBL_ADDRESS + i_directory * PAGE_SIZE);
+        for (uint32_t i_table = 0; i_table < 1024; i_table++)
+        {
+            if (!PAGE_IS_ENABLED(new_table->entries[i_table]))
+                continue;
+
+            char *table_entry = (char *)heap;
+            char *forked_entry = table_entry + PAGE_SIZE;
+            heap = (uint32_t)(forked_entry + PAGE_SIZE);
+            uint32_t forked_entry_physical = (uint32_t)physical_mm_allocate();
+
+            virtual_mm_map(directory, new_table->entries[i_table], (uint32_t)table_entry,
+                           PAGE_TBL_PRESENT | PAGE_TBL_WRITABLE | PAGE_TBL_USER);
+            virtual_mm_map(directory, forked_entry_physical, (uint32_t)forked_entry,
+                           PAGE_TBL_PRESENT | PAGE_TBL_WRITABLE | PAGE_TBL_USER);
+            memcpy(forked_entry, table_entry, PAGE_SIZE);
+
+            virtual_mm_unmap(directory, (uint32_t)table_entry);
+            virtual_mm_unmap(directory, (uint32_t)forked_entry);
+
+            forked_table->entries[i_table] =
+                forked_entry_physical | PAGE_TBL_PRESENT | PAGE_TBL_WRITABLE | PAGE_TBL_USER;
+        }
+
+        virtual_mm_unmap(directory, (uint32_t)forked_table);
+        forked_directory->entries[i_directory] =
+            forked_table_physical | PAGE_DIR_PRESENT | PAGE_DIR_WRITABLE | PAGE_DIR_USER;
+    }
+
+    if (aligned)
+        free(aligned);
+
+    return forked_directory;
 }

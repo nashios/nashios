@@ -11,7 +11,8 @@ set(ASM_SOURCES
     interrupts/isr_common.S
     
     task/scheduler_switch.S
-    task/scheduler_enter_usermode.S)
+    task/scheduler_enter_usermode.S
+    task/scheduler_return_usermode.S)
 
 set(C_SOURCES
     main.c

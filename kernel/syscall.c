@@ -9,7 +9,14 @@
 
 void syscall_exit(int status) { scheduler_exit(status); }
 
-static void *s_syscall_list[MAX_SYSCALL] = {[__NR_exit] = syscall_exit};
+pid_t syscall_fork(void)
+{
+    struct process *process = scheduler_fork(g_scheduler_process);
+    scheduler_queue_thread(process->thread);
+    return process->pid;
+}
+
+static void *s_syscall_list[MAX_SYSCALL] = {[__NR_exit] = syscall_exit, [__NR_fork] = syscall_fork};
 
 bool syscall_handler(struct registers *registers)
 {
@@ -26,11 +33,11 @@ bool syscall_handler(struct registers *registers)
     registers->eax = result;
     printf("Syscall: Called syscall number = %d, result = %d\n", number, result);
 
-    return ITR_CONTINUE;
+    return ITR_STOP;
 }
 
 void syscall_init()
 {
-    isr_set_handler(127, syscall_handler);
+    isr_set_handler(0x80, syscall_handler);
     printf("Syscall: Initialized\n");
 }
