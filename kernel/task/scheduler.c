@@ -1,6 +1,7 @@
 #include <kernel/assert.h>
 #include <kernel/interrupts/irq.h>
 #include <kernel/interrupts/isr.h>
+#include <kernel/memory/mmap.h>
 #include <kernel/panic.h>
 #include <kernel/processor.h>
 #include <kernel/stdio.h>
@@ -384,6 +385,7 @@ struct process_mm *scheduler_memory_clone(struct process *parent)
         new_virtual->start = virtual->start;
         new_virtual->end = virtual->end;
         new_virtual->file = virtual->file;
+        new_virtual->flags = virtual->flags;
         new_virtual->memory = memory;
 
         dlist_add_tail(&new_virtual->list, &memory->list);
@@ -445,6 +447,69 @@ struct process *scheduler_fork(struct process *parent)
     scheduler_unlock();
 
     return process;
+}
+
+int scheduler_count_argv(char *const argv[])
+{
+    if (!argv)
+        return 0;
+
+    const int *p_argv = (const int *)argv;
+    while (*p_argv)
+        p_argv++;
+    return p_argv - (int *)argv;
+}
+
+int scheduler_execve(const char *path, char *const argv[], char *const envp[])
+{
+    int argv_length = scheduler_count_argv(argv);
+    char **kernel_argv = calloc(argv_length, sizeof(char *));
+    for (int i = 0; i < argv_length; ++i)
+    {
+        size_t length = strlen(argv[i]);
+        kernel_argv[i] = calloc(length + 1, sizeof(char));
+        memcpy(kernel_argv[i], argv[i], length);
+    }
+
+    int envp_length = scheduler_count_argv(envp);
+    char **kernel_envp = calloc(envp_length, sizeof(char *));
+    for (int i = 0; i < envp_length; ++i)
+    {
+        size_t length = strlen(envp[i]);
+        kernel_envp[i] = calloc(length + 1, sizeof(char));
+        memcpy(kernel_envp[i], envp[i], length);
+    }
+
+    char *p_path = strdup(path);
+    elf_unload();
+
+    struct elf_layout *elf = elf_load(p_path);
+    free(p_path);
+
+    char **user_argv = (char **)mmap_sbrk(argv_length + 1);
+    memset(user_argv, 0, argv_length + 1);
+
+    for (int i = 0; i < argv_length; ++i)
+    {
+        size_t length = strlen(kernel_argv[i]);
+        user_argv[i] = (char *)mmap_sbrk(length + 1);
+        memcpy(user_argv[i], kernel_argv[i], length);
+    }
+
+    char **user_envp = (char **)mmap_sbrk(envp_length + 1);
+    memset(user_envp, 0, envp_length + 1);
+    for (int i = 0; i < envp_length; ++i)
+    {
+        size_t length = strlen(kernel_envp[i]);
+        user_envp[i] = (char *)mmap_sbrk(length + 1);
+        memcpy(user_envp[i], kernel_envp[i], length);
+    }
+
+    scheduler_create_elf_thread_stack(elf, argv_length, user_argv, user_envp);
+    tss_set_stack(g_scheduler_thread->kernel_stack);
+    scheduler_enter_usermode(elf->stack, elf->entry, SCHED_PAGE_FAULT);
+
+    return 0;
 }
 
 void scheduler_init(void *init)

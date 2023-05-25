@@ -41,6 +41,7 @@ struct process_vm
 {
     uint32_t start;
     uint32_t end;
+    uint32_t flags;
     struct process_mm *memory;
     struct vfs_file *file;
     struct dlist_head list;
@@ -99,3 +100,4 @@ void scheduler_update_thread(struct thread *thread, enum thread_state state);
 void scheduler_open(const char *path);
 void scheduler_exit(int code);
 struct process *scheduler_fork(struct process *parent);
+int scheduler_execve(const char *path, char *const argv[], char *const envp[]);

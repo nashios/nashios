@@ -16,7 +16,10 @@ pid_t syscall_fork(void)
     return process->pid;
 }
 
-static void *s_syscall_list[MAX_SYSCALL] = {[__NR_exit] = syscall_exit, [__NR_fork] = syscall_fork};
+int execve(const char *path, char *const argv[], char *const envp[]) { return scheduler_execve(path, argv, envp); }
+
+static void *s_syscall_list[MAX_SYSCALL] = {
+    [__NR_exit] = syscall_exit, [__NR_fork] = syscall_fork, [__NR_execve] = execve};
 
 bool syscall_handler(struct registers *registers)
 {
