@@ -1,5 +1,8 @@
+#include <stddef.h>
 #include <sys/syscall.h>
 #include <unistd.h>
+
+char **environ = NULL;
 
 _syscall1(exit, int);
 void __attribute__((noreturn)) _exit(int status)
@@ -10,3 +13,21 @@ void __attribute__((noreturn)) _exit(int status)
 
 _syscall0(fork);
 pid_t fork(void) { SYSCALL_RETURN(syscall_fork()); }
+
+int execl(const char *path, const char *arg0, ...) {}
+
+int execle(const char *path, const char *arg0, ...) {}
+
+int execlp(const char *file, const char *arg0, ...) {}
+
+int execv(const char *path, char *const argv[]) {}
+
+_syscall3(execve, const char *, char *const *, char *const *);
+int execve(const char *path, char *const argv[], char *const envp[])
+{
+    SYSCALL_RETURN(syscall_execve(path, argv, envp));
+}
+
+int execvp(const char *file, char *const argv[]) {}
+
+int fexecve(int fd, char *const argv[], char *const envp[]) {}
