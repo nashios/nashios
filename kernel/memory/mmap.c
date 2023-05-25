@@ -142,3 +142,64 @@ int munmap(void *addr, size_t length)
 
     return 0;
 }
+
+uint32_t mmap_brk(uint32_t addr)
+{
+    struct process_mm *memory = g_scheduler_process->memory;
+    if (addr < memory->brk_start)
+        return -1;
+
+    uint32_t address = memory->brk_start;
+    uint32_t length = addr - memory->brk_start;
+    struct process_vm *virtual = mmap_find_vm(memory, address);
+    uint32_t new_brk = PAGE_ALIGN(address + length);
+    memory->brk_middle = new_brk;
+
+    if (!virtual || virtual->end >= new_brk)
+        return 0;
+
+    struct process_vm *new_virtual = calloc(1, sizeof(struct process_vm));
+    memcpy(new_virtual, virtual, sizeof(struct process_vm));
+    if (new_brk > memory->brk_middle)
+        mmap_expand_area(new_virtual, new_brk);
+    else
+        new_virtual->end = new_brk;
+
+    if (virtual->file)
+        virtual->file->op->mmap(virtual->file, new_virtual);
+    else
+    {
+        if (new_virtual->end > virtual->end)
+        {
+            uint32_t frames = (new_virtual->end - virtual->end) / PAGE_SIZE;
+            uint32_t physical_address = (uint32_t)physical_mm_allocate_size(frames);
+            uint32_t virtual_address = virtual->end;
+            while (virtual_address < new_virtual->end)
+            {
+                virtual_mm_map(g_scheduler_process->directory, physical_address, virtual_address,
+                               PAGE_TBL_PRESENT | PAGE_TBL_WRITABLE | PAGE_TBL_USER);
+                virtual_address += PAGE_SIZE;
+                physical_address += PAGE_SIZE;
+            }
+        }
+        else if (new_virtual->end < virtual->end)
+        {
+            uint32_t virtual_address = new_virtual->end;
+            while (virtual_address < virtual->end)
+            {
+                virtual_mm_unmap(g_scheduler_process->directory, virtual_address);
+                virtual_address += PAGE_SIZE;
+            }
+        }
+    }
+
+    memcpy(virtual, new_virtual, sizeof(struct process_vm));
+    return 0;
+}
+
+uint32_t mmap_sbrk(intptr_t increment)
+{
+    uint32_t value = g_scheduler_process->memory->brk_middle;
+    mmap_brk(g_scheduler_process->memory->brk_middle + increment);
+    return value;
+}

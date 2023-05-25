@@ -1,3 +1,4 @@
+#include <kernel/assert.h>
 #include <kernel/memory/heap.h>
 #include <kernel/memory/virtual.h>
 #include <kernel/stdio.h>
@@ -118,6 +119,15 @@ void virtual_mm_unmap(struct page_directory *directory, uint32_t virtual)
 
     table->entries[index] = 0;
     flush_tbl(virtual);
+}
+
+void virtual_mm_unmap_range(struct page_directory *directory, uint32_t start, uint32_t end)
+{
+    ASSERT(PAGE_IS_ALIGNED(start));
+    ASSERT(PAGE_IS_ALIGNED(end));
+
+    for (uint32_t address = start; address < end; address += PAGE_SIZE)
+        virtual_mm_unmap(directory, address);
 }
 
 uint32_t virtual_mm_get_physical(uint32_t virtual)
