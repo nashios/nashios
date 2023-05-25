@@ -47,8 +47,10 @@ isr_noerror 28
 isr_noerror 29
 isr_noerror 30
 isr_noerror 31
-isr_noerror 127
+isr_noerror 128
 
+.section .text
+.align 4
 isr_common:
     pusha
     

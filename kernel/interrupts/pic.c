@@ -41,9 +41,8 @@ void pic_remap(uint8_t offset1, uint8_t offset2)
 
 void pic_send_eoi(uint8_t irq)
 {
-    if (irq >= 8)
+    if (irq >= 40)
         io_outb(PIC2_COMMAND, PIC_EOI);
-
     io_outb(PIC1_COMMAND, PIC_EOI);
 }
 

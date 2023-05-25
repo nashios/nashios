@@ -74,7 +74,7 @@ void isr28();
 void isr29();
 void isr30();
 void isr31();
-void isr127();
+void isr128();
 
 void isr_set_handler(uint8_t index, itr_handler_t handler)
 {
@@ -130,8 +130,8 @@ void isr_init()
     idt_add(31, 0x8E, 0x08, isr31);
     printf("ISR: Added interrupt service routines from 0..31\n");
 
-    idt_add(127, 0xEE, 0x08, isr127);
-    printf("ISR: Added interrupt service routines 127\n");
+    idt_add(0x80, 0xEE, 0x08, isr128);
+    printf("ISR: Added interrupt service routines 128\n");
 
     printf("ISR: Initialized\n");
 }

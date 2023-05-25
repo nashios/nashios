@@ -86,7 +86,7 @@ void irq_handler(struct registers *registers)
         if (unhandled)
         {
             printf("IRQ: Unhandled interrupt number = %d\n", registers->number - 32);
-            pic_send_eoi(registers->number - 32);
+            pic_send_eoi(registers->number);
         }
     }
 }
