@@ -7,3 +7,4 @@ void *heap_calloc(size_t nitems, size_t size);
 void *heap_realloc(void *ptr, size_t size);
 void heap_free(void *ptr);
 void *heap_align(size_t size);
+void *heap_sbrk(size_t size);
