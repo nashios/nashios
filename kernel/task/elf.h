@@ -9,3 +9,4 @@ struct elf_layout
 };
 
 struct elf_layout *elf_load(const char *path);
+void elf_unload();

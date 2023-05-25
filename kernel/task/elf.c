@@ -1,3 +1,4 @@
+#include <kernel/api/posix/mman.h>
 #include <kernel/filesystem/virtual.h>
 #include <kernel/memory/mmap.h>
 #include <kernel/stdio.h>
@@ -162,4 +163,21 @@ struct elf_layout *elf_load(const char *path)
     layout->stack = stack_start + SCHED_STACK_SIZE;
 
     return layout;
+}
+
+void elf_unload()
+{
+    struct process_vm *iter;
+    struct process_vm *next;
+    dlist_for_each_entry_safe(iter, next, &g_scheduler_process->memory->list, list)
+    {
+        if (!iter->file && (iter->flags & MAP_SHARED) == 0)
+        {
+            virtual_mm_unmap_range(g_scheduler_process->directory, iter->start, iter->end);
+            dlist_remove(&iter->list);
+        }
+    }
+
+    memset(g_scheduler_process->memory, 0x00, sizeof(struct process_mm));
+    dlist_head_init(&g_scheduler_process->memory->list);
 }

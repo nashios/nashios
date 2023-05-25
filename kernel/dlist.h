@@ -18,6 +18,10 @@
     for (pos = dlist_first_entry(head, typeof(*pos), member); &pos->member != (head);                                  \
          pos = dlist_next_entry(pos, member))
 
+#define dlist_for_each_entry_safe(pos, n, head, member)                                                                \
+    for (pos = dlist_first_entry(head, typeof(*pos), member), n = dlist_next_entry(pos, member);                       \
+         &pos->member != (head); pos = n, n = dlist_next_entry(n, member))
+
 struct dlist_head
 {
     struct dlist_head *next;
