@@ -47,3 +47,9 @@ ssize_t read(int fildes, void *buf, size_t nbyte) { SYSCALL_RETURN(syscall_read(
 
 _syscall1(close, int);
 int close(int fildes) { SYSCALL_RETURN(syscall_close(fildes)); }
+
+_syscall2(ftruncate, int, off_t);
+int ftruncate(int fildes, off_t length) { SYSCALL_RETURN(syscall_ftruncate(fildes, length)); }
+
+_syscall2(truncate, const char *, off_t);
+int truncate(const char *path, off_t length) { SYSCALL_RETURN(syscall_truncate(path, length)); }

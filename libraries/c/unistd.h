@@ -12,6 +12,8 @@ int execv(const char *path, char *const argv[]);
 int execve(const char *path, char *const argv[], char *const envp[]);
 int execvp(const char *file, char *const argv[]);
 int fexecve(int fd, char *const argv[], char *const envp[]);
+int ftruncate(int fildes, off_t length);
+int truncate(const char *path, off_t length);
 pid_t fork(void);
 void _exit(int status);
 int brk(void *addr);
