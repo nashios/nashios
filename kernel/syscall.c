@@ -30,8 +30,16 @@ int syscall_brk(void *addr)
     return mmap_brk(p_addr);
 }
 
-static void *s_syscall_list[MAX_SYSCALL] = {
-    [__NR_exit] = syscall_exit, [__NR_fork] = syscall_fork, [__NR_execve] = syscall_execve, [__NR_brk] = syscall_brk};
+void *syscall_mmap(void *addr, size_t len, int prot, int flags, int fildes)
+{
+    return mmap(addr, len, prot, flags, fildes, 0);
+}
+
+static void *s_syscall_list[MAX_SYSCALL] = {[__NR_exit] = syscall_exit,
+                                            [__NR_fork] = syscall_fork,
+                                            [__NR_execve] = syscall_execve,
+                                            [__NR_brk] = syscall_brk,
+                                            [__NR_mmap] = syscall_mmap};
 
 bool syscall_handler(struct registers *registers)
 {
