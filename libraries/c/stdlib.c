@@ -2,6 +2,7 @@
 #include <st/pointer-arith.h>
 #include <stdbool.h>
 #include <stdlib.h>
+#include <string.h>
 #include <unistd.h>
 
 #define MALLOC_MAGIC 0xEF8E
@@ -31,7 +32,7 @@ void malloc_verify_block(struct malloc_block *block)
 void *malloc_sbrk(uint32_t size)
 {
     if (!s_malloc_address)
-        s_malloc_address = sbrk(0);
+        s_malloc_address = (uint32_t)sbrk(0);
 
     uint32_t address = s_malloc_address;
     if (size <= s_malloc_remaining)
@@ -39,7 +40,7 @@ void *malloc_sbrk(uint32_t size)
     else
     {
         sbrk(size);
-        s_malloc_remaining = sbrk(0) - (s_malloc_address + size);
+        s_malloc_remaining = (uint32_t)sbrk(0) - (s_malloc_address + size);
     }
 
     s_malloc_address += size;

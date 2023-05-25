@@ -37,8 +37,8 @@ int brk(void *addr) { SYSCALL_RETURN(syscall_brk(addr)); }
 
 void *sbrk(intptr_t incr)
 {
-    uint32_t value = brk(0);
-    brk((void *)(value + incr));
+    void *value = (void *)brk(0);
+    brk(value + incr);
     return value;
 }
 

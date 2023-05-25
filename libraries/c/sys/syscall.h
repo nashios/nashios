@@ -63,3 +63,14 @@
         }                                                                                                              \
         return result;                                                                                                 \
     })
+
+#define SYSCALL_RETURN_PTR(expr)                                                                                       \
+    ({                                                                                                                 \
+        int result = expr;                                                                                             \
+        if ((int)0xC0000000 < result && result < 0)                                                                    \
+        {                                                                                                              \
+            errno = -result;                                                                                           \
+            return NULL;                                                                                               \
+        }                                                                                                              \
+        return (void *)result;                                                                                         \
+    })
