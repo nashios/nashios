@@ -5,6 +5,7 @@ set(SOURCES
     string.c
     assert.c
     fcntl.c
+    mqueue.c
     
     sys/mman.c
     sys/stat.c)

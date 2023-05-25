@@ -2,6 +2,7 @@
 
 typedef int pid_t;
 typedef int ssize_t;
+typedef int mqd_t;
 
 typedef long long off_t;
 typedef long long loff_t;
