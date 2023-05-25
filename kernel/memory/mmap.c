@@ -1,3 +1,4 @@
+#include <kernel/api/posix/errno.h>
 #include <kernel/assert.h>
 #include <kernel/filesystem/virtual.h>
 #include <kernel/math.h>
@@ -143,11 +144,11 @@ int munmap(void *addr, size_t length)
     return 0;
 }
 
-uint32_t mmap_brk(uint32_t addr)
+int mmap_brk(uint32_t addr)
 {
     struct process_mm *memory = g_scheduler_process->memory;
     if (addr < memory->brk_start)
-        return -1;
+        return -EINVAL;
 
     uint32_t address = memory->brk_start;
     uint32_t length = addr - memory->brk_start;

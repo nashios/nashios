@@ -1,5 +1,6 @@
 #pragma once
 
+#include <stdint.h>
 #include <sys/types.h>
 
 extern char **environ;
@@ -13,3 +14,5 @@ int execvp(const char *file, char *const argv[]);
 int fexecve(int fd, char *const argv[], char *const envp[]);
 pid_t fork(void);
 void _exit(int status);
+int brk(void *addr);
+void *sbrk(intptr_t incr);

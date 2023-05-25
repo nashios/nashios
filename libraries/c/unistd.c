@@ -31,3 +31,13 @@ int execve(const char *path, char *const argv[], char *const envp[])
 int execvp(const char *file, char *const argv[]) {}
 
 int fexecve(int fd, char *const argv[], char *const envp[]) {}
+
+_syscall1(brk, void *);
+int brk(void *addr) { SYSCALL_RETURN(syscall_brk(addr)); }
+
+void *sbrk(intptr_t incr)
+{
+    uint32_t value = brk(0);
+    brk((void *)(value + incr));
+    return value;
+}

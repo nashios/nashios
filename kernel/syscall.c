@@ -1,5 +1,6 @@
 #include <kernel/api/posix/sys/syscall.h>
 #include <kernel/interrupts/isr.h>
+#include <kernel/memory/mmap.h>
 #include <kernel/stdio.h>
 #include <kernel/string.h>
 #include <kernel/syscall.h>
@@ -16,10 +17,21 @@ pid_t syscall_fork(void)
     return process->pid;
 }
 
-int execve(const char *path, char *const argv[], char *const envp[]) { return scheduler_execve(path, argv, envp); }
+int syscall_execve(const char *path, char *const argv[], char *const envp[])
+{
+    return scheduler_execve(path, argv, envp);
+}
+
+int syscall_brk(void *addr)
+{
+    uint32_t p_addr = (uint32_t)addr;
+    if (p_addr == 0)
+        return g_scheduler_process->memory->brk_middle;
+    return mmap_brk(p_addr);
+}
 
 static void *s_syscall_list[MAX_SYSCALL] = {
-    [__NR_exit] = syscall_exit, [__NR_fork] = syscall_fork, [__NR_execve] = execve};
+    [__NR_exit] = syscall_exit, [__NR_fork] = syscall_fork, [__NR_execve] = syscall_execve, [__NR_brk] = syscall_brk};
 
 bool syscall_handler(struct registers *registers)
 {
