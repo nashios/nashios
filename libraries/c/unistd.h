@@ -16,3 +16,5 @@ pid_t fork(void);
 void _exit(int status);
 int brk(void *addr);
 void *sbrk(intptr_t incr);
+ssize_t read(int fildes, void *buf, size_t nbyte);
+int close(int fildes);

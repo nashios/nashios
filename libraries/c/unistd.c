@@ -41,3 +41,9 @@ void *sbrk(intptr_t incr)
     brk((void *)(value + incr));
     return value;
 }
+
+_syscall3(read, int, void *, size_t);
+ssize_t read(int fildes, void *buf, size_t nbyte) { SYSCALL_RETURN(syscall_read(fildes, buf, nbyte)); }
+
+_syscall1(close, int);
+int close(int fildes) { SYSCALL_RETURN(syscall_close(fildes)); }
