@@ -97,7 +97,9 @@ else
 fi
 
 mkdir -p ${SYSROOT_DIR}/usr/include
+mkdir -p ${SYSROOT_DIR}/usr/include/kernel/api
 rsync -aH --include="*/" --include="*.h" --exclude="*" ${SOURCE_DIR}/libraries/c/ ${SYSROOT_DIR}/usr/include
+rsync -aH --include="*/" --include="*.h" --exclude="*" ${SOURCE_DIR}/kernel/api/ ${SYSROOT_DIR}/usr/include/kernel/api/
 
 mkdir -p ${BUILD_DIR}/build-binutils
 cd ${BUILD_DIR}/build-binutils
