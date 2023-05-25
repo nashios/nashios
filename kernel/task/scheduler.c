@@ -286,12 +286,12 @@ void scheduler_exit(int code)
     for (int i = 0; i < MAX_FD; i++)
     {
         struct vfs_file *file = process->files->fd[i];
-        if (file && file->op->release)
-        {
-            file->op->release(file->dentry->inode, file);
-            free(file);
-            process->files->fd[i] = 0;
-        }
+        if (!file || !file->op->release)
+            continue;
+
+        file->op->release(file->dentry->inode, file);
+        free(file);
+        process->files->fd[i] = 0;
     }
 
     struct thread *thread = process->thread;
