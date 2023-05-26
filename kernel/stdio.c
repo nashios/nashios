@@ -2,6 +2,7 @@
 #include <kernel/serial.h>
 #include <kernel/stdio.h>
 #include <kernel/string.h>
+#include <kernel/task/scheduler.h>
 
 enum VSNFlags
 {
@@ -357,15 +358,34 @@ int vsnprintf(char *str, size_t size, const char *format, va_list ap)
     return p_str - str;
 }
 
+int vsprintf(char *s, const char *format, va_list ap) { return vsnprintf(s, INT_MAX, format, ap); }
+
+int sprintf(char *s, const char *format, ...)
+{
+    va_list args;
+    va_start(args, format);
+    size_t length = vsnprintf(s, INT_MAX, format, args);
+    va_end(args);
+
+    return length;
+}
+
 int printf(const char *format, ...)
 {
     char buffer[1024];
+    if (g_scheduler_process && g_scheduler_thread)
+        sprintf(buffer, "[%s(%d:%d)] %s", g_scheduler_process->name, g_scheduler_process->pid, g_scheduler_thread->tid,
+                format);
+    else
+        sprintf(buffer, "[Kernel] %s", format);
+
+    char second_buffer[1024];
+
     va_list args;
     va_start(args, format);
-    size_t size = vsnprintf(buffer, 1024, format, args);
+    size_t length = vsprintf(second_buffer, buffer, args);
     va_end(args);
 
-    serial_write(buffer, size);
-
-    return size;
+    serial_write(second_buffer, length);
+    return length;
 }

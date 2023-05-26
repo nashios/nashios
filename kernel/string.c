@@ -39,6 +39,26 @@ int strcmp(const char *str1, const char *str2)
     return c1 - c2;
 }
 
+int strncmp(const char *str1, const char *str2, size_t n)
+{
+    unsigned char p_s1;
+    unsigned char p_s2;
+
+    for (size_t i = 0; i < n; i++)
+    {
+        p_s1 = (unsigned char)*str1++;
+        p_s2 = (unsigned char)*str2++;
+
+        if (p_s1 != p_s2)
+            return p_s1 - p_s2;
+
+        if (p_s1 == '\0')
+            return 0;
+    }
+
+    return 0;
+}
+
 char *strdup(const char *string)
 {
     size_t length = strlen(string) + 1;
@@ -46,6 +66,31 @@ char *strdup(const char *string)
     if (!new_string)
         return NULL;
     return (char *)memcpy(new_string, string, length);
+}
+
+char *strrstr(const char *haystack, const char *needle)
+{
+    size_t haystack_length = strlen(haystack);
+    size_t needle_length = strlen(needle);
+    if (needle_length > haystack_length)
+        return NULL;
+
+    for (char *result = haystack + haystack_length - needle_length; result >= haystack; result--)
+    {
+        if (strncmp(result, needle, needle_length) == 0)
+            return result;
+    }
+
+    return NULL;
+}
+
+char *strncpy(char *s1, const char *s2, size_t n)
+{
+    size_t size = strnlen(s2, n);
+    if (size != n)
+        memset(s1 + size, '\0', n - size);
+
+    return memcpy(s1, s2, size);
 }
 
 void *memcpy(void *dest, const void *src, size_t n)

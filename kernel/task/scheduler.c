@@ -57,12 +57,27 @@ void scheduler_unlock()
         ENABLE_INTERRUPTS();
 }
 
-struct process *scheduler_create_process(struct process *parent)
+const char *scheduler_generate_process_name(const char *path)
+{
+    const char *found = strrstr(path, "/");
+    if (!found)
+        return path;
+
+    size_t position = found - path;
+    size_t length = strlen(path);
+    char *name = calloc(length - position, sizeof(char));
+    memcpy(name, path + position + 1, length - position - 1);
+
+    return name;
+}
+
+struct process *scheduler_create_process(struct process *parent, const char *name)
 {
     scheduler_lock();
 
     struct process *process = calloc(1, sizeof(struct process));
     process->pid = s_scheduler_pid++;
+    process->name = scheduler_generate_process_name(name);
     process->parent = parent;
     process->directory = g_virtual_directory;
     process->fs = (struct process_fs *)calloc(1, sizeof(struct process_fs));
@@ -390,7 +405,7 @@ void scheduler_schedule()
 
 void scheduler_open(const char *path)
 {
-    struct process *process = scheduler_create_process(g_scheduler_process);
+    struct process *process = scheduler_create_process(g_scheduler_process, path);
     struct thread *thread =
         scheduler_create_thread(process, (uint32_t)strdup(path), (uint32_t)scheduler_elf_thread_entry,
                                 THREAD_APPLICATION_TYPE, THREAD_READY_STATE);
@@ -426,7 +441,7 @@ struct process *scheduler_fork(struct process *parent)
     struct process *process = calloc(1, sizeof(struct process));
     process->pid = s_scheduler_pid++;
     process->parent = parent;
-
+    process->name = strdup(parent->name);
     process->memory = scheduler_memory_clone(parent);
 
     dlist_head_init(&process->children);
@@ -505,6 +520,9 @@ int scheduler_execve(const char *path, char *const argv[], char *const envp[])
         memcpy(kernel_envp[i], envp[i], length);
     }
 
+    free(g_scheduler_process->name);
+    g_scheduler_process->name = scheduler_generate_process_name(path);
+
     char *p_path = strdup(path);
     elf_unload();
 
@@ -544,11 +562,11 @@ void scheduler_init(void *init)
     plist_head_init(&s_scheduler_waiting_list);
     plist_head_init(&s_scheduler_terminated_list);
 
-    g_scheduler_process = scheduler_create_process(NULL);
+    g_scheduler_process = scheduler_create_process(NULL, "swapper");
     g_scheduler_thread = scheduler_create_thread(g_scheduler_process, 0x00, (uint32_t)scheduler_kernel_thread_entry,
                                                  THREAD_KERNEL_TYPE, THREAD_RUNNING_STATE);
 
-    struct process *process = scheduler_create_process(g_scheduler_process);
+    struct process *process = scheduler_create_process(g_scheduler_process, "init");
     struct thread *thread = scheduler_create_thread(process, (uint32_t)init, (uint32_t)scheduler_kernel_thread_entry,
                                                     THREAD_KERNEL_TYPE, THREAD_WAITING_STATE);
     scheduler_update_thread(g_scheduler_thread, THREAD_TERMINATED_STATE);
