@@ -9,6 +9,7 @@ jobs:
       matrix:
         os: [ubuntu-latest]
         arch: [i686]
+        toolchain: [gnu]
 
     steps:
       - uses: actions/checkout@v3
@@ -16,22 +17,16 @@ jobs:
       - name: Install dependencies
         run: |
           sudo apt update
-          sudo apt install build-essential cmake curl libmpfr-dev libmpc-dev libgmp-dev ninja-build ccache rsync unzip texinfo libssl-dev
-
-      - name: Configure
-        run: cmake --preset ${{ matrix.arch }}
+          sudo apt install build-essential cmake curl libmpfr-dev libmpc-dev libgmp-dev ninja-build ccache rsync unzip texinfo libssl-dev fuse2fs
 
       - name: Toolchain cache
         uses: actions/cache@v3
         with:
-          path: ${{ github.workspace }}/binary/toolchain/${{ matrix.arch }}/cache/toolchain.tar.gz
-          key: ${{ runner.os }}-toolchain-${{ matrix.arch }}-${{ hashFiles('meta/scripts/setup-toolchain.sh', 'meta/patches/*.patch', 'libraries/c/**/*.h') }}
-
-      - name: Compile toolchain
-        run: USE_CACHE=true cmake --build --preset ${{ matrix.arch }} --target toolchain
+          path: ${{ github.workspace }}/binary/cache/toolchain-${{ matrix.arch }}-${{ matrix.toolchain }}.tar.gz
+          key: ${{ runner.os }}-toolchain-${{ matrix.arch }}-${{ hashFiles('meta/scripts/toolchain/*.sh', 'meta/patches/*.patch', 'libraries/c/**/*.h') }}
 
       - name: Compile system
-        run: cmake --build --preset ${{ matrix.arch }} --target all
+        run: USE_CACHE=true meta/scripts/nashios.sh build ${{ matrix.arch }} ${{ matrix.toolchain }}
 
       - name: Install system
-        run: cmake --build --preset ${{ matrix.arch }} --target install
+        run: meta/scripts/nashios.sh install ${{ matrix.arch }} ${{ matrix.toolchain }}

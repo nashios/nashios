@@ -13,7 +13,7 @@ MIRROR=https://ftp.gnu.org/gnu
 mkdir -p ${CACHE_DIR}
 pushd ${CACHE_DIR}
     if [ "${USE_CACHE}" = "true" ] ; then
-        CACHE_ARCHIVE="${CACHE_DIR}/toolchain.tar.gz"
+        CACHE_ARCHIVE="${CACHE_DIR}/toolchain-${NASHIOS_ARCH}-${NASHIOS_TOOLCHAIN}.tar.gz"
         if [ -r "${CACHE_ARCHIVE}" ] ; then
             buildstep "Cache" echo "Cache file ${CACHE_ARCHIVE} exists"
             buildstep "Cache" echo "Extracting toolchain from cache"

@@ -57,6 +57,7 @@ if ! [[ "${TOOLCHAIN}" =~ ^(gnu)$ ]]; then
     >&2 echo "Unknown toolchain: ${TOOLCHAIN}"
     exit 1
 fi
+export NASHIOS_TOOLCHAIN=${TOOLCHAIN}
 
 buildstep() {
     name=$1
@@ -239,10 +240,17 @@ elif [[ ${COMMAND} = "delete" ]]; then
 elif [[ ${COMMAND} = "rebuild-toolchain" ]]; then
     setup_variables
     delete_toolchain
+
+    check_cmake
+    check_toolchain
 elif [[ ${COMMAND} = "rebuild-world" ]]; then
     setup_variables
     delete_architecture
     delete_toolchain
+
+    check_cmake
+    check_toolchain
+    check_architecture
 else
     >&2 echo "Unknown command: ${COMMAND}"
     usage
