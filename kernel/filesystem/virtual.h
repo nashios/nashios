@@ -2,7 +2,7 @@
 
 #include <kernel/api/posix/fcntl.h>
 #include <kernel/api/posix/sys/stat.h>
-#include <kernel/dlist.h>
+#include <st/dlist.h>
 #include <kernel/task/scheduler.h>
 #include <stddef.h>
 #include <stdint.h>

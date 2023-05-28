@@ -29,8 +29,6 @@ set(C_SOURCES
     panic.c
     assert.c
     tss.c
-    dlist.c
-    plist.c
     syscall.c
     
     memory/physical.c

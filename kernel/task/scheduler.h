@@ -3,7 +3,7 @@
 #include <kernel/api/posix/sys/types.h>
 #include <kernel/interrupts/handler.h>
 #include <kernel/memory/virtual.h>
-#include <kernel/plist.h>
+#include <st/plist.h>
 
 #define SCHED_STACK_SIZE 0x2000
 #define SCHED_HEAP_SIZE 0x20000
