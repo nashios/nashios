@@ -12,7 +12,7 @@ sudo apt install cmake ninja-build
 # Gcc related packages
 sudo apt install build-essential bison flex libgmp3-dev libmpc-dev libmpfr-dev texinfo
 # Virtual machine
-sudo apt install qemu-system-x86
+sudo apt install qemu-system-x86 fuse2fs
 ```
 
 ## Build
