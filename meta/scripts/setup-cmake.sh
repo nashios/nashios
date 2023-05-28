@@ -6,6 +6,7 @@ CMAKE_MD5SUM="9095556a3b268fd88c995d2bb4c90320"
 GENERATOR=Ninja
 MIRROR=https://github.com/Kitware/CMake/releases/download
 
+mkdir -p ${CACHE_DIR}
 pushd ${CACHE_DIR}
     md5=""
     if [ -e "${CMAKE_ARCHIVE}" ]; then
@@ -21,7 +22,8 @@ pushd ${CACHE_DIR}
     fi
 popd
 
-pushd ${BUILD_DIR}
+mkdir -p ${BUILD_COMMON_DIR}
+pushd ${BUILD_COMMON_DIR}
     if [ ! -d "${CMAKE_PACKAGE}" ]; then
         buildstep "CMake" echo "Extracting cmake"
         buildstep "CMake" tar -xf ${CACHE_DIR}/${CMAKE_ARCHIVE}
@@ -30,8 +32,8 @@ pushd ${BUILD_DIR}
     fi
 popd
 
-pushd ${BUILD_DIR}/${CMAKE_PACKAGE}
-    buildstep "CMake" ./bootstrap --generator=${GENERATOR} --parallel=${CORES} --prefix=${CROSS_DIR}
+pushd ${BUILD_COMMON_DIR}/${CMAKE_PACKAGE}
+    buildstep "CMake" ./bootstrap --generator=${GENERATOR} --parallel=${CORES} --prefix=${CROSS_COMMON_DIR}
     buildstep "CMake" ninja -j ${CORES} all
     buildstep "CMake" ninja install
 popd

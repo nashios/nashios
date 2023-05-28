@@ -1,11 +1,3 @@
-export MOUNT_DIR=mount
-DISK_IMAGE=disk.img
-
-fail() {
-    echo "FAIL: $*"
-    exit 1
-}
-
 FUSE2FS_FOUND=0
 if [ "$(id -u)" != 0 ]; then
     if fuse2fs --help 2>&1 |grep fakeroot > /dev/null; then
@@ -38,14 +30,14 @@ inode_usage() {
 }
 
 INODE_SIZE=128
-INODE_COUNT=$(($(inode_usage "$SOURCE_DIR/base") + $(inode_usage sysroot)))
+INODE_COUNT=$(($(inode_usage "${SOURCE_DIR}/base") + $(inode_usage ${SYSROOT_DIR})))
 INODE_COUNT=$((INODE_COUNT + 2000))
-DISK_SIZE_BYTES=$((($(disk_usage "$SOURCE_DIR/base") + $(disk_usage sysroot)) * 1024))
+DISK_SIZE_BYTES=$((($(disk_usage "${SOURCE_DIR}/base") + $(disk_usage ${SYSROOT_DIR})) * 1024))
 DISK_SIZE_BYTES=$((DISK_SIZE_BYTES + (INODE_COUNT * INODE_SIZE)))
 
 if [ -z "$NASHIOS_DISK_SIZE_BYTES" ]; then
     DISK_SIZE_BYTES=$((DISK_SIZE_BYTES * 2))
-    INODE_COUNT=$((INODE_COUNT * 7))
+    INODE_COUNT=$((INODE_COUNT))
 else
     if [ "$DISK_SIZE_BYTES" -gt "$NASHIOS_DISK_SIZE_BYTES" ]; then
         fail "NASHIOS_DISK_SIZE_BYTES is set to $NASHIOS_DISK_SIZE_BYTES bytes, but required disk size is $DISK_SIZE_BYTES bytes"
