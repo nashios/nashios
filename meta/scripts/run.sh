@@ -1,7 +1,3 @@
-if [ ${NASHIOS_ARCH} = "i686" ]; then
-    [ -z "$NASHIOS_QEMU_BIN" ] && NASHIOS_QEMU_BIN="qemu-system-i386"
-fi
-
 [ -z "$NASHIOS_QEMU_KERNEL" ] && NASHIOS_QEMU_KERNEL="${SYSROOT_DIR}/boot/kernel"
 [ -z "$NASHIOS_QEMU_RAM" ] && NASHIOS_QEMU_RAM="128M"
 [ -z "$NASHIOS_QEMU_CPU" ] && NASHIOS_QEMU_CPU="max"

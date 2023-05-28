@@ -82,12 +82,36 @@ exit_if_root "It is forbidden to run the $NAME script as root"
 
 compile_cmake() {
     echo "CMake version is not supported"
-    ${SCRIPTS_DIR}/setup-cmake.sh
+    ${SCRIPTS_DIR}/common/setup-cmake.sh
 }
 
 check_cmake() {
     if [ "$(cmake -P "${SOURCE_DIR}"/meta/cmake/cmake-version.cmake)" -ne 1 ]; then
         compile_cmake
+    fi
+}
+
+compile_qemu() {
+    echo "QEMU version is not supported"
+    ${SCRIPTS_DIR}/common/setup-qemu.sh
+}
+
+check_qemu() {
+    export QEMU_MAJOR_VERSION=8
+    export QEMU_MINOR_VERSION=0
+    export QEMU_PATCH_VERSION=0
+
+    if ! command -v "$NASHIOS_QEMU_BIN" >/dev/null 2>&1 ; then
+        compile_qemu
+    fi
+
+    major_version=$("$NASHIOS_QEMU_BIN" -version | head -n 1 | sed -E 's/QEMU emulator version ([1-9][0-9]*|0).*/\1/')
+    minor_version=$("$NASHIOS_QEMU_BIN" -version | head -n 1 | sed -E 's/QEMU emulator version [0-9]+\.([1-9][0-9]*|0).*/\1/')
+    patch_version=$("$NASHIOS_QEMU_BIN" -version | head -n 1 | sed -E 's/QEMU emulator version [0-9]+\.[0-9]+\.([1-9][0-9]*|0).*/\1/')
+    if [ "$major_version" -lt "$QEMU_MAJOR_VERSION" ] || 
+        { [ "$major_version" -eq "$QEMU_MAJOR_VERSION" ] && 
+            [ "$minor_version" -lt "$QEMU_MINOR_VERSION" ] && [ "$patch_version" -lt "$QEMU_PATCH_VERSION" ]; }; then
+        compile_qemu
     fi
 }
 
@@ -119,6 +143,8 @@ check_architecture() {
 
 is_architecture_valid() {
     if [ "$ARCHITECTURE" = "i686" ]; then
+        export NASHIOS_QEMU_BIN="qemu-system-i386"
+
         CMAKE_ARGS+=("-D PROCESSOR=x86")
         return 0
     fi
@@ -195,6 +221,7 @@ if [[ ${COMMAND} =~ ^(build|install|image|run|recreate|rebuild)$ ]]; then
             ${SCRIPTS_DIR}/setup-image.sh
             ;;
         run)
+            check_qemu
             compile_target
             compile_target install
             ${SCRIPTS_DIR}/setup-image.sh

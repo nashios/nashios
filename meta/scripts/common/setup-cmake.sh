@@ -11,24 +11,24 @@ pushd ${CACHE_DIR}
     md5=""
     if [ -e "${CMAKE_ARCHIVE}" ]; then
         md5="$(md5sum $CMAKE_ARCHIVE | cut -f1 -d' ')"
-        buildstep "CMake" echo "CMake MD5='$md5'"
+        buildstep "CMake" echo "MD5='$md5'"
     fi
 
     if [ "$md5" != ${CMAKE_MD5SUM} ] ; then
         rm -f ${CMAKE_ARCHIVE}
         buildstep "CMake" curl -LO "${MIRROR}/v${CMAKE_VERSION}/${CMAKE_ARCHIVE}"
     else
-        buildstep "CMake" echo "Skipped cmake download"
+        buildstep "CMake" echo "Skipped download"
     fi
 popd
 
 mkdir -p ${BUILD_COMMON_DIR}
 pushd ${BUILD_COMMON_DIR}
     if [ ! -d "${CMAKE_PACKAGE}" ]; then
-        buildstep "CMake" echo "Extracting cmake"
+        buildstep "CMake" echo "Extracting"
         buildstep "CMake" tar -xf ${CACHE_DIR}/${CMAKE_ARCHIVE}
     else
-        buildstep "CMake" echo "Using cmake from existing source directory"
+        buildstep "CMake" echo "Using from existing source directory"
     fi
 popd
 
