@@ -6,15 +6,6 @@ set(CMAKE_C_STANDARD_REQUIRED ON)
 
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
-find_package(Doxygen)
-if(DOXYGEN_FOUND)
-    set(DOXYGEN_IN ${CMAKE_CURRENT_SOURCE_DIR}/meta/configs/Doxyfile)
-    set(DOXYGEN_OUT ${CMAKE_CURRENT_BINARY_DIR}/Doxyfile)
-    configure_file(${DOXYGEN_IN} ${DOXYGEN_OUT} @ONLY)
-
-    add_custom_target(doxygen COMMAND ${DOXYGEN_EXECUTABLE} ${DOXYGEN_OUT} WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR} VERBATIM)
-endif()
-
 function(nashios_install_headers target_name)
     file(GLOB_RECURSE headers RELATIVE ${CMAKE_CURRENT_SOURCE_DIR} "*.h")
     foreach(header ${headers})
