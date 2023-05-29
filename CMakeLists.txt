@@ -32,13 +32,23 @@ function(nashios_libc target_name fs_name)
     install(TARGETS ${target_name} DESTINATION usr/lib)
 endfunction()
 
+function(nashios_lib target_name fs_name)
+    nashios_install_headers(${fs_name})
+    nashios_install_sources()
+    add_library(${target_name} ${SOURCES})
+    set_target_properties(${target_name} PROPERTIES OUTPUT_NAME ${fs_name})
+    install(TARGETS ${target_name} DESTINATION usr/lib)
+endfunction()
+
 function(nashios_bin target_name)
     nashios_install_sources()
     add_executable(${target_name} ${SOURCES})
     install(TARGETS ${target_name} DESTINATION bin)
+    target_link_libraries(${target_name} libc)
 endfunction()
 
 include_directories(.)
+include_directories(libraries)
 include_directories(libraries/c)
 
 add_compile_options(-Wall -Wextra)
