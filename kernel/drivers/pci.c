@@ -1,7 +1,7 @@
+#include <kernel/arch/i686/cpu/io.h>
 #include <kernel/drivers/pci.h>
-#include <kernel/io.h>
-#include <kernel/stdio.h>
-#include <kernel/stdlib.h>
+#include <kernel/lib/stdio.h>
+#include <kernel/lib/stdlib.h>
 #include <stdint.h>
 
 #define PCI_INVALID_VENDOR 0xFFFF

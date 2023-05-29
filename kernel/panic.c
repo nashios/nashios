@@ -1,7 +1,7 @@
-#include <kernel/io.h>
+#include <kernel/arch/i686/cpu/io.h>
+#include <kernel/cpu/processor.h>
+#include <kernel/lib/string.h>
 #include <kernel/panic.h>
-#include <kernel/processor.h>
-#include <kernel/string.h>
 
 void panic_shutdown()
 {

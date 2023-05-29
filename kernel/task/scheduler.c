@@ -1,16 +1,15 @@
+#include <kernel/arch/i686/task/tss.h>
 #include <kernel/assert.h>
+#include <kernel/cpu/processor.h>
 #include <kernel/filesystem/virtual.h>
-#include <kernel/interrupts/irq.h>
-#include <kernel/interrupts/isr.h>
+#include <kernel/interrupts/handler.h>
+#include <kernel/lib/stdio.h>
+#include <kernel/lib/stdlib.h>
+#include <kernel/lib/string.h>
 #include <kernel/memory/mmap.h>
 #include <kernel/panic.h>
-#include <kernel/processor.h>
-#include <kernel/stdio.h>
-#include <kernel/stdlib.h>
-#include <kernel/string.h>
 #include <kernel/task/elf.h>
 #include <kernel/task/scheduler.h>
-#include <kernel/tss.h>
 
 #define SCHED_PAGE_FAULT 0xFFFFFFFF
 
@@ -42,7 +41,7 @@ struct thread *g_scheduler_thread = NULL;
 
 extern void scheduler_switch(uint32_t *old_esp, uint32_t new_esp, uint32_t cr3);
 extern void scheduler_enter_usermode(uint32_t eip, uint32_t esp, uint32_t failed);
-extern void scheduler_return_usermode(struct registers *registers);
+extern void scheduler_return_usermode(struct itr_registers *registers);
 
 void scheduler_lock()
 {
@@ -319,7 +318,7 @@ void scheduler_exit(int code)
     scheduler_schedule();
 }
 
-bool scheduler_handler(struct registers *registers)
+bool scheduler_handler(struct itr_registers *registers)
 {
     if (g_scheduler_thread->type != THREAD_APPLICATION_TYPE || g_scheduler_thread->state != THREAD_RUNNING_STATE)
         return ITR_CONTINUE;
@@ -362,7 +361,7 @@ bool scheduler_handler(struct registers *registers)
     return ITR_CONTINUE;
 }
 
-bool scheduler_fault_handler(struct registers *registers)
+bool scheduler_fault_handler(struct itr_registers *registers)
 {
     uint32_t address = 0;
     asm volatile("mov %%cr2, %0" : "=r"(address));
@@ -370,12 +369,11 @@ bool scheduler_fault_handler(struct registers *registers)
     if (registers->cs == 0x1B)
     {
         printf("Scheduler: Userspace page fault at address = 0x%x\n", address);
-        if (address == SCHED_PAGE_FAULT)
-            scheduler_exit(registers->eax);
-
+        scheduler_exit(registers->eax);
         return ITR_STOP;
     }
 
+    NOT_REACHED();
     return ITR_CONTINUE;
 }
 
@@ -466,7 +464,7 @@ struct process *scheduler_fork(struct process *parent)
 
     plist_node_init(&thread->plist, parent->thread->plist.priority);
 
-    memcpy(&thread->registers, &parent->thread->registers, sizeof(struct registers));
+    memcpy(&thread->registers, &parent->thread->registers, sizeof(struct itr_registers));
     thread->registers.eax = 0;
 
     struct trap_frame *frame = (struct trap_frame *)thread->esp;
@@ -520,7 +518,7 @@ int scheduler_execve(const char *path, char *const argv[], char *const envp[])
         memcpy(kernel_envp[i], envp[i], length);
     }
 
-    free(g_scheduler_process->name);
+    free((void *)g_scheduler_process->name);
     g_scheduler_process->name = scheduler_generate_process_name(path);
 
     char *p_path = strdup(path);
@@ -572,8 +570,8 @@ void scheduler_init(void *init)
     scheduler_update_thread(g_scheduler_thread, THREAD_TERMINATED_STATE);
     scheduler_update_thread(thread, THREAD_READY_STATE);
 
-    irq_set_handler(0, scheduler_handler);
-    isr_set_handler(14, scheduler_fault_handler);
+    itr_set_handler(32, scheduler_handler);
+    itr_set_handler(14, scheduler_fault_handler);
 
     printf("Scheduler: Initialized\n");
 }

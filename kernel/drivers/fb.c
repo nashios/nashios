@@ -1,9 +1,9 @@
 #include <kernel/api/posix/errno.h>
+#include <kernel/arch/i686/boot/multiboot.h>
+#include <kernel/arch/i686/cpu/io.h>
 #include <kernel/drivers/fb.h>
 #include <kernel/drivers/pci.h>
-#include <kernel/io.h>
-#include <kernel/multiboot.h>
-#include <kernel/stdio.h>
+#include <kernel/lib/stdio.h>
 
 #define FB_INDEX 0x01CE
 #define FB_DATA 0x01CF

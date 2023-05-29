@@ -6,7 +6,7 @@
 #define ITR_CONTINUE false
 #define ITR_STOP true
 
-struct registers
+struct itr_registers
 {
     uint32_t gs;
     uint32_t fs;
@@ -29,4 +29,8 @@ struct registers
     uint32_t ss;
 } __attribute__((packed));
 
-typedef bool (*itr_handler_t)(struct registers *registers);
+typedef bool (*itr_handler_t)(struct itr_registers *registers);
+
+void itr_init();
+void itr_set_handler(int number, itr_handler_t handler);
+void itr_unset_handler(int number, itr_handler_t handler);

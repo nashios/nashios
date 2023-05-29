@@ -2,10 +2,10 @@
 #include <kernel/assert.h>
 #include <kernel/filesystem/ext2.h>
 #include <kernel/filesystem/virtual.h>
+#include <kernel/lib/stdio.h>
+#include <kernel/lib/stdlib.h>
+#include <kernel/lib/string.h>
 #include <kernel/math.h>
-#include <kernel/stdio.h>
-#include <kernel/stdlib.h>
-#include <kernel/string.h>
 
 #define EXT2_SUPER_MAGIC 0xEF53
 
@@ -272,7 +272,7 @@ struct vfs_inode *ext2_fs_allocate_inode(struct vfs_superblock *superblock)
 }
 
 void ext2_fs_read_n_block(struct vfs_superblock *superblock, uint32_t block, char **p_buffer, loff_t ppos,
-                          uint32_t *p_position, size_t count, int level)
+                          loff_t *p_position, size_t count, int level)
 {
     ASSERT(level <= 3);
 
@@ -280,7 +280,7 @@ void ext2_fs_read_n_block(struct vfs_superblock *superblock, uint32_t block, cha
     {
         uint32_t *buffer = (uint32_t *)ext2_fs_read_block(superblock, block);
         uint32_t blocks = superblock->block_size / 4;
-        for (uint32_t i = 0; *p_position < ppos + count && i < blocks; ++i)
+        for (uint32_t i = 0; *p_position < ppos + (loff_t)count && i < blocks; ++i)
             ext2_fs_read_n_block(superblock, buffer[i], p_buffer, ppos, p_position, count, level - 1);
     }
     else
@@ -304,9 +304,9 @@ ssize_t ext2_fs_read_file(struct vfs_file *file, char *buffer, size_t count, lof
     struct vfs_superblock *superblock = vfs_inode->superblock;
 
     count = MIN_T(size_t, ppos + count, ext2_inode->i_size) - ppos;
-    uint32_t position = (ppos / superblock->block_size) * superblock->block_size;
+    loff_t position = (ppos / superblock->block_size) * superblock->block_size;
     char *p_buffer = buffer;
-    while (position < ppos + count)
+    while (position < ppos +(loff_t) count)
     {
         uint32_t block = position / superblock->block_size;
         if (block < EXT2_INO_UPPER_LEVEL0)

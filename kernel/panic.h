@@ -1,6 +1,6 @@
 #pragma once
 
-#include <kernel/stdio.h>
+#include <kernel/lib/stdio.h>
 
 #define PANIC(...)                                                                                                     \
     do                                                                                                                 \

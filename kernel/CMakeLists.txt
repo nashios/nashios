@@ -1,45 +1,15 @@
-set(ASM_SOURCES
-    boot.S
-    gdt.S
-    tss_flush.S
-    
-    memory/page_enable.S
-    memory/flush_tbl.S
-    
-    interrupts/idt_flush.S
-    interrupts/irq_common.S
-    interrupts/isr_common.S
-    
-    task/scheduler_switch.S
-    task/scheduler_enter_usermode.S
-    task/scheduler_return_usermode.S)
+set(ASM_SOURCES)
 
 set(C_SOURCES
     main.c
-    io.c
-    serial.c
-    string.c
-    ctype.c
-    stdio.c
-    multiboot.c
-    gdt.c
     bitmap.c
-    stdlib.c
-    pit.c
     panic.c
     assert.c
-    tss.c
-    syscall.c
     
-    memory/physical.c
-    memory/virtual.c
     memory/heap.c
     memory/mmap.c
-    
-    interrupts/idt.c
-    interrupts/pic.c
-    interrupts/irq.c
-    interrupts/isr.c
+
+    interrupts/handler.c
     
     task/scheduler.c
     task/elf.c
@@ -49,11 +19,58 @@ set(C_SOURCES
     
     drivers/pci.c
     drivers/ata.c
-    drivers/fb.c)
+    drivers/fb.c
+    drivers/pit.c
+    
+    lib/string.c
+    lib/ctype.c
+    lib/stdio.c
+    lib/stdlib.c
+    
+    system/syscall.c)
+
+if(ARCHITECTURE STREQUAL "i686")
+    list(APPEND ASM_SOURCES
+        arch/i686/boot/boot.S
+
+        arch/i686/cpu/gdt.S
+        
+        arch/i686/memory/page_enable.S
+        arch/i686/memory/flush_tbl.S
+        
+        arch/i686/interrupts/idt_flush.S
+        arch/i686/interrupts/irq_common.S
+        arch/i686/interrupts/isr_common.S
+        
+        arch/i686/task/tss_flush.S
+        arch/i686/task/scheduler_switch.S
+        arch/i686/task/scheduler_enter_usermode.S
+        arch/i686/task/scheduler_return_usermode.S)
+
+    list(APPEND C_SOURCES
+        arch/i686/main.c
+
+        arch/i686/boot/multiboot.c
+        arch/i686/boot/serial.c
+
+        arch/i686/cpu/gdt.c
+        arch/i686/cpu/io.c
+        arch/i686/cpu/processor.c
+        
+        arch/i686/interrupts/idt.c
+        arch/i686/interrupts/pic.c
+        
+        arch/i686/memory/physical.c
+        arch/i686/memory/virtual.c
+        
+        arch/i686/task/tss.c)
+
+    set(LINKER_FILE ${CMAKE_CURRENT_SOURCE_DIR}/arch/i686/linker.ld)
+endif()
 
 add_executable(kernel ${ASM_SOURCES} ${C_SOURCES})
 target_compile_options(kernel PRIVATE -ffreestanding -O2)
-target_link_options(kernel PRIVATE -T ${CMAKE_CURRENT_SOURCE_DIR}/linker.ld -ffreestanding -O2 -nostdlib)
+target_link_options(kernel PRIVATE -T ${LINKER_FILE} -ffreestanding -O2 -nostdlib)
 target_link_libraries(kernel PRIVATE gcc)
 install(TARGETS kernel DESTINATION boot)
 

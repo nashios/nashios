@@ -1,9 +1,9 @@
 #include <kernel/api/posix/mman.h>
 #include <kernel/filesystem/virtual.h>
+#include <kernel/lib/stdio.h>
+#include <kernel/lib/stdlib.h>
+#include <kernel/lib/string.h>
 #include <kernel/memory/mmap.h>
-#include <kernel/stdio.h>
-#include <kernel/stdlib.h>
-#include <kernel/string.h>
 #include <kernel/task/elf.h>
 #include <kernel/task/scheduler.h>
 
@@ -100,6 +100,7 @@ char *elf_read(const char *path)
     if (virtual_fs_fstat(fd, &stat) < 0)
         return NULL;
 
+    printf("elf_read(%d)\n", stat.st_size);
     char *buffer = (char *)calloc(stat.st_size, sizeof(char));
     if (!buffer)
         return NULL;
@@ -115,7 +116,6 @@ struct elf_layout *elf_load(const char *path)
     char *buffer = elf_read(path);
     if (!buffer)
         return NULL;
-
     struct elf_ehdr *eheader = (struct elf_ehdr *)buffer;
     if (!elf_verify(eheader) || eheader->e_phoff == 0)
         return NULL;

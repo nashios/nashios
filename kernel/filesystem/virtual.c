@@ -1,10 +1,10 @@
 #include <kernel/api/posix/errno.h>
 #include <kernel/drivers/ata.h>
 #include <kernel/filesystem/virtual.h>
+#include <kernel/lib/stdio.h>
+#include <kernel/lib/stdlib.h>
+#include <kernel/lib/string.h>
 #include <kernel/math.h>
-#include <kernel/stdio.h>
-#include <kernel/stdlib.h>
-#include <kernel/string.h>
 
 #define FMODE_READ ((fmode_t)0x1)
 #define FMODE_WRITE ((fmode_t)0x2)
@@ -248,6 +248,7 @@ int virtual_fs_fstat(int fd, struct stat *buf)
 
 ssize_t virtual_fs_read(int fd, void *buf, size_t count)
 {
+    printf("virtual_fs_read()\n");
     if (fd < 0)
         return -EBADF;
 

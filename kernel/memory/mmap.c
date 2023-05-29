@@ -1,11 +1,11 @@
 #include <kernel/api/posix/errno.h>
 #include <kernel/assert.h>
 #include <kernel/filesystem/virtual.h>
+#include <kernel/lib/stdio.h>
+#include <kernel/lib/stdlib.h>
+#include <kernel/lib/string.h>
 #include <kernel/math.h>
 #include <kernel/memory/mmap.h>
-#include <kernel/stdio.h>
-#include <kernel/stdlib.h>
-#include <kernel/string.h>
 #include <kernel/task/scheduler.h>
 
 struct process_vm *mmap_find_unmapped_area(uint32_t addr, uint32_t len)

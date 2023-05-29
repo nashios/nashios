@@ -1,19 +1,12 @@
-#include <kernel/assert.h>
+#include <kernel/cpu/processor.h>
 #include <kernel/drivers/ata.h>
 #include <kernel/drivers/fb.h>
 #include <kernel/drivers/pci.h>
+#include <kernel/drivers/pit.h>
 #include <kernel/filesystem/ext2.h>
 #include <kernel/filesystem/virtual.h>
-#include <kernel/gdt.h>
-#include <kernel/interrupts/idt.h>
-#include <kernel/memory/physical.h>
-#include <kernel/memory/virtual.h>
-#include <kernel/multiboot.h>
-#include <kernel/pit.h>
-#include <kernel/processor.h>
-#include <kernel/serial.h>
-#include <kernel/stdio.h>
-#include <kernel/syscall.h>
+#include <kernel/interrupts/handler.h>
+#include <kernel/system/syscall.h>
 #include <kernel/task/scheduler.h>
 
 void kernel_init()
@@ -36,17 +29,11 @@ void kernel_init()
         ;
 }
 
-void kernel_main(uint32_t magic, uint32_t address)
+void kernel_main()
 {
-    DISABLE_INTERRUPTS();
-
-    serial_init(SERIAL_COM1);
-    multiboot_init(magic, address);
-    gdt_init();
-    idt_init();
+    itr_init();
     pit_init();
-    physical_mm_init();
-    virtual_mm_init();
+
     scheduler_init(kernel_init);
     scheduler_schedule();
 

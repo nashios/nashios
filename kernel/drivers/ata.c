@@ -1,11 +1,11 @@
 #include <kernel/api/posix/errno.h>
+#include <kernel/arch/i686/cpu/io.h>
 #include <kernel/drivers/ata.h>
-#include <kernel/interrupts/irq.h>
-#include <kernel/io.h>
+#include <kernel/interrupts/handler.h>
+#include <kernel/lib/stdio.h>
+#include <kernel/lib/stdlib.h>
+#include <kernel/lib/string.h>
 #include <kernel/panic.h>
-#include <kernel/stdio.h>
-#include <kernel/stdlib.h>
-#include <kernel/string.h>
 
 #define ATA0_IO_ADDR 0x1F0
 #define ATA1_IO_ADDR 0x170
@@ -158,7 +158,7 @@ struct ata_device *ata_find_device(const char *name)
     return NULL;
 }
 
-bool ata_handler(struct registers *registers)
+bool ata_handler(struct itr_registers *registers)
 {
     pic_send_eoi(registers->number);
     return ITR_CONTINUE;
@@ -168,8 +168,8 @@ void ata_init()
 {
     dlist_head_init(&s_ata_device_list);
 
-    irq_set_handler(14, ata_handler);
-    irq_set_handler(15, ata_handler);
+    itr_set_handler(14, ata_handler);
+    itr_set_handler(15, ata_handler);
 
     ata_detect("/dev/hda", ATA0_IO_ADDR, true);
     ata_detect("/dev/hdb", ATA0_IO_ADDR, false);

@@ -1,7 +1,7 @@
 #include <kernel/assert.h>
+#include <kernel/cpu/processor.h>
+#include <kernel/lib/stdio.h>
 #include <kernel/panic.h>
-#include <kernel/processor.h>
-#include <kernel/stdio.h>
 
 void assert(const char *message, const char *file, const char *function, int line)
 {
