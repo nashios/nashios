@@ -22,7 +22,6 @@ void *heap_sbrk(size_t size)
 {
     if (size == 0)
         return (char *)s_heap_address;
-    printf("heap_sbrk(%d,%d,0x%x)\n", size, s_heap_remaining, s_heap_address);
 
     char *p_heap = (char *)s_heap_address;
     if (size <= s_heap_remaining)
@@ -31,7 +30,6 @@ void *heap_sbrk(size_t size)
     {
         uint32_t target_size = DIV_ROUND_UP(size - s_heap_remaining, PAGE_SIZE);
         uint32_t physical = (uint32_t)physical_mm_allocate_size(target_size);
-        printf("heap_request_space(0x%x)\n", physical);
 
         uint32_t virtual = DIV_ROUND_UP(s_heap_address, PAGE_SIZE) * PAGE_SIZE;
 

@@ -133,7 +133,6 @@ void *physical_mm_allocate_size(size_t size)
     if (s_physical_max - s_physical_used < size)
         return NULL;
 
-    printf("physical_mm_allocate_size(%d, 0x%x, %d, %d)\n", size, s_physical_bitmap, s_physical_max, s_physical_used);
     uint32_t frame = bitmap_first_free_size(s_physical_bitmap, s_physical_max, size);
     if ((int)frame == -1)
         return NULL;
