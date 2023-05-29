@@ -3,6 +3,9 @@
 #include <stddef.h>
 #include <stdint.h>
 
+#define EXIT_FAILURE -1
+#define EXIT_SUCCESS 0
+
 void abort(void);
 int atexit(void (*)(void));
 int atoi(const char *);
