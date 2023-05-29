@@ -100,7 +100,6 @@ char *elf_read(const char *path)
     if (virtual_fs_fstat(fd, &stat) < 0)
         return NULL;
 
-    printf("elf_read(%d)\n", stat.st_size);
     char *buffer = (char *)calloc(stat.st_size, sizeof(char));
     if (!buffer)
         return NULL;

@@ -57,10 +57,7 @@
     ({                                                                                                                 \
         int result = expr;                                                                                             \
         if (result < 0)                                                                                                \
-        {                                                                                                              \
             errno = -result;                                                                                           \
-            return errno;                                                                                              \
-        }                                                                                                              \
         return result;                                                                                                 \
     })
 

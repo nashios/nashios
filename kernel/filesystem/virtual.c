@@ -248,7 +248,6 @@ int virtual_fs_fstat(int fd, struct stat *buf)
 
 ssize_t virtual_fs_read(int fd, void *buf, size_t count)
 {
-    printf("virtual_fs_read()\n");
     if (fd < 0)
         return -EBADF;
 
