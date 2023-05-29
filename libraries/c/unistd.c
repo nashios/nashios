@@ -14,13 +14,13 @@ void __attribute__((noreturn)) _exit(int status)
 _syscall0(fork);
 pid_t fork(void) { SYSCALL_RETURN(syscall_fork()); }
 
-int execl(const char *path, const char *arg0, ...) {}
+int execl(const char *, const char *, ...) { return -1; }
 
-int execle(const char *path, const char *arg0, ...) {}
+int execle(const char *, const char *, ...) { return -1; }
 
-int execlp(const char *file, const char *arg0, ...) {}
+int execlp(const char *, const char *, ...) { return -1; }
 
-int execv(const char *path, char *const argv[]) {}
+int execv(const char *, char *const[]) { return -1; }
 
 _syscall3(execve, const char *, char *const *, char *const *);
 int execve(const char *path, char *const argv[], char *const envp[])
@@ -28,9 +28,9 @@ int execve(const char *path, char *const argv[], char *const envp[])
     SYSCALL_RETURN(syscall_execve(path, argv, envp));
 }
 
-int execvp(const char *file, char *const argv[]) {}
+int execvp(const char *, char *const[]) { return -1; }
 
-int fexecve(int fd, char *const argv[], char *const envp[]) {}
+int fexecve(int, char *const[], char *const[]) { return -1; }
 
 _syscall1(brk, void *);
 int brk(void *addr) { SYSCALL_RETURN(syscall_brk(addr)); }
@@ -53,3 +53,6 @@ int ftruncate(int fildes, off_t length) { SYSCALL_RETURN(syscall_ftruncate(filde
 
 _syscall2(truncate, const char *, off_t);
 int truncate(const char *path, off_t length) { SYSCALL_RETURN(syscall_truncate(path, length)); }
+
+_syscall0(getpid);
+pid_t getpid(void) { SYSCALL_RETURN(syscall_getpid()); }

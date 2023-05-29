@@ -24,7 +24,8 @@ int mq_timedsend(mqd_t mqdes, const char *msg_ptr, size_t msg_len, unsigned msg_
 
 int mq_send(mqd_t mqdes, const char *msg_ptr, size_t msg_len, unsigned msg_prio)
 {
-    return mq_timedsend(mqdes, msg_ptr, msg_len, msg_prio, NULL);
+    struct timespec time = {};
+    return mq_timedsend(mqdes, msg_ptr, msg_len, msg_prio, &time);
 }
 
 _syscall5(mq_timedreceive, mqd_t, char *, size_t, unsigned *, const struct timespec *);
@@ -35,7 +36,8 @@ ssize_t mq_timedreceive(mqd_t mqdes, char *msg_ptr, size_t msg_len, unsigned *ms
 
 ssize_t mq_receive(mqd_t mqdes, char *msg_ptr, size_t msg_len, unsigned *msg_prio)
 {
-    return mq_timedreceive(mqdes, msg_ptr, msg_len, msg_prio, NULL);
+    struct timespec time = {};
+    return mq_timedreceive(mqdes, msg_ptr, msg_len, msg_prio, &time);
 }
 
 int mq_close(mqd_t mqdes) { return close(mqdes); }
