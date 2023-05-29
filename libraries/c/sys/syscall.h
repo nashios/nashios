@@ -7,7 +7,7 @@
     static inline int syscall_##name()                                                                                 \
     {                                                                                                                  \
         int result;                                                                                                    \
-        asm volatile("int $0x80" : "=a"(result) : "0"(__NR_##name));                                                   \
+        asm volatile("int $128" : "=a"(result) : "0"(__NR_##name));                                                    \
         return result;                                                                                                 \
     }
 
@@ -15,7 +15,7 @@
     static inline int syscall_##name(type1 arg1)                                                                       \
     {                                                                                                                  \
         int result;                                                                                                    \
-        asm volatile("int $0x80" : "=a"(result) : "0"(__NR_##name), "b"(arg1));                                        \
+        asm volatile("int $128" : "=a"(result) : "0"(__NR_##name), "b"(arg1));                                         \
         return result;                                                                                                 \
     }
 
@@ -23,7 +23,7 @@
     static inline int syscall_##name(type1 arg1, type2 arg2)                                                           \
     {                                                                                                                  \
         int result;                                                                                                    \
-        asm volatile("int $0x80" : "=a"(result) : "0"(__NR_##name), "b"(arg1), "c"(arg2));                             \
+        asm volatile("int $128" : "=a"(result) : "0"(__NR_##name), "b"(arg1), "c"(arg2));                              \
         return result;                                                                                                 \
     }
 
@@ -31,7 +31,7 @@
     static inline int syscall_##name(type1 arg1, type2 arg2, type3 arg3)                                               \
     {                                                                                                                  \
         int result;                                                                                                    \
-        asm volatile("int $0x80" : "=a"(result) : "0"(__NR_##name), "b"(arg1), "c"(arg2), "d"(arg3));                  \
+        asm volatile("int $128" : "=a"(result) : "0"(__NR_##name), "b"(arg1), "c"(arg2), "d"(arg3));                   \
         return result;                                                                                                 \
     }
 
@@ -39,7 +39,7 @@
     static inline int syscall_##name(type1 arg1, type2 arg2, type3 arg3, type4 arg4)                                   \
     {                                                                                                                  \
         int result;                                                                                                    \
-        asm volatile("int $0x80" : "=a"(result) : "0"(__NR_##name), "b"(arg1), "c"(arg2), "d"(arg3), "S"(arg4));       \
+        asm volatile("int $128" : "=a"(result) : "0"(__NR_##name), "b"(arg1), "c"(arg2), "d"(arg3), "S"(arg4));        \
         return result;                                                                                                 \
     }
 
@@ -47,7 +47,7 @@
     static inline int syscall_##name(type1 arg1, type2 arg2, type3 arg3, type4 arg4, type5 arg5)                       \
     {                                                                                                                  \
         int result;                                                                                                    \
-        asm volatile("int $0x80"                                                                                       \
+        asm volatile("int $128"                                                                                        \
                      : "=a"(result)                                                                                    \
                      : "0"(__NR_##name), "b"(arg1), "c"(arg2), "d"(arg3), "S"(arg4), "D"(arg5));                       \
         return result;                                                                                                 \

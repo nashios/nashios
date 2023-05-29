@@ -145,7 +145,7 @@ void idt_init()
     idt_add(31, 0x8E, 0x08, isr31);
     printf("IDT: Added interrupt service routines from 0..31\n");
 
-    idt_add(0x80, 0xEE, 0x08, isr128);
+    idt_add(128, 0xEE, 0x08, isr128);
     printf("IDT: Added interrupt service routines 128\n");
 
     idt_add(32, 0x8E, 0x08, irq0);

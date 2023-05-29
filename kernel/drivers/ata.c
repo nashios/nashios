@@ -164,8 +164,8 @@ void ata_init()
 {
     dlist_head_init(&s_ata_device_list);
 
-    itr_set_handler(14, ata_handler);
-    itr_set_handler(15, ata_handler);
+    itr_set_handler(46, ata_handler);
+    itr_set_handler(47, ata_handler);
 
     ata_detect("/dev/hda", ATA0_IO_ADDR, true);
     ata_detect("/dev/hdb", ATA0_IO_ADDR, false);

@@ -63,6 +63,6 @@ bool syscall_handler(struct itr_registers *registers)
 
 void syscall_init()
 {
-    itr_set_handler(0x80, syscall_handler);
+    itr_set_handler(128, syscall_handler);
     printf("Syscall: Initialized\n");
 }
