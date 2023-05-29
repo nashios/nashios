@@ -147,6 +147,7 @@ is_architecture_valid() {
         export NASHIOS_QEMU_BIN="qemu-system-i386"
 
         CMAKE_ARGS+=("-D PROCESSOR=x86")
+        CMAKE_ARGS+=("-D ARCHITECTURE=i686")
         return 0
     fi
     return 1
