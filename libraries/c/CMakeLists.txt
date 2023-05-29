@@ -7,6 +7,8 @@ set(SOURCES
     fcntl.c
     mqueue.c
     poll.c
+    stdio.c
+    ctype.c
     
     sys/mman.c
     sys/stat.c)
