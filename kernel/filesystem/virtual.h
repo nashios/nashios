@@ -2,8 +2,8 @@
 
 #include <kernel/api/posix/fcntl.h>
 #include <kernel/api/posix/sys/stat.h>
-#include <st/dlist.h>
 #include <kernel/task/scheduler.h>
+#include <st/dlist.h>
 #include <stddef.h>
 #include <stdint.h>
 
@@ -38,6 +38,7 @@ struct vfs_inode_op
 struct vfs_inode
 {
     ino_t ino;
+    dev_t rdev;
     umode_t mode;
     uint32_t size;
     uint32_t blocks;
@@ -90,7 +91,9 @@ int virtual_fs_set_type(struct vfs_type *type);
 char *virtual_fs_read_block(const char *source, sector_t sector, uint32_t size);
 int virtual_fs_mount(const char *source, const char *target, const char *filesystemtype, unsigned long mountflags,
                      const void *data);
+struct vfs_inode *virtual_fs_create_inode(struct vfs_superblock *superblock);
 struct vfs_dentry *virtual_fs_create_dentry(const char *name);
+void virtual_fs_init_special_inode(struct vfs_inode *inode, umode_t mode, dev_t dev);
 int virtual_fs_open(const char *pathname, int flags, mode_t mode);
 int virtual_fs_fstat(int fd, struct stat *buf);
 ssize_t virtual_fs_read(int fd, void *buf, size_t count);

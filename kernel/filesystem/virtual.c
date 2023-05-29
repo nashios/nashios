@@ -1,5 +1,6 @@
 #include <kernel/api/posix/errno.h>
 #include <kernel/drivers/ata.h>
+#include <kernel/filesystem/chardev.h>
 #include <kernel/filesystem/virtual.h>
 #include <kernel/lib/stdio.h>
 #include <kernel/lib/stdlib.h>
@@ -75,6 +76,16 @@ struct vfs_mount *virtual_fs_find_mount(struct vfs_dentry *dentry)
     return NULL;
 }
 
+struct vfs_inode *virtual_fs_create_inode(struct vfs_superblock *superblock)
+{
+    struct vfs_inode *inode = (struct vfs_inode *)calloc(1, sizeof(struct vfs_inode));
+    if (!inode)
+        return NULL;
+    inode->superblock = superblock;
+
+    return inode;
+}
+
 struct vfs_dentry *virtual_fs_create_dentry(const char *name)
 {
     struct vfs_dentry *dentry = (struct vfs_dentry *)calloc(1, sizeof(struct vfs_dentry));
@@ -85,6 +96,17 @@ struct vfs_dentry *virtual_fs_create_dentry(const char *name)
     dlist_head_init(&dentry->subdir);
 
     return dentry;
+}
+
+void virtual_fs_init_special_inode(struct vfs_inode *inode, umode_t mode, dev_t dev)
+{
+    inode->mode = mode;
+
+    if (S_ISCHR(mode))
+    {
+        inode->fop = &g_chardev_fop;
+        inode->rdev = dev;
+    }
 }
 
 int virtual_fs_find_free_fd()
@@ -264,9 +286,13 @@ ssize_t virtual_fs_read(int fd, void *buf, size_t count)
 int virtual_fs_mount(const char *source, const char *target, const char *filesystemtype, unsigned long mountflags,
                      const void *data)
 {
-    struct ata_device *device = ata_find_device(source);
-    if (!device)
-        return -EINVAL;
+    bool mounting_root = strcmp(target, "/") == 0;
+    if (mounting_root)
+    {
+        struct ata_device *device = ata_find_device(source);
+        if (!device)
+            return -EINVAL;
+    }
 
     struct vfs_type *type = virtual_fs_find_type(filesystemtype);
     if (!type || !type->mount)
@@ -276,7 +302,7 @@ int virtual_fs_mount(const char *source, const char *target, const char *filesys
     if (!mount)
         return -EINVAL;
 
-    if (!strcmp(target, "/"))
+    if (mounting_root)
     {
         g_scheduler_process->fs->mount = mount;
         g_scheduler_process->fs->dentry = mount->dentry;

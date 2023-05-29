@@ -263,12 +263,7 @@ struct vfs_inode *ext2_fs_lookup(struct vfs_inode *inode, struct vfs_dentry *den
 
 struct vfs_inode *ext2_fs_allocate_inode(struct vfs_superblock *superblock)
 {
-    struct vfs_inode *inode = calloc(1, sizeof(struct vfs_inode));
-    if (!inode)
-        return NULL;
-    inode->superblock = superblock;
-
-    return inode;
+    return virtual_fs_create_inode(superblock);
 }
 
 void ext2_fs_read_n_block(struct vfs_superblock *superblock, uint32_t block, char **p_buffer, loff_t ppos,
@@ -306,7 +301,7 @@ ssize_t ext2_fs_read_file(struct vfs_file *file, char *buffer, size_t count, lof
     count = MIN_T(size_t, ppos + count, ext2_inode->i_size) - ppos;
     loff_t position = (ppos / superblock->block_size) * superblock->block_size;
     char *p_buffer = buffer;
-    while (position < ppos +(loff_t) count)
+    while (position < ppos + (loff_t)count)
     {
         uint32_t block = position / superblock->block_size;
         if (block < EXT2_INO_UPPER_LEVEL0)

@@ -3,6 +3,7 @@
 #include <kernel/drivers/fb.h>
 #include <kernel/drivers/pci.h>
 #include <kernel/drivers/pit.h>
+#include <kernel/filesystem/devfs.h>
 #include <kernel/filesystem/ext2.h>
 #include <kernel/filesystem/virtual.h>
 #include <kernel/interrupts/handler.h>
@@ -17,6 +18,7 @@ void kernel_init()
     ata_init();
     virtual_fs_init();
     ext2_fs_init();
+    devfs_init();
     fb_init();
     syscall_init();
 

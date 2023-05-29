@@ -16,6 +16,8 @@ set(C_SOURCES
     
     filesystem/virtual.c
     filesystem/ext2.c
+    filesystem/chardev.c
+    filesystem/devfs.c
     
     drivers/pci.c
     drivers/ata.c
