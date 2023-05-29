@@ -43,7 +43,7 @@ uint32_t bitmap_first_free_size(uint32_t *address, uint32_t max, size_t size)
             if (address[i] & bit)
                 continue;
 
-            uint32_t starting_bit = i * 32 + bit;
+            uint32_t starting_bit = i * 32 + j;
             uint32_t free = 0;
             for (uint32_t count = 0; count <= size; count++)
             {
