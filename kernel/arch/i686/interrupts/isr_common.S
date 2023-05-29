@@ -67,7 +67,7 @@ isr_common:
 
     cld
     push %esp
-    call itr_handler
+    call idt_handler
     add $4, %esp
 
     pop %gs

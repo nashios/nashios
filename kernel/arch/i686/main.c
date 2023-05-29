@@ -5,6 +5,7 @@
 #include <kernel/arch/i686/memory/physical.h>
 #include <kernel/arch/i686/memory/virtual.h>
 #include <kernel/cpu/processor.h>
+#include <kernel/init.h>
 
 void arch_main(uint32_t magic, uint32_t address)
 {

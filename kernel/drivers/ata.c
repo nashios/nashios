@@ -158,11 +158,7 @@ struct ata_device *ata_find_device(const char *name)
     return NULL;
 }
 
-bool ata_handler(struct itr_registers *registers)
-{
-    pic_send_eoi(registers->number);
-    return ITR_CONTINUE;
-}
+bool ata_handler(struct itr_registers *) { return ITR_CONTINUE; }
 
 void ata_init()
 {

@@ -1,7 +1,7 @@
 set(ASM_SOURCES)
 
 set(C_SOURCES
-    main.c
+    init.c
     bitmap.c
     panic.c
     assert.c

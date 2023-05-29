@@ -318,7 +318,7 @@ void scheduler_exit(int code)
     scheduler_schedule();
 }
 
-bool scheduler_handler(struct itr_registers *registers)
+bool scheduler_handler(struct itr_registers *)
 {
     if (g_scheduler_thread->type != THREAD_APPLICATION_TYPE || g_scheduler_thread->state != THREAD_RUNNING_STATE)
         return ITR_CONTINUE;
@@ -357,7 +357,6 @@ bool scheduler_handler(struct itr_registers *registers)
         scheduler_schedule();
     }
 
-    pic_send_eoi(registers->number);
     return ITR_CONTINUE;
 }
 

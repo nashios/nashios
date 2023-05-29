@@ -1,6 +1,7 @@
 #include <kernel/arch/i686/interrupts/idt.h>
 #include <kernel/arch/i686/interrupts/pic.h>
 #include <kernel/cpu/processor.h>
+#include <kernel/interrupts/handler.h>
 #include <kernel/lib/stdio.h>
 
 #define IDT_ENTRIES 256
@@ -91,6 +92,14 @@ void idt_default_handler()
     DISABLE_INTERRUPTS();
     printf("IDT: Unknow interrupt number\n");
     PAUSE();
+}
+
+void idt_handler(struct itr_registers *registers)
+{
+    itr_handler(registers);
+
+    if (registers->number >= 32 && registers->number <= 47)
+        pic_send_eoi(registers->number);
 }
 
 void idt_init()

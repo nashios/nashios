@@ -34,3 +34,4 @@ typedef bool (*itr_handler_t)(struct itr_registers *registers);
 void itr_init();
 void itr_set_handler(int number, itr_handler_t handler);
 void itr_unset_handler(int number, itr_handler_t handler);
+void itr_handler(struct itr_registers *registers);
