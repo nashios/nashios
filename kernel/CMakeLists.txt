@@ -4,7 +4,6 @@ set(C_SOURCES
     init.c
     bitmap.c
     panic.c
-    assert.c
     
     memory/heap.c
     memory/mmap.c
@@ -18,6 +17,7 @@ set(C_SOURCES
     filesystem/ext2.c
     filesystem/chardev.c
     filesystem/devfs.c
+    filesystem/mqueuefs.c
     
     drivers/pci.c
     drivers/ata.c
@@ -30,7 +30,9 @@ set(C_SOURCES
     lib/stdlib.c
     lib/assert.c
     
-    system/syscall.c)
+    system/syscall.c
+    
+    ipc/mqueue.c)
 
 if(ARCHITECTURE STREQUAL "i686")
     list(APPEND ASM_SOURCES
@@ -75,6 +77,7 @@ add_executable(kernel ${ASM_SOURCES} ${C_SOURCES})
 target_compile_options(kernel PRIVATE -ffreestanding -O2)
 target_link_options(kernel PRIVATE -T ${LINKER_FILE} -ffreestanding -O2 -nostdlib)
 target_link_libraries(kernel PRIVATE gcc)
+target_compile_definitions(kernel PRIVATE KERNEL=true)
 install(TARGETS kernel DESTINATION boot)
 
 nashios_install_headers(kernel)

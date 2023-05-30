@@ -1,5 +1,4 @@
 #include <kernel/arch/i686/task/tss.h>
-#include <kernel/assert.h>
 #include <kernel/cpu/processor.h>
 #include <kernel/filesystem/virtual.h>
 #include <kernel/interrupts/handler.h>
@@ -10,6 +9,7 @@
 #include <kernel/panic.h>
 #include <kernel/task/elf.h>
 #include <kernel/task/scheduler.h>
+#include <st/assert.h>
 
 #define SCHED_PAGE_FAULT 0xFFFFFFFF
 
@@ -107,7 +107,7 @@ void scheduler_kernel_thread_entry(struct thread *, void *flow())
 
 void scheduler_create_elf_thread_stack(struct elf_layout *layout, int argc, char *const argv[], char *const envp[])
 {
-    ASSERT((uint32_t)argv < KERNEL_HIGHER_HALF && (uint32_t)envp < KERNEL_HIGHER_HALF);
+    assert((uint32_t)argv < KERNEL_HIGHER_HALF && (uint32_t)envp < KERNEL_HIGHER_HALF);
 
     layout->stack -= 4;
     *(uint32_t *)layout->stack = (uint32_t)envp;
@@ -372,7 +372,7 @@ bool scheduler_fault_handler(struct itr_registers *registers)
         return ITR_STOP;
     }
 
-    NOT_REACHED();
+    assert_not_reached();
     return ITR_CONTINUE;
 }
 

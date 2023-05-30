@@ -1,3 +1,4 @@
+#include <kernel/api/posix/errno.h>
 #include <kernel/api/posix/mount.h>
 #include <kernel/filesystem/devfs.h>
 #include <kernel/filesystem/virtual.h>
@@ -5,20 +6,38 @@
 #include <kernel/lib/stdlib.h>
 #include <kernel/lib/string.h>
 
+struct vfs_inode *devfs_get_inode(struct vfs_superblock *superblock, mode_t mode);
+
 struct vfs_inode *devfs_allocate_inode(struct vfs_superblock *superblock)
 {
     return virtual_fs_create_inode(superblock);
 }
 
+int devfs_mknod(struct vfs_inode *inode, struct vfs_dentry *dentry, int mode, dev_t dev)
+{
+    struct vfs_inode *new_inode = devfs_get_inode(inode->superblock, mode);
+    if (!inode)
+        return -EINVAL;
+    inode->rdev = dev;
+
+    dentry->inode = new_inode;
+    return 0;
+}
+
+struct vfs_inode *devfs_create_inode(struct vfs_inode *inode, struct vfs_dentry *, mode_t mode)
+{
+    return devfs_get_inode(inode->superblock, mode);
+}
+
 static struct vfs_inode_op s_devfs_file_iop = {};
 static struct vfs_file_op s_devfs_file_fop = {};
-static struct vfs_inode_op s_devfs_dir_iop = {};
+static struct vfs_inode_op s_devfs_dir_iop = {.mknod = devfs_mknod, .create = devfs_create_inode};
 static struct vfs_file_op s_devfs_dir_fop = {};
 static struct vfs_inode_op s_devfs_special_iop = {};
 
 static struct vfs_superblock_op s_devfs_sop = {.allocate_inode = devfs_allocate_inode};
 
-struct vfs_inode *devfs_create_inode(struct vfs_superblock *superblock, mode_t mode)
+struct vfs_inode *devfs_get_inode(struct vfs_superblock *superblock, mode_t mode)
 {
     struct vfs_inode *inode = superblock->op->allocate_inode(superblock);
     if (!inode)
@@ -57,7 +76,7 @@ struct vfs_mount *devfs_mount(const char *source, const char *target, const char
     if (!dentry)
         return NULL;
 
-    dentry->inode = devfs_create_inode(superblock, S_IFDIR);
+    dentry->inode = devfs_get_inode(superblock, S_IFDIR);
     if (!dentry->inode)
         return NULL;
 
@@ -72,7 +91,7 @@ static struct vfs_type s_devfs_type = {.name = "devfs", .mount = devfs_mount};
 void devfs_init()
 {
     virtual_fs_set_type(&s_devfs_type);
-    virtual_fs_mount("devfs", "/dev", "devfs", MS_NOUSER, NULL);
+    virtual_fs_mount("devfs", "/dev", s_devfs_type.name, MS_NOUSER, NULL);
 
     printf("DevFS: Initialized\n");
 }

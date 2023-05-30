@@ -1,6 +1,7 @@
 #include <kernel/api/posix/errno.h>
 #include <kernel/api/posix/sys/syscall.h>
 #include <kernel/interrupts/handler.h>
+#include <kernel/ipc/mqueue.h>
 #include <kernel/lib/stdio.h>
 #include <kernel/lib/string.h>
 #include <kernel/memory/mmap.h>
@@ -36,11 +37,11 @@ void *syscall_mmap(void *addr, size_t len, int prot, int flags, int fildes)
     return mmap(addr, len, prot, flags, fildes, 0);
 }
 
-static void *s_syscall_list[MAX_SYSCALL] = {[__NR_exit] = syscall_exit,
-                                            [__NR_fork] = syscall_fork,
-                                            [__NR_execve] = syscall_execve,
-                                            [__NR_brk] = syscall_brk,
-                                            [__NR_mmap] = syscall_mmap};
+mqd_t syscall_mq_open(const char *name, int oflag, struct mq_attr *attr) { return mq_open(name, oflag, attr); }
+
+static void *s_syscall_list[MAX_SYSCALL] = {
+    [__NR_exit] = syscall_exit, [__NR_fork] = syscall_fork, [__NR_execve] = syscall_execve,
+    [__NR_brk] = syscall_brk,   [__NR_mmap] = syscall_mmap, [__NR_mq_open] = syscall_mq_open};
 
 bool syscall_handler(struct itr_registers *registers)
 {

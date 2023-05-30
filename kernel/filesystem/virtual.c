@@ -173,7 +173,7 @@ int virtual_fs_path_walk(struct vfs_nameidata *nameidata, const char *path, int 
 
             if (inode == NULL)
             {
-                if ((i == length) && (flags & O_CREAT) && !nameidata->dentry->inode->iop->create)
+                if ((i == length) && (flags & O_CREAT))
                     inode = nameidata->dentry->inode->iop->create(nameidata->dentry->inode, child,
                                                                   i == length ? mode : S_IFDIR);
                 else
@@ -281,6 +281,45 @@ ssize_t virtual_fs_read(int fd, void *buf, size_t count)
         return file->op->read(file, buf, count, file->position);
 
     return -EINVAL;
+}
+
+int virtual_fs_mknod(const char *pathname, mode_t mode, dev_t dev)
+{
+    const char *found = strrstr(pathname, "/");
+    if (!found)
+        return -EINVAL;
+
+    size_t position = found - pathname;
+    const char *dir = NULL;
+    if (position)
+    {
+        dir = (const char *)calloc(position + 1, sizeof(char));
+        memcpy((void *)dir, pathname, position);
+    }
+
+    struct vfs_nameidata nameidata = {};
+    int result = virtual_fs_path_walk(&nameidata, dir, 0, S_IFDIR);
+    if (result < 0)
+        return result;
+
+    size_t length = strlen(pathname);
+    const char *name = NULL;
+    if (position < length)
+    {
+        name = (const char *)calloc(length - position, sizeof(char));
+        memcpy((void *)name, pathname + position + 1, length - 1 - position);
+    }
+
+    if (!nameidata.dentry->inode->iop->mknod)
+        return -EINVAL;
+
+    struct vfs_dentry *dentry = virtual_fs_create_dentry(name);
+    result = nameidata.dentry->inode->iop->mknod(nameidata.dentry->inode, dentry, mode, dev);
+    if (result < 0)
+        return result;
+
+    dlist_add_tail(&dentry->sibling, &nameidata.dentry->subdir);
+    return result;
 }
 
 int virtual_fs_mount(const char *source, const char *target, const char *filesystemtype, unsigned long mountflags,

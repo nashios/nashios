@@ -33,6 +33,7 @@ struct vfs_inode_op
     struct vfs_inode *(*create)(struct vfs_inode *inode, struct vfs_dentry *dentry, mode_t mode);
     struct vfs_inode *(*lookup)(struct vfs_inode *inode, struct vfs_dentry *dentry);
     int (*getattr)(struct vfs_mount *mount, struct vfs_dentry *dentry, struct stat *stat);
+    int (*mknod)(struct vfs_inode *inode, struct vfs_dentry *dentry, int mode, dev_t dev);
 };
 
 struct vfs_inode
@@ -97,3 +98,4 @@ void virtual_fs_init_special_inode(struct vfs_inode *inode, umode_t mode, dev_t 
 int virtual_fs_open(const char *pathname, int flags, mode_t mode);
 int virtual_fs_fstat(int fd, struct stat *buf);
 ssize_t virtual_fs_read(int fd, void *buf, size_t count);
+int virtual_fs_mknod(const char *pathname, mode_t mode, dev_t dev);
