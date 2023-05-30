@@ -42,6 +42,16 @@ char *virtual_fs_read_block(const char *source, sector_t sector, uint32_t size)
     return buffer;
 }
 
+void virtual_fs_write_block(const char *source, sector_t sector, char *buffer, uint32_t size)
+{
+    struct ata_device *device = ata_find_device(source);
+    if (!device)
+        return;
+
+    if (ata_write(device, sector, DIV_ROUND_UP(size, VFS_BYTES_P_SECTOR), (uint16_t *)buffer) < 0)
+        return;
+}
+
 struct vfs_type *virtual_fs_find_type(const char *name)
 {
     struct vfs_type *type;

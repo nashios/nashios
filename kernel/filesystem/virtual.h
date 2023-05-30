@@ -90,6 +90,7 @@ struct vfs_type
 void virtual_fs_init();
 int virtual_fs_set_type(struct vfs_type *type);
 char *virtual_fs_read_block(const char *source, sector_t sector, uint32_t size);
+void virtual_fs_write_block(const char *source, sector_t sector, char *buffer, uint32_t size);
 int virtual_fs_mount(const char *source, const char *target, const char *filesystemtype, unsigned long mountflags,
                      const void *data);
 struct vfs_inode *virtual_fs_create_inode(struct vfs_superblock *superblock);

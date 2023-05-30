@@ -147,6 +147,33 @@ int ata_read(struct ata_device *device, uint32_t lba, uint8_t sectors, uint16_t 
     return 0;
 }
 
+int ata_write(struct ata_device *device, uint32_t lba, uint8_t sectors, uint16_t *buffer)
+{
+    io_outb(device->io_base + 6, (device->master ? 0xE0 : 0xF0) | ((lba >> 24) & 0x0F));
+    ata_io_wait(device->io_base);
+
+    io_outb(device->io_base + 1, 0x00);
+    io_outb(device->io_base + 2, sectors);
+    io_outb(device->io_base + 3, (uint8_t)lba);
+    io_outb(device->io_base + 4, (uint8_t)(lba >> 8));
+    io_outb(device->io_base + 5, (uint8_t)(lba >> 16));
+    io_outb(device->io_base + 7, 0x30);
+
+    if (ata_polling(device->io_base) == ATA_POLLING_FAILED)
+        return -ENXIO;
+
+    for (int i = 0; i < sectors; ++i)
+    {
+        io_outsw(device->io_base, buffer + i * 256, 256);
+        io_outw(device->io_base + 7, 0xE7);
+        ata_io_wait(device->io_base);
+
+        if (ata_polling(device->io_base) == ATA_POLLING_FAILED)
+            return -ENXIO;
+    }
+    return 0;
+}
+
 struct ata_device *ata_find_device(const char *name)
 {
     struct ata_device *device;
