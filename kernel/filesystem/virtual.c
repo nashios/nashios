@@ -184,8 +184,14 @@ int virtual_fs_path_walk(struct vfs_nameidata *nameidata, const char *path, int 
             if (inode == NULL)
             {
                 if ((i == length) && (flags & O_CREAT))
+                {
+                    if (!nameidata->dentry->inode->iop->create)
+                        return -EINVAL;
+
                     inode = nameidata->dentry->inode->iop->create(nameidata->dentry->inode, child,
                                                                   i == length ? mode : S_IFDIR);
+                }
+
                 else
                     return -ENOENT;
             }

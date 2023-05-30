@@ -1,29 +1,68 @@
+#include <kernel/api/posix/errno.h>
 #include <kernel/api/posix/mount.h>
 #include <kernel/filesystem/devfs.h>
 #include <kernel/filesystem/mqueuefs.h>
 #include <kernel/filesystem/virtual.h>
+#include <kernel/ipc/mqueue.h>
 #include <kernel/lib/stdio.h>
 #include <kernel/lib/stdlib.h>
 
 static uint32_t s_mqueuefs_index = 0;
+
+struct vfs_inode *mqueuefs_get_inode(struct vfs_superblock *superblock, mode_t mode);
 
 struct vfs_inode *mqueuefs_allocate_inode(struct vfs_superblock *superblock)
 {
     return virtual_fs_create_inode(superblock);
 }
 
+struct vfs_inode *mqueuefs_create_inode(struct vfs_inode *inode, struct vfs_dentry *, mode_t mode)
+{
+    return mqueuefs_get_inode(inode->superblock, mode);
+}
+
+int mqueuefs_open(struct vfs_inode *inode, struct vfs_file *)
+{
+    struct mqueuefs_inode *mqueuefs_inode = inode->info;
+    if (!mqueuefs_inode)
+        return -EINVAL;
+
+    struct mq_queue *queue = hashmap_get(&g_mq_hashmap, &mqueuefs_inode->key);
+    if (!queue)
+    {
+        queue = (struct mq_queue *)calloc(1, sizeof(struct mq_queue));
+        if (!queue)
+            return -EINVAL;
+
+        if (!hashmap_put(&g_mq_hashmap, &mqueuefs_inode->key, queue))
+            return -EINVAL;
+    }
+
+    return 0;
+}
+
 static struct vfs_superblock_op s_mqueuefs_sop = {.allocate_inode = mqueuefs_allocate_inode};
+
 static struct vfs_inode_op s_mqueuefs_file_iop = {};
-static struct vfs_inode_op s_mqueuefs_dir_iop = {};
-static struct vfs_file_op s_mqueuefs_file_op = {};
+
+static struct vfs_inode_op s_mqueuefs_dir_iop = {.create = mqueuefs_create_inode};
+
+static struct vfs_file_op s_mqueuefs_file_op = {.open = mqueuefs_open};
+
 static struct vfs_file_op s_mqueuefs_dir_op = {};
 
 struct vfs_inode *mqueuefs_get_inode(struct vfs_superblock *superblock, mode_t mode)
 {
     struct mqueuefs_inode *mqueuefs_inode = (struct mqueuefs_inode *)calloc(1, sizeof(struct mqueuefs_inode));
+    if (!mqueuefs_inode)
+        return NULL;
+
     mqueuefs_inode->key = s_mqueuefs_index++;
 
     struct vfs_inode *inode = superblock->op->allocate_inode(superblock);
+    if (!inode)
+        return NULL;
+
     inode->block_size = PAGE_SIZE;
     inode->mode = mode;
     inode->info = mqueuefs_inode;

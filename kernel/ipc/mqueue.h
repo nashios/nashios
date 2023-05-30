@@ -3,7 +3,15 @@
 #include <kernel/api/posix/mqueue.h>
 #include <kernel/api/posix/sys/types.h>
 #include <kernel/api/posix/time.h>
+#include <st/hashmap.h>
 #include <stddef.h>
+
+struct mq_queue
+{
+    struct mq_attr *attr;
+};
+
+extern struct hashmap g_mq_hashmap;
 
 void mq_init();
 mqd_t mq_open(const char *name, int oflag, struct mq_attr *attr);

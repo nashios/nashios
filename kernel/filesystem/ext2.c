@@ -383,14 +383,19 @@ void ext2_fs_write_super(struct vfs_superblock *sb)
 }
 
 static struct vfs_inode_op s_ext2_file_iop = {};
+
 static struct vfs_file_op s_ext2_file_fop = {.read = ext2_fs_read_file};
+
 static struct vfs_inode_op s_ext2_dir_iop = {
     .lookup = ext2_fs_lookup, .mknod = ext2_fs_mknod, .create = ext2_fs_create_inode};
+
 static struct vfs_file_op s_ext2_dir_fop = {};
+
 static struct vfs_superblock_op s_ext2_sop = {.allocate_inode = ext2_fs_allocate_inode,
                                               .read_inode = ext2_fs_read_inode,
                                               .write_inode = ext2_fs_write_inode,
                                               .write_super = ext2_fs_write_super};
+
 struct vfs_inode_op s_ext2_special_iop = {};
 
 int ext2_fs_find_unused_inode(struct vfs_superblock *sb)
