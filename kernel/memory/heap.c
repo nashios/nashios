@@ -1,7 +1,7 @@
 #include <kernel/arch/i686/memory/virtual.h>
-#include <kernel/assert.h>
 #include <kernel/lib/string.h>
 #include <kernel/math.h>
+#include <st/assert.h>
 #include <stdbool.h>
 
 #define HEAP_MAGIC 0xEF8E
@@ -51,7 +51,7 @@ void *heap_sbrk(size_t size)
 void heap_verify_block(struct heap_block *block)
 {
     if (block->magic != HEAP_MAGIC || block->size > 0x2000000)
-        NOT_REACHED();
+        assert_not_reached();
 }
 
 struct heap_block *heap_request_space(struct heap_block *last, size_t size)

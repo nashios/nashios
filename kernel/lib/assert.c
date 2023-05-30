@@ -1,9 +1,9 @@
-#include <kernel/assert.h>
 #include <kernel/cpu/processor.h>
+#include <kernel/lib/assert.h>
 #include <kernel/lib/stdio.h>
 #include <kernel/panic.h>
 
-void assert(const char *message, const char *file, const char *function, int line)
+void ___assert(const char *message, const char *file, const char *function, int line)
 {
     DISABLE_INTERRUPTS();
 

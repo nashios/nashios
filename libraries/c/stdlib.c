@@ -1,4 +1,4 @@
-#include <assert.h>
+#include <st/assert.h>
 #include <st/pointer-arith.h>
 #include <stdbool.h>
 #include <stdlib.h>

@@ -1,9 +1,9 @@
 #include <kernel/arch/i686/memory/virtual.h>
-#include <kernel/assert.h>
 #include <kernel/lib/stdio.h>
 #include <kernel/lib/stdlib.h>
 #include <kernel/lib/string.h>
 #include <kernel/memory/heap.h>
+#include <st/assert.h>
 
 #define PAGE_TBL_ADDRESS 0xFFC00000
 #define PAGE_DIR_ADDRESS 0xFFFFF000
@@ -123,8 +123,8 @@ void virtual_mm_unmap(struct page_directory *directory, uint32_t virtual)
 
 void virtual_mm_unmap_range(struct page_directory *directory, uint32_t start, uint32_t end)
 {
-    ASSERT(PAGE_IS_ALIGNED(start));
-    ASSERT(PAGE_IS_ALIGNED(end));
+    assert(PAGE_IS_ALIGNED(start));
+    assert(PAGE_IS_ALIGNED(end));
 
     for (uint32_t address = start; address < end; address += PAGE_SIZE)
         virtual_mm_unmap(directory, address);

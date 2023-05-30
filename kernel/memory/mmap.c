@@ -1,5 +1,4 @@
 #include <kernel/api/posix/errno.h>
-#include <kernel/assert.h>
 #include <kernel/filesystem/virtual.h>
 #include <kernel/lib/stdio.h>
 #include <kernel/lib/stdlib.h>
@@ -7,6 +6,7 @@
 #include <kernel/math.h>
 #include <kernel/memory/mmap.h>
 #include <kernel/task/scheduler.h>
+#include <st/assert.h>
 
 struct process_vm *mmap_find_unmapped_area(uint32_t addr, uint32_t len)
 {
@@ -17,7 +17,7 @@ struct process_vm *mmap_find_unmapped_area(uint32_t addr, uint32_t len)
     if (!addr || addr < memory->brk_end)
         addr = MAX(memory->cache, memory->brk_end);
 
-    ASSERT(addr == PAGE_ALIGN(addr));
+    assert(addr == PAGE_ALIGN(addr));
     len = PAGE_ALIGN(len);
 
     uint32_t found_addr = addr;

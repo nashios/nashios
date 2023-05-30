@@ -1,11 +1,11 @@
 #include <kernel/api/posix/errno.h>
-#include <kernel/assert.h>
 #include <kernel/filesystem/ext2.h>
 #include <kernel/filesystem/virtual.h>
 #include <kernel/lib/stdio.h>
 #include <kernel/lib/stdlib.h>
 #include <kernel/lib/string.h>
 #include <kernel/math.h>
+#include <st/assert.h>
 
 #define EXT2_SUPER_MAGIC 0xEF53
 
@@ -182,7 +182,7 @@ char *ext2_fs_read_block(struct vfs_superblock *superblock, uint32_t block)
 int ext2_fs_recursive_block_action(struct vfs_superblock *superblock, int level, uint32_t block, const void *arg,
                                    ext2_fs_recursive_action_t action)
 {
-    ASSERT(level <= 3);
+    assert(level <= 3);
 
     if (level > 0)
     {
@@ -269,7 +269,7 @@ struct vfs_inode *ext2_fs_allocate_inode(struct vfs_superblock *superblock)
 void ext2_fs_read_n_block(struct vfs_superblock *superblock, uint32_t block, char **p_buffer, loff_t ppos,
                           loff_t *p_position, size_t count, int level)
 {
-    ASSERT(level <= 3);
+    assert(level <= 3);
 
     if (level > 0)
     {
@@ -313,7 +313,7 @@ ssize_t ext2_fs_read_file(struct vfs_file *file, char *buffer, size_t count, lof
         else if (block < EXT2_INO_UPPER_LEVEL3)
             ext2_fs_read_n_block(superblock, ext2_inode->i_block[14], &p_buffer, ppos, &position, count, 3);
         else
-            NOT_REACHED();
+            assert_not_reached();
     }
 
     file->position = ppos + count;
@@ -326,6 +326,7 @@ static struct vfs_inode_op s_ext2_dir_iop = {.lookup = ext2_fs_lookup};
 static struct vfs_file_op s_ext2_dir_fop = {};
 static struct vfs_superblock_op s_ext2_sop = {.allocate_inode = ext2_fs_allocate_inode,
                                               .read_inode = ext2_fs_read_inode};
+struct vfs_inode_op s_ext2_special_iop = {};
 
 struct ext2_group_desc *ext2_fs_get_group_desc(struct vfs_superblock *sb, uint32_t group)
 {
@@ -384,6 +385,11 @@ void ext2_fs_read_inode(struct vfs_inode *inode)
     {
         inode->iop = &s_ext2_dir_iop;
         inode->fop = &s_ext2_dir_fop;
+    }
+    else
+    {
+        inode->iop = &s_ext2_special_iop;
+        virtual_fs_init_special_inode(inode, inode->mode, ext2_inode->i_block[0]);
     }
 }
 

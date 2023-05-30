@@ -28,6 +28,7 @@ set(C_SOURCES
     lib/ctype.c
     lib/stdio.c
     lib/stdlib.c
+    lib/assert.c
     
     system/syscall.c)
 
