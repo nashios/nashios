@@ -55,7 +55,7 @@ struct process_files
 struct vfs_mount;
 struct process_fs
 {
-    struct vfs_dentry *dentry;
+    struct vfs_dentry *root;
     struct vfs_mount *mount;
 };
 

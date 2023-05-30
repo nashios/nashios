@@ -52,7 +52,8 @@ struct vfs_mount *mqueuefs_mount(const char *, const char *target, const char *,
     dentry->inode = mqueuefs_get_inode(superblock, S_IFDIR);
 
     struct vfs_mount *mount = (struct vfs_mount *)calloc(1, sizeof(struct vfs_mount));
-    mount->dentry = dentry;
+    mount->mount = dentry;
+    mount->root = dentry;
 
     return mount;
 }

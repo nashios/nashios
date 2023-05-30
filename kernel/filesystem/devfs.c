@@ -43,6 +43,7 @@ struct vfs_inode *devfs_get_inode(struct vfs_superblock *superblock, mode_t mode
     if (!inode)
         return NULL;
     inode->mode = mode;
+    inode->block_size = PAGE_SIZE;
 
     if (S_ISDIR(inode->mode))
     {
@@ -81,7 +82,8 @@ struct vfs_mount *devfs_mount(const char *source, const char *target, const char
         return NULL;
 
     struct vfs_mount *mount = (struct vfs_mount *)calloc(1, sizeof(struct vfs_mount));
-    mount->dentry = dentry;
+    mount->mount = dentry;
+    mount->root = dentry;
 
     return mount;
 }

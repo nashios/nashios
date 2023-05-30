@@ -19,12 +19,17 @@
 #define EXT2_GROUPS_P_BLOCK(sb) (EXT2_BLOCK_SIZE(sb) / sizeof(struct ext2_group_desc))
 
 #define EXT2_GROUP_FROM_INODE(sb, ino) ((ino - EXT2_STARTING_INO) / sb->s_inodes_per_group)
+#define EXT2_GROUP_FROM_BLOCK(sb, block) ((block - sb->s_first_data_block) / sb->s_blocks_per_group)
 #define EXT2_RELATIVE_INODE_IN_GROUP(sb, ino) ((ino - EXT2_STARTING_INO) % sb->s_inodes_per_group)
 
 #define EXT2_INO_UPPER_LEVEL0 12
 #define EXT2_INO_UPPER_LEVEL1 268
 #define EXT2_INO_UPPER_LEVEL2 65804
 #define EXT2_INO_UPPER_LEVEL3 16843020
+
+#define EXT2_DIR_PAD 4
+#define EXT2_DIR_ROUND (EXT2_DIR_PAD - 1)
+#define EXT2_DIR_REC_LEN(name_len) (((name_len) + 8 + EXT2_DIR_ROUND) & ~EXT2_DIR_ROUND)
 
 struct ext2_superblock
 {
@@ -167,6 +172,8 @@ struct ext2_dir_entry
 typedef int (*ext2_fs_recursive_action_t)(struct vfs_superblock *superblock, uint32_t block, const void *arg);
 
 void ext2_fs_read_inode(struct vfs_inode *inode);
+struct ext2_group_desc *ext2_fs_get_group_desc(struct vfs_superblock *sb, uint32_t group);
+struct vfs_inode *ext2_fs_create_inode(struct vfs_inode *dir, struct vfs_dentry *dentry, mode_t mode);
 
 char *ext2_fs_read_block_size(struct vfs_superblock *superblock, uint32_t block, uint32_t size)
 {
@@ -177,6 +184,17 @@ char *ext2_fs_read_block_size(struct vfs_superblock *superblock, uint32_t block,
 char *ext2_fs_read_block(struct vfs_superblock *superblock, uint32_t block)
 {
     return ext2_fs_read_block_size(superblock, block, superblock->block_size);
+}
+
+void ext2_fs_write_block_size(struct vfs_superblock *superblock, uint32_t block, char *buffer, uint32_t size)
+{
+    return virtual_fs_write_block(superblock->device, block * (superblock->block_size / VFS_BYTES_P_SECTOR), buffer,
+                                  size);
+}
+
+void ext2_fs_write_block(struct vfs_superblock *superblock, uint32_t block, char *buffer)
+{
+    return ext2_fs_write_block_size(superblock, block, buffer, superblock->block_size);
 }
 
 int ext2_fs_recursive_block_action(struct vfs_superblock *superblock, int level, uint32_t block, const void *arg,
@@ -320,13 +338,85 @@ ssize_t ext2_fs_read_file(struct vfs_file *file, char *buffer, size_t count, lof
     return count;
 }
 
+void ext2_fs_write_inode(struct vfs_inode *inode)
+{
+    struct ext2_superblock *ext2_sb = inode->superblock->info;
+    struct ext2_inode *ext2_inode = inode->info;
+
+    ext2_inode->i_mode = inode->mode;
+    ext2_inode->i_size = inode->size;
+    ext2_inode->i_blocks = inode->blocks;
+
+    if (S_ISCHR(inode->mode))
+        ext2_inode->i_block[0] = inode->rdev;
+
+    uint32_t group = EXT2_GROUP_FROM_INODE(ext2_sb, inode->ino);
+    struct ext2_group_desc *gdp = ext2_fs_get_group_desc(inode->superblock, group);
+    uint32_t block =
+        gdp->bg_inode_table + EXT2_RELATIVE_INODE_IN_GROUP(ext2_sb, inode->ino) / EXT2_INODES_P_BLOCK(ext2_sb);
+    uint32_t offset =
+        (EXT2_RELATIVE_INODE_IN_GROUP(ext2_sb, inode->ino) % EXT2_INODES_P_BLOCK(ext2_sb)) * sizeof(struct ext2_inode);
+    char *buffer = ext2_fs_read_block(inode->superblock, block);
+
+    memcpy(buffer + offset, ext2_inode, sizeof(struct ext2_inode));
+    ext2_fs_write_block(inode->superblock, block, buffer);
+}
+
+int ext2_fs_mknod(struct vfs_inode *dir, struct vfs_dentry *dentry, int mode, dev_t dev)
+{
+    struct vfs_inode *inode = ext2_fs_lookup(dir, dentry);
+    if (inode == NULL)
+        inode = ext2_fs_create_inode(dir, dentry, mode);
+
+    inode->rdev = dev;
+    virtual_fs_init_special_inode(inode, mode, dev);
+    ext2_fs_write_inode(inode);
+
+    dentry->inode = inode;
+    return 0;
+}
+
+void ext2_fs_write_super(struct vfs_superblock *sb)
+{
+    struct ext2_superblock *ext2_sb = sb->info;
+    ext2_fs_write_block(sb, ext2_sb->s_first_data_block, (char *)ext2_sb);
+}
+
 static struct vfs_inode_op s_ext2_file_iop = {};
 static struct vfs_file_op s_ext2_file_fop = {.read = ext2_fs_read_file};
-static struct vfs_inode_op s_ext2_dir_iop = {.lookup = ext2_fs_lookup};
+static struct vfs_inode_op s_ext2_dir_iop = {
+    .lookup = ext2_fs_lookup, .mknod = ext2_fs_mknod, .create = ext2_fs_create_inode};
 static struct vfs_file_op s_ext2_dir_fop = {};
 static struct vfs_superblock_op s_ext2_sop = {.allocate_inode = ext2_fs_allocate_inode,
-                                              .read_inode = ext2_fs_read_inode};
+                                              .read_inode = ext2_fs_read_inode,
+                                              .write_inode = ext2_fs_write_inode,
+                                              .write_super = ext2_fs_write_super};
 struct vfs_inode_op s_ext2_special_iop = {};
+
+int ext2_fs_find_unused_inode(struct vfs_superblock *sb)
+{
+    struct ext2_superblock *ext2_sb = sb->info;
+
+    uint32_t number_of_groups = DIV_ROUND_UP(ext2_sb->s_blocks_count, ext2_sb->s_blocks_per_group);
+    for (uint32_t group = 0; group < number_of_groups; group += 1)
+    {
+        struct ext2_group_desc *gdp = ext2_fs_get_group_desc(sb, group);
+        unsigned char *inode_bitmap = (unsigned char *)ext2_fs_read_block(sb, gdp->bg_inode_bitmap);
+
+        for (uint32_t i = 0; i < sb->block_size; ++i)
+        {
+            if (inode_bitmap[i] == 0xff)
+                continue;
+
+            for (uint8_t j = 0; j < 8; ++j)
+            {
+                if (!(inode_bitmap[i] & (1 << j)))
+                    return group * ext2_sb->s_inodes_per_group + i * 8 + j + EXT2_STARTING_INO;
+            }
+        }
+    }
+    return -ENOSPC;
+}
 
 struct ext2_group_desc *ext2_fs_get_group_desc(struct vfs_superblock *sb, uint32_t group)
 {
@@ -343,6 +433,186 @@ struct ext2_group_desc *ext2_fs_get_group_desc(struct vfs_superblock *sb, uint32
     uint32_t offset = group % EXT2_GROUPS_P_BLOCK(ext2_sb) * sizeof(struct ext2_group_desc);
     memcpy(description, buffer + offset, sizeof(struct ext2_group_desc));
     return description;
+}
+
+void ext2_fs_write_group_desc(struct vfs_superblock *sb, struct ext2_group_desc *gdp)
+{
+    struct ext2_superblock *ext2_sb = sb->info;
+    uint32_t group = EXT2_GROUP_FROM_BLOCK(ext2_sb, gdp->bg_block_bitmap);
+    uint32_t block = ext2_sb->s_first_data_block + 1 + group / EXT2_GROUPS_P_BLOCK(ext2_sb);
+    uint32_t offset = group % EXT2_GROUPS_P_BLOCK(ext2_sb) * sizeof(struct ext2_group_desc);
+    char *buffer = ext2_fs_read_block(sb, block);
+    memcpy(buffer + offset, gdp, sizeof(struct ext2_group_desc));
+    ext2_fs_write_block(sb, block, buffer);
+}
+
+uint32_t ext2_fs_create_block(struct vfs_superblock *sb)
+{
+    struct ext2_superblock *ext2_sb = sb->info;
+    uint32_t block = ext2_fs_find_unused_inode(sb);
+    ext2_sb->s_free_blocks_count -= 1;
+    sb->op->write_super(sb);
+
+    struct ext2_group_desc *gdp = ext2_fs_get_group_desc(sb, EXT2_GROUP_FROM_BLOCK(ext2_sb, block));
+    gdp->bg_free_blocks_count -= 1;
+    ext2_fs_write_group_desc(sb, gdp);
+
+    char *bitmap_buf = ext2_fs_read_block(sb, gdp->bg_block_bitmap);
+    uint32_t relative_block = EXT2_RELATIVE_INODE_IN_GROUP(ext2_sb, block);
+    bitmap_buf[relative_block / 8] |= 1 << (relative_block % 8);
+    ext2_fs_write_block(sb, gdp->bg_block_bitmap, bitmap_buf);
+
+    char *data_buf = calloc(sb->block_size, sizeof(char));
+    ext2_fs_write_block(sb, block, data_buf);
+
+    return block;
+}
+
+int ext2_fs_add_entry(struct vfs_superblock *sb, uint32_t block, void *arg)
+{
+    struct vfs_dentry *dentry = arg;
+    int filename_length = strlen(dentry->name);
+
+    char *block_buf = ext2_fs_read_block(sb, block);
+
+    uint32_t size = 0, new_rec_len = 0;
+    struct ext2_dir_entry *entry = (struct ext2_dir_entry *)block_buf;
+    while (size < sb->block_size && (char *)entry < block_buf + sb->block_size)
+    {
+        if (!entry->ino && (!entry->rec_len || entry->rec_len >= EXT2_DIR_REC_LEN(filename_length)))
+        {
+            entry->ino = dentry->inode->ino;
+            if (S_ISREG(dentry->inode->mode))
+                entry->file_type = 1;
+            else if (S_ISDIR(dentry->inode->mode))
+                entry->file_type = 2;
+            else
+                assert_todo();
+            entry->name_len = filename_length;
+            memcpy(entry->name, dentry->name, entry->name_len);
+            entry->rec_len = MAX_T(uint16_t, new_rec_len, entry->rec_len);
+
+            ext2_fs_write_block(sb, block, block_buf);
+            return 0;
+        }
+        if (EXT2_DIR_REC_LEN(filename_length) + EXT2_DIR_REC_LEN(entry->name_len) < entry->rec_len)
+        {
+            new_rec_len = entry->rec_len - EXT2_DIR_REC_LEN(entry->name_len);
+            entry->rec_len = EXT2_DIR_REC_LEN(entry->name_len);
+            size += entry->rec_len;
+            entry = (struct ext2_dir_entry *)((char *)entry + entry->rec_len);
+            memset(entry, 0, new_rec_len);
+        }
+        else
+        {
+            size += entry->rec_len;
+            new_rec_len = sb->block_size - size;
+            entry = (struct ext2_dir_entry *)((char *)entry + entry->rec_len);
+        }
+    }
+    return -ENOENT;
+}
+
+int ext2_fs_create_entry(struct vfs_superblock *sb, struct vfs_inode *dir, struct vfs_dentry *dentry)
+{
+    struct ext2_inode *ei = dir->info;
+    for (uint32_t i = 0; i < dir->blocks; i++)
+    {
+        if (i >= EXT2_INO_UPPER_LEVEL0)
+            assert_not_reached();
+
+        int block = ei->i_block[i];
+        if (!block)
+        {
+            block = ext2_fs_create_block(dir->superblock);
+            ei->i_block[i] = block;
+            dir->blocks += 1;
+            dir->size += sb->block_size;
+            ext2_fs_write_inode(dir);
+        }
+        if (ext2_fs_add_entry(sb, block, dentry) >= 0)
+            return 0;
+    }
+    return -ENOENT;
+}
+
+struct vfs_inode *ext2_fs_create_inode(struct vfs_inode *dir, struct vfs_dentry *dentry, mode_t mode)
+{
+    struct vfs_superblock *superblock = dir->superblock;
+    struct ext2_superblock *ext2_sb = superblock->info;
+    uint32_t ino = ext2_fs_find_unused_inode(superblock);
+    struct ext2_group_desc *gdp = ext2_fs_get_group_desc(superblock, EXT2_GROUP_FROM_INODE(ext2_sb, ino));
+
+    ext2_sb->s_free_inodes_count -= 1;
+    superblock->op->write_super(superblock);
+
+    gdp->bg_free_inodes_count -= 1;
+    if (S_ISDIR(mode))
+        gdp->bg_used_dirs_count += 1;
+
+    ext2_fs_write_group_desc(superblock, gdp);
+
+    char *inode_bitmap_buf = ext2_fs_read_block(superblock, gdp->bg_inode_bitmap);
+    uint32_t relative_inode = EXT2_RELATIVE_INODE_IN_GROUP(ext2_sb, ino);
+    inode_bitmap_buf[relative_inode / 8] |= 1 << (relative_inode % 8);
+    ext2_fs_write_block(superblock, gdp->bg_inode_bitmap, inode_bitmap_buf);
+
+    struct ext2_inode *ei_new = calloc(1, sizeof(struct ext2_inode));
+    ei_new->i_links_count = 1;
+
+    struct vfs_inode *inode = superblock->op->allocate_inode(superblock);
+    inode->ino = ino;
+    inode->mode = mode;
+    inode->size = 0;
+    inode->info = ei_new;
+    inode->superblock = superblock;
+
+    if (S_ISREG(mode))
+    {
+        inode->iop = &s_ext2_file_iop;
+        inode->fop = &s_ext2_file_fop;
+    }
+    else if (S_ISDIR(mode))
+    {
+        inode->iop = &s_ext2_dir_iop;
+        inode->fop = &s_ext2_dir_fop;
+
+        struct ext2_inode *ei = inode->info;
+        uint32_t block = ext2_fs_create_block(inode->superblock);
+        ei->i_block[0] = block;
+
+        inode->blocks += 1;
+        inode->size += superblock->block_size;
+
+        ext2_fs_write_inode(inode);
+
+        char *block_buf = ext2_fs_read_block(inode->superblock, block);
+
+        struct ext2_dir_entry *c_entry = (struct ext2_dir_entry *)block_buf;
+        c_entry->ino = inode->ino;
+        memcpy(c_entry->name, ".", 1);
+        c_entry->name_len = 1;
+        c_entry->rec_len = EXT2_DIR_REC_LEN(1);
+        c_entry->file_type = 2;
+
+        struct ext2_dir_entry *p_entry = (struct ext2_dir_entry *)(block_buf + c_entry->rec_len);
+        p_entry->ino = dir->ino;
+        memcpy(p_entry->name, "..", 2);
+        p_entry->name_len = 2;
+        p_entry->rec_len = superblock->block_size - c_entry->rec_len;
+        p_entry->file_type = 2;
+
+        ext2_fs_write_block(inode->superblock, block, block_buf);
+    }
+    else
+        assert_not_reached();
+
+    superblock->op->write_inode(inode);
+    dentry->inode = inode;
+
+    if (ext2_fs_create_entry(superblock, dir, dentry) >= 0)
+        return inode;
+    return NULL;
 }
 
 struct ext2_inode *ext2_fs_get_inode(struct vfs_superblock *sb, ino_t ino)
@@ -431,7 +701,8 @@ struct vfs_mount *ext2_fs_mount(const char *source, const char *target, const ch
     struct vfs_mount *mount = (struct vfs_mount *)calloc(1, sizeof(struct vfs_mount));
     if (!mount)
         return NULL;
-    mount->dentry = dentry;
+    mount->root = dentry;
+    mount->mount = dentry;
 
     return mount;
 }

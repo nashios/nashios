@@ -80,7 +80,7 @@ struct vfs_mount *virtual_fs_find_mount(struct vfs_dentry *dentry)
     struct vfs_mount *mount;
     dlist_for_each_entry(mount, &s_virtual_mount_list, list)
     {
-        if (mount->dentry == dentry)
+        if (mount->mount == dentry)
             return mount;
     }
     return NULL;
@@ -135,12 +135,12 @@ int virtual_fs_path_walk(struct vfs_nameidata *nameidata, const char *path, int 
     int i = 0;
     if (path[i] == '/')
     {
-        nameidata->dentry = g_scheduler_process->fs->mount->dentry;
+        nameidata->dentry = g_scheduler_process->fs->mount->root;
         while (path[i] == '/')
             i++;
     }
     else
-        nameidata->dentry = g_scheduler_process->fs->dentry;
+        nameidata->dentry = g_scheduler_process->fs->root;
 
     char name[256] = {};
     int length = strlen(path);
@@ -335,26 +335,69 @@ int virtual_fs_mknod(const char *pathname, mode_t mode, dev_t dev)
 int virtual_fs_mount(const char *source, const char *target, const char *filesystemtype, unsigned long mountflags,
                      const void *data)
 {
+    struct vfs_type *type = virtual_fs_find_type(filesystemtype);
+    if (!type || !type->mount)
+        return -EEXIST;
+
     bool mounting_root = strcmp(target, "/") == 0;
+    struct vfs_mount *mount = NULL;
     if (mounting_root)
     {
         struct ata_device *device = ata_find_device(source);
         if (!device)
             return -EINVAL;
-    }
 
-    struct vfs_type *type = virtual_fs_find_type(filesystemtype);
-    if (!type || !type->mount)
-        return -EEXIST;
+        mount = type->mount(source, target, filesystemtype, mountflags, data);
+        if (!mount)
+            return -EINVAL;
 
-    struct vfs_mount *mount = type->mount(source, target, filesystemtype, mountflags, data);
-    if (!mount)
-        return -EINVAL;
-
-    if (mounting_root)
-    {
         g_scheduler_process->fs->mount = mount;
-        g_scheduler_process->fs->dentry = mount->dentry;
+        g_scheduler_process->fs->root = mount->root;
+    }
+    else
+    {
+        const char *found = strrstr(target, "/");
+        if (!found)
+            return -EINVAL;
+
+        size_t position = found - target;
+        const char *dir = NULL;
+        if (position)
+        {
+            dir = (const char *)calloc(position + 1, sizeof(char));
+            memcpy((void *)dir, target, position);
+        }
+        if (!dir)
+            dir = "/";
+
+        size_t length = strlen(target);
+        const char *name = NULL;
+        if (position < length)
+        {
+            name = (const char *)calloc(length - position, sizeof(char));
+            memcpy((void *)name, target + position + 1, length - 1 - position);
+        }
+
+        mount = type->mount(source, name, filesystemtype, mountflags, data);
+        if (!mount)
+            return -EINVAL;
+
+        struct vfs_nameidata nameidata = {};
+        int result = virtual_fs_path_walk(&nameidata, dir, O_RDONLY, S_IFDIR);
+        if (result < 0)
+            return result;
+
+        struct vfs_dentry *iter, *next;
+        dlist_for_each_entry_safe(iter, next, &nameidata.dentry->subdir, sibling)
+        {
+            if (!strcmp(iter->name, name))
+            {
+                dlist_remove(&iter->sibling);
+                free(iter);
+            }
+        }
+
+        dlist_add_tail(&mount->mount->sibling, &nameidata.dentry->subdir);
     }
 
     dlist_add_tail(&mount->list, &s_virtual_mount_list);

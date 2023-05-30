@@ -62,6 +62,8 @@ struct vfs_superblock_op
 {
     struct vfs_inode *(*allocate_inode)(struct vfs_superblock *superblock);
     void (*read_inode)(struct vfs_inode *inode);
+    void (*write_inode)(struct vfs_inode *inode);
+    void (*write_super)(struct vfs_superblock *superblock);
 };
 
 struct vfs_superblock
@@ -75,7 +77,8 @@ struct vfs_superblock
 
 struct vfs_mount
 {
-    struct vfs_dentry *dentry;
+    struct vfs_dentry *root;
+    struct vfs_dentry *mount;
     struct dlist_head list;
 };
 
