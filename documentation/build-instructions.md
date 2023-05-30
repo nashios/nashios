@@ -7,12 +7,23 @@ Before compiling the system, make sure you have the following packages installed
 ### Debian family
 
 ```console
-# Cmake related packages
+# CMake
 sudo apt install cmake ninja-build
-# Gcc related packages
+# GCC
 sudo apt install build-essential bison flex libgmp3-dev libmpc-dev libmpfr-dev texinfo
 # Virtual machine
 sudo apt install qemu-system-x86 fuse2fs
+```
+
+### Fedora
+
+```console
+# CMake
+sudo dnf install cmake ninja-build
+# GCC
+sudo dnf install texinfo binutils-devel mpfr-devel libmpc-devel gmp-devel e2fsprogs @"C Development Tools and Libraries"
+# Virtual machine
+sudo dnf install @Virtualization
 ```
 
 ## Build
