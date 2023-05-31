@@ -53,7 +53,7 @@ bool syscall_handler(struct itr_registers *registers)
     if (number > size || !s_syscall_list[number])
     {
         printf("Syscall: Called syscall number = %d without handler\n", number);
-        registers->eax = -EINVAL;
+        registers->eax = -ENOSYS;
         return ITR_STOP;
     }
 
