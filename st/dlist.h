@@ -15,6 +15,13 @@
 
 #define dlist_next_entry(pos, member) dlist_entry((pos)->member.next, typeof(*(pos)), member)
 
+#define dlist_first_entry_or_null(ptr, type, member)                                                                   \
+    ({                                                                                                                 \
+        struct dlist_head *__head = (ptr);                                                                             \
+        struct dlist_head *__position = __head->next;                                                                  \
+        __position != __head ? dlist_entry(__position, type, member) : NULL;                                           \
+    })
+
 #define dlist_for_each_entry(pos, head, member)                                                                        \
     for (pos = dlist_first_entry(head, typeof(*pos), member); &pos->member != (head);                                  \
          pos = dlist_next_entry(pos, member))
@@ -88,4 +95,9 @@ static inline void dlist_add(struct dlist_head *new, struct dlist_head *head) { 
 static inline void dlist_add_tail(struct dlist_head *new, struct dlist_head *head)
 {
     ___dlist_add(new, head->previous, head);
+}
+
+static inline bool dlist_is_poison(const struct dlist_head *entry)
+{
+    return entry->previous == NULL && entry->next == NULL;
 }
