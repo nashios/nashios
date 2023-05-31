@@ -1,19 +1,31 @@
 #include <mqueue.h>
 #include <stdarg.h>
+#include <stdlib.h>
+#include <string.h>
 #include <sys/syscall.h>
 #include <unistd.h>
 
 _syscall3(mq_open, const char *, int, struct mq_attr *);
 mqd_t mq_open(const char *name, int oflag, ...)
 {
-    struct mq_attr *attr;
-
     va_list ap;
     va_start(ap, oflag);
-    attr = va_arg(ap, struct mq_attr *);
+    struct mq_attr *attr = va_arg(ap, struct mq_attr *);
     va_end(ap);
 
-    SYSCALL_RETURN(syscall_mq_open(name, oflag, attr));
+    static const char default_dir[] = "/dev/mqueue/";
+
+    char *p_name;
+    if (name[0] == '/')
+        p_name = (char *)name;
+    else
+    {
+        p_name = (char *)calloc(strlen(name) + sizeof(default_dir), sizeof(char));
+        strcpy(p_name, default_dir);
+        strcat(p_name, name);
+    }
+
+    SYSCALL_RETURN(syscall_mq_open(p_name, oflag, attr));
 }
 
 _syscall5(mq_timedsend, mqd_t, const char *, size_t, unsigned, const struct timespec *);
