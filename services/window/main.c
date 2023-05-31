@@ -88,16 +88,16 @@ void window_handle_gui()
 int main()
 {
     struct mq_attr attr = {.mq_msgsize = sizeof(struct mq_gui), .mq_maxmsg = 32};
-    int gui_fd = mq_open(GUI_SERVICE_PATH, O_RDONLY | O_CREAT, &attr);
-    if (gui_fd < 0)
-        return gui_fd;
+    s_window_gui_fd = mq_open(GUI_SERVICE_PATH, O_RDONLY | O_CREAT, &attr);
+    if (s_window_gui_fd < 0)
+        return s_window_gui_fd;
 
-    struct pollfd fds[FD_COUNT] = {{.fd = gui_fd, .events = POLLIN}};
+    struct pollfd fds[FD_COUNT] = {{.fd = s_window_gui_fd, .events = POLLIN}};
 
     while (true)
     {
         int result = poll(fds, FD_COUNT, 0);
-        if (result < 0)
+        if (result <= 0)
             continue;
 
         for (int i = 0; i < FD_COUNT; i++)
