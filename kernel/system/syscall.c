@@ -8,8 +8,6 @@
 #include <kernel/system/syscall.h>
 #include <kernel/task/scheduler.h>
 
-#define MAX_SYSCALL (__NR_set_mempolicy_home_node + 1)
-
 void syscall_exit(int status) { scheduler_exit(status); }
 
 pid_t syscall_fork(void)
@@ -39,9 +37,12 @@ void *syscall_mmap(void *addr, size_t len, int prot, int flags, int fildes)
 
 mqd_t syscall_mq_open(const char *name, int oflag, struct mq_attr *attr) { return mq_open(name, oflag, attr); }
 
-static void *s_syscall_list[MAX_SYSCALL] = {
-    [__NR_exit] = syscall_exit, [__NR_fork] = syscall_fork, [__NR_execve] = syscall_execve,
-    [__NR_brk] = syscall_brk,   [__NR_mmap] = syscall_mmap, [__NR_mq_open] = syscall_mq_open};
+pid_t syscall_getpid(void) { return g_scheduler_process->pid; }
+
+static void *s_syscall_list[] = {
+    [__NR_exit] = syscall_exit,      [__NR_fork] = syscall_fork, [__NR_execve] = syscall_execve,
+    [__NR_getpid] = syscall_getpid,  [__NR_brk] = syscall_brk,   [__NR_mmap] = syscall_mmap,
+    [__NR_mq_open] = syscall_mq_open};
 
 bool syscall_handler(struct itr_registers *registers)
 {
