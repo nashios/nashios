@@ -35,6 +35,10 @@ struct window *window_create_window(int width, int height, int x, int y, bool tr
     if (ftruncate(fd, screen_size) < 0)
         return NULL;
 
+    window->graphic = (struct graphic *)calloc(1, sizeof(struct graphic));
+    if (!window->graphic)
+        return NULL;
+
     window->graphic->x = x;
     window->graphic->y = y;
     window->graphic->width = width;
