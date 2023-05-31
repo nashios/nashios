@@ -29,11 +29,14 @@ int mq_open(const char *name, int oflag, struct mq_attr *attr)
 
     if (oflag & O_CREAT && !queue->attr)
     {
-        struct mq_attr *attr = (struct mq_attr *)calloc(1, sizeof(struct mq_attr));
-        attr->mq_flags = oflag;
-        attr->mq_maxmsg = attr ? attr->mq_maxmsg : MAX_MQ_MESSAGES;
-        attr->mq_msgsize = attr ? attr->mq_msgsize : MAX_MESSAGE_SIZE;
-        queue->attr = attr;
+        struct mq_attr *new_attr = (struct mq_attr *)calloc(1, sizeof(struct mq_attr));
+        if (!new_attr)
+            return -ENOMEM;
+
+        new_attr->mq_flags = oflag;
+        new_attr->mq_maxmsg = attr ? attr->mq_maxmsg : MAX_MQ_MESSAGES;
+        new_attr->mq_msgsize = attr ? attr->mq_msgsize : MAX_MESSAGE_SIZE;
+        queue->attr = new_attr;
     }
     else if (attr && (queue->attr->mq_maxmsg != attr->mq_maxmsg || queue->attr->mq_msgsize != attr->mq_msgsize))
         return -EINVAL;
