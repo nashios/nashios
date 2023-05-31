@@ -8,7 +8,7 @@
 
 struct vfs_inode *tmpfs_get_inode(struct vfs_superblock *superblock, mode_t mode);
 
-struct vfs_inode *tmpfs_create_inode(struct vfs_inode *inode, struct vfs_dentry *dentry, mode_t mode)
+struct vfs_inode *tmpfs_create_inode(struct vfs_inode *inode, struct vfs_dentry *, mode_t mode)
 {
     return tmpfs_get_inode(inode->superblock, mode | S_IFREG);
 }

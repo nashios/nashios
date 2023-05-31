@@ -58,6 +58,8 @@ int syscall_open(const char *path, int oflag, mode_t mode) { return virtual_fs_o
 
 int syscall_close(int fildes) { return virtual_fs_close(fildes); }
 
+int syscall_ftruncate(int fildes, off_t length) { return virtual_fs_ftruncate(fildes, length); }
+
 static void *s_syscall_list[] = {[__NR_exit] = syscall_exit,
                                  [__NR_fork] = syscall_fork,
                                  [__NR_open] = syscall_open,
@@ -66,6 +68,7 @@ static void *s_syscall_list[] = {[__NR_exit] = syscall_exit,
                                  [__NR_getpid] = syscall_getpid,
                                  [__NR_brk] = syscall_brk,
                                  [__NR_mmap] = syscall_mmap,
+                                 [__NR_ftruncate] = syscall_ftruncate,
                                  [__NR_poll] = syscall_poll,
                                  [__NR_mq_open] = syscall_mq_open,
                                  [__NR_mq_timedsend] = syscall_mq_timedsend,

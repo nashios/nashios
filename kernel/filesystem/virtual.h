@@ -13,6 +13,13 @@
 #define FMODE_CAN_READ ((fmode_t)0x20000)
 #define FMODE_CAN_WRITE ((fmode_t)0x40000)
 
+struct vfs_iattr
+{
+    unsigned int valid;
+    loff_t size;
+    umode_t mode;
+};
+
 struct vfs_inode;
 struct vfs_file;
 struct vfs_poll;
@@ -40,6 +47,7 @@ struct vfs_inode_op
     struct vfs_inode *(*create)(struct vfs_inode *inode, struct vfs_dentry *dentry, mode_t mode);
     struct vfs_inode *(*lookup)(struct vfs_inode *inode, struct vfs_dentry *dentry);
     int (*getattr)(struct vfs_mount *mount, struct vfs_dentry *dentry, struct stat *stat);
+    int (*setattr)(struct vfs_dentry *dentry, struct vfs_iattr *iattr);
     int (*mknod)(struct vfs_inode *inode, struct vfs_dentry *dentry, int mode, dev_t dev);
 };
 
@@ -118,3 +126,4 @@ int virtual_fs_mknod(const char *pathname, mode_t mode, dev_t dev);
 int virtual_fs_poll(struct pollfd fds[], nfds_t nfds, int timeout);
 void virtual_fs_poll_wait(struct vfs_file *file, struct wait_queue *wait, struct vfs_poll *poll);
 int virtual_fs_close(int fildes);
+int virtual_fs_ftruncate(int fildes, off_t length);

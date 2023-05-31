@@ -7,6 +7,9 @@
 #include <kernel/lib/string.h>
 #include <kernel/math.h>
 
+#define ATTR_MODE (1 << 0)
+#define ATTR_SIZE (1 << 3)
+
 #define FMODE_READ ((fmode_t)0x1)
 #define FMODE_WRITE ((fmode_t)0x2)
 #define FMODE_NONOTIFY ((fmode_t)0x4000000)
@@ -428,6 +431,47 @@ int virtual_fs_close(int fildes)
 
     g_scheduler_process->files->fd[fildes] = NULL;
     return result;
+}
+
+int virtual_fs_setattr(struct vfs_dentry *dentry, struct vfs_iattr *iattr)
+{
+    struct vfs_inode *inode = dentry->inode;
+    if (!inode)
+        return -EINVAL;
+
+    int result = 0;
+    if (inode->iop->setattr)
+        result = inode->iop->setattr(dentry, iattr);
+    else
+    {
+        if (iattr->valid & ATTR_SIZE)
+            inode->size = iattr->size;
+        if (iattr->valid & ATTR_MODE)
+            inode->mode = iattr->mode;
+    }
+
+    return result;
+}
+
+int virtual_fs_truncate(struct vfs_dentry *dentry, int32_t length)
+{
+    struct vfs_iattr *iattr = (struct vfs_iattr *)calloc(1, sizeof(struct vfs_iattr));
+    if (!iattr)
+        return -ENOMEM;
+
+    iattr->valid = ATTR_SIZE;
+    iattr->size = length;
+
+    return virtual_fs_setattr(dentry, iattr);
+}
+
+int virtual_fs_ftruncate(int fildes, off_t length)
+{
+    struct vfs_file *file = g_scheduler_process->files->fd[fildes];
+    if (!file)
+        return -EBADFD;
+
+    return virtual_fs_truncate(file->dentry, length);
 }
 
 int virtual_fs_mount(const char *source, const char *target, const char *filesystemtype, unsigned long mountflags,
