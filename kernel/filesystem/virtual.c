@@ -22,6 +22,13 @@ struct vfs_nameidata
     struct vfs_dentry *dentry;
 };
 
+struct vfs_poll_entry
+{
+    struct vfs_file *file;
+    struct wait_queue wait;
+    struct dlist_head list;
+};
+
 static struct dlist_head s_virtual_type_list;
 static struct dlist_head s_virtual_mount_list;
 
@@ -335,6 +342,79 @@ int virtual_fs_mknod(const char *pathname, mode_t mode, dev_t dev)
         return result;
 
     dlist_add_tail(&dentry->sibling, &nameidata.dentry->subdir);
+    return result;
+}
+
+void virtual_fs_poll_free(struct vfs_poll *poll)
+{
+    struct vfs_poll_entry *iter;
+    struct vfs_poll_entry *next;
+
+    dlist_for_each_entry_safe(iter, next, &poll->list, list)
+    {
+        dlist_remove(&iter->wait.list);
+        dlist_remove(&iter->list);
+        free(iter);
+    }
+    free(poll);
+}
+
+void virtual_fs_poll_wakeup(struct thread *thread) { scheduler_update_thread(thread, THREAD_READY_STATE); }
+
+void virtual_fs_poll_wait(struct vfs_file *file, struct dlist_head wait, struct vfs_poll *poll)
+{
+    struct vfs_poll_entry *entry = calloc(1, sizeof(struct vfs_poll_entry));
+    if (!entry)
+        return;
+
+    entry->file = file;
+    entry->wait.handler = virtual_fs_poll_wakeup;
+    entry->wait.thread = g_scheduler_thread;
+
+    dlist_add_tail(&entry->wait.list, &wait);
+    dlist_add_tail(&entry->list, &poll->list);
+}
+
+int virtual_fs_poll(struct pollfd fds[], nfds_t nfds, int)
+{
+    int result;
+    while (true)
+    {
+        struct vfs_poll *poll = (struct vfs_poll *)calloc(1, sizeof(struct vfs_poll));
+        if (!poll)
+            return -ENOMEM;
+
+        result = 0;
+        dlist_head_init(&poll->list);
+        for (uint32_t i = 0; i < nfds; i++)
+        {
+            struct pollfd *p_fd = &fds[i];
+
+            if (p_fd->fd < 0)
+            {
+                p_fd->revents = 0;
+                continue;
+            }
+
+            struct vfs_file *file = g_scheduler_thread->process->files->fd[p_fd->fd];
+            if (!file || !file->op->poll)
+                continue;
+
+            p_fd->revents = file->op->poll(file, poll);
+            if (p_fd->events & p_fd->revents)
+                result++;
+        }
+
+        if (result > 0)
+        {
+            virtual_fs_poll_free(poll);
+            break;
+        }
+
+        scheduler_update_thread(g_scheduler_thread, THREAD_WAITING_STATE);
+        scheduler_schedule();
+        virtual_fs_poll_free(poll);
+    }
     return result;
 }
 

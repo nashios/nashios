@@ -9,6 +9,8 @@
 struct mq_queue
 {
     struct mq_attr *attr;
+    struct dlist_head wait;
+    struct dlist_head messages;
 };
 
 extern struct hashmap g_mq_hashmap;

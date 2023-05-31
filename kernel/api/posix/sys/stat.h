@@ -13,7 +13,7 @@
 
 struct stat
 {
-    long long st_size;
-    long long st_blksize;
-    long long st_blocks;
+    long st_size;
+    long st_blksize;
+    long st_blocks;
 };

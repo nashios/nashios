@@ -89,6 +89,14 @@ struct thread
     struct plist_node plist;
 };
 
+struct wait_queue
+{
+    struct thread *thread;
+    struct dlist_head list;
+
+    void (*handler)(struct thread *thread);
+};
+
 extern struct process *g_scheduler_process;
 extern struct thread *g_scheduler_thread;
 

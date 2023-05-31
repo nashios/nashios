@@ -21,7 +21,7 @@ struct vfs_inode *mqueuefs_create_inode(struct vfs_inode *inode, struct vfs_dent
     return mqueuefs_get_inode(inode->superblock, mode);
 }
 
-int mqueuefs_open(struct vfs_inode *inode, struct vfs_file *)
+int mqueuefs_open(struct vfs_inode *inode, struct vfs_file *file)
 {
     struct mqueuefs_inode *mqueuefs_inode = inode->info;
     if (!mqueuefs_inode)
@@ -34,11 +34,26 @@ int mqueuefs_open(struct vfs_inode *inode, struct vfs_file *)
         if (!queue)
             return -EINVAL;
 
+        dlist_head_init(&queue->wait);
+        dlist_head_init(&queue->messages);
+
         if (!hashmap_put(&g_mq_hashmap, &mqueuefs_inode->key, queue))
             return -EINVAL;
     }
 
+    file->data = queue;
+
     return 0;
+}
+
+int mqueuefs_poll(struct vfs_file *file, struct vfs_poll *poll)
+{
+    struct mq_queue *queue = (struct mq_queue *)file->data;
+    if (!queue)
+        return -EINVAL;
+
+    virtual_fs_poll_wait(file, queue->wait, poll);
+    return (!dlist_empty(&queue->messages) ? POLLIN : 0) | POLLOUT;
 }
 
 static struct vfs_superblock_op s_mqueuefs_sop = {.allocate_inode = mqueuefs_allocate_inode};
@@ -47,7 +62,7 @@ static struct vfs_inode_op s_mqueuefs_file_iop = {};
 
 static struct vfs_inode_op s_mqueuefs_dir_iop = {.create = mqueuefs_create_inode};
 
-static struct vfs_file_op s_mqueuefs_file_op = {.open = mqueuefs_open};
+static struct vfs_file_op s_mqueuefs_file_op = {.open = mqueuefs_open, .poll = mqueuefs_poll};
 
 static struct vfs_file_op s_mqueuefs_dir_op = {};
 

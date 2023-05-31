@@ -39,10 +39,12 @@ mqd_t syscall_mq_open(const char *name, int oflag, struct mq_attr *attr) { retur
 
 pid_t syscall_getpid(void) { return g_scheduler_process->pid; }
 
+int syscall_poll(struct pollfd fds[], nfds_t nfds, int timeout) { return virtual_fs_poll(fds, nfds, timeout); }
+
 static void *s_syscall_list[] = {
-    [__NR_exit] = syscall_exit,      [__NR_fork] = syscall_fork, [__NR_execve] = syscall_execve,
-    [__NR_getpid] = syscall_getpid,  [__NR_brk] = syscall_brk,   [__NR_mmap] = syscall_mmap,
-    [__NR_mq_open] = syscall_mq_open};
+    [__NR_exit] = syscall_exit,     [__NR_fork] = syscall_fork,      [__NR_execve] = syscall_execve,
+    [__NR_getpid] = syscall_getpid, [__NR_brk] = syscall_brk,        [__NR_mmap] = syscall_mmap,
+    [__NR_poll] = syscall_poll,     [__NR_mq_open] = syscall_mq_open};
 
 bool syscall_handler(struct itr_registers *registers)
 {

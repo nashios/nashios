@@ -1,6 +1,7 @@
 #pragma once
 
 #include <kernel/api/posix/fcntl.h>
+#include <kernel/api/posix/poll.h>
 #include <kernel/api/posix/sys/stat.h>
 #include <kernel/task/scheduler.h>
 #include <st/dlist.h>
@@ -11,12 +12,14 @@
 
 struct vfs_inode;
 struct vfs_file;
+struct vfs_poll;
 struct vfs_file_op
 {
     int (*open)(struct vfs_inode *inode, struct vfs_file *file);
     ssize_t (*read)(struct vfs_file *file, char *buf, size_t count, loff_t ppos);
     int (*mmap)(struct vfs_file *file, struct process_vm *memory);
     int (*release)(struct vfs_inode *inode, struct vfs_file *file);
+    int (*poll)(struct vfs_file *file, struct vfs_poll *poll);
 };
 
 struct vfs_file
@@ -26,6 +29,7 @@ struct vfs_file
     struct vfs_file_op *op;
     struct vfs_dentry *dentry;
     struct vfs_mount *mount;
+    void *data;
 };
 
 struct vfs_inode_op
@@ -90,6 +94,11 @@ struct vfs_type
     struct dlist_head list;
 };
 
+struct vfs_poll
+{
+    struct dlist_head list;
+};
+
 void virtual_fs_init();
 int virtual_fs_set_type(struct vfs_type *type);
 char *virtual_fs_read_block(const char *source, sector_t sector, uint32_t size);
@@ -103,3 +112,5 @@ int virtual_fs_open(const char *pathname, int flags, mode_t mode);
 int virtual_fs_fstat(int fd, struct stat *buf);
 ssize_t virtual_fs_read(int fd, void *buf, size_t count);
 int virtual_fs_mknod(const char *pathname, mode_t mode, dev_t dev);
+int virtual_fs_poll(struct pollfd fds[], nfds_t nfds, int timeout);
+void virtual_fs_poll_wait(struct vfs_file *file, struct dlist_head wait, struct vfs_poll *poll);
