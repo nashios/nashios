@@ -44,23 +44,35 @@ int syscall_mq_timedsend(mqd_t mqdes, const char *msg_ptr, size_t msg_len, unsig
     return mq_timedsend(mqdes, msg_ptr, msg_len, msg_prio, abstime);
 }
 
+ssize_t syscall_mq_timedreceive(mqd_t mqdes, char *msg_ptr, size_t msg_len, unsigned *msg_prio,
+                                const struct timespec *abstime)
+{
+    return mq_timedreceive(mqdes, msg_ptr, msg_len, msg_prio, abstime);
+}
+
 pid_t syscall_getpid(void) { return g_scheduler_process->pid; }
 
 int syscall_poll(struct pollfd fds[], nfds_t nfds, int timeout) { return virtual_fs_poll(fds, nfds, timeout); }
 
 int syscall_close(int fildes) { return virtual_fs_close(fildes); }
 
-static void *s_syscall_list[] = {[__NR_exit] = syscall_exit,       [__NR_fork] = syscall_fork,
-                                 [__NR_close] = syscall_close,     [__NR_execve] = syscall_execve,
-                                 [__NR_getpid] = syscall_getpid,   [__NR_brk] = syscall_brk,
-                                 [__NR_mmap] = syscall_mmap,       [__NR_poll] = syscall_poll,
-                                 [__NR_mq_open] = syscall_mq_open, [__NR_mq_timedsend] = syscall_mq_timedsend};
+static void *s_syscall_list[] = {[__NR_exit] = syscall_exit,
+                                 [__NR_fork] = syscall_fork,
+                                 [__NR_close] = syscall_close,
+                                 [__NR_execve] = syscall_execve,
+                                 [__NR_getpid] = syscall_getpid,
+                                 [__NR_brk] = syscall_brk,
+                                 [__NR_mmap] = syscall_mmap,
+                                 [__NR_poll] = syscall_poll,
+                                 [__NR_mq_open] = syscall_mq_open,
+                                 [__NR_mq_timedsend] = syscall_mq_timedsend,
+                                 [__NR_mq_timedreceive] = syscall_mq_timedreceive};
 
 bool syscall_handler(struct itr_registers *registers)
 {
     uint32_t number = registers->eax;
     uint32_t size = sizeof(s_syscall_list) / sizeof(s_syscall_list[0]);
-    if (number > size || !s_syscall_list[number])
+    if (number >= size || !s_syscall_list[number])
     {
         printf("Syscall: Called syscall number = %d without handler\n", number);
         registers->eax = -ENOSYS;

@@ -18,18 +18,88 @@ struct mq_message
 
 struct mq_receiver
 {
+    uint32_t priority;
     struct thread *thread;
     struct dlist_head list;
 };
 
 struct mq_sender
 {
-    struct thread *thread;
     uint32_t priority;
+    struct thread *thread;
     struct dlist_head list;
 };
 
 struct hashmap g_mq_hashmap = {};
+
+ssize_t mq_timedreceive(mqd_t mqdes, char *msg_ptr, size_t msg_len, unsigned *msg_prio, const struct timespec *)
+{
+    struct vfs_file *file = g_scheduler_thread->process->files->fd[mqdes];
+    if (!file)
+        return -EBADF;
+
+    struct mq_queue *queue = (struct mq_queue *)file->data;
+    if (!queue)
+        return -EBADF;
+
+    if (!(file->mode & FMODE_CAN_READ))
+        return -EBADF;
+
+    if (msg_len < (size_t)queue->attr->mq_msgsize)
+        return -EMSGSIZE;
+
+    assert(queue->attr->mq_curmsgs >= 0 && queue->attr->mq_curmsgs <= queue->attr->mq_maxmsg);
+    assert(msg_len >= (size_t)queue->attr->mq_msgsize);
+
+    if (queue->attr->mq_curmsgs == queue->attr->mq_maxmsg)
+    {
+        struct mq_sender *sender = dlist_first_entry_or_null(&queue->senders, struct mq_sender, list);
+        if (sender)
+        {
+            dlist_remove(&sender->list);
+            scheduler_update_thread(sender->thread, THREAD_READY_STATE);
+        }
+    }
+    else if (queue->attr->mq_curmsgs == 0)
+    {
+        if ((queue->attr->mq_flags & O_NONBLOCK) == 0)
+        {
+            struct mq_receiver *receiver;
+            bool condition = queue->attr->mq_curmsgs > 0 && dlist_is_poison(&receiver->list);
+            WAIT_BEFORE_AFTER(condition, ({
+                                  receiver = calloc(1, sizeof(struct mq_receiver));
+                                  receiver->priority = (uint32_t)msg_prio;
+                                  receiver->thread = g_scheduler_thread;
+
+                                  struct mq_receiver *iter;
+                                  dlist_for_each_entry(iter, &queue->receivers, list)
+                                  {
+                                      if (receiver->priority > iter->priority)
+                                          break;
+                                  }
+
+                                  if (&iter->list == &queue->receivers)
+                                      dlist_add_tail(&receiver->list, &queue->receivers);
+                                  else
+                                      dlist_add(&receiver->list, iter->list.previous);
+                              }),
+                              free(receiver));
+        }
+        else
+            return -EAGAIN;
+    }
+
+    struct mq_message *message = dlist_first_entry_or_null(&queue->messages, struct mq_message, list);
+    assert(message);
+
+    dlist_remove(&message->list);
+    queue->attr->mq_curmsgs--;
+
+    memcpy(msg_ptr, message->buffer, msg_len);
+    free(message);
+
+    return 0;
+}
 
 mqd_t mq_timedsend(mqd_t mqdes, const char *msg_ptr, size_t msg_len, unsigned msg_prio, const struct timespec *)
 {
