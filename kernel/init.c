@@ -6,6 +6,7 @@
 #include <kernel/filesystem/devfs.h>
 #include <kernel/filesystem/ext2.h>
 #include <kernel/filesystem/mqueuefs.h>
+#include <kernel/filesystem/tmpfs.h>
 #include <kernel/filesystem/virtual.h>
 #include <kernel/interrupts/handler.h>
 #include <kernel/ipc/mqueue.h>
@@ -22,6 +23,7 @@ void kernel_init()
     ext2_fs_init();
     devfs_init();
     mqueuefs_init();
+    tmpfs_init();
     fb_init();
     syscall_init();
     mq_init();

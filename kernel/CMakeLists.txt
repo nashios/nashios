@@ -18,6 +18,7 @@ set(C_SOURCES
     filesystem/chardev.c
     filesystem/devfs.c
     filesystem/mqueuefs.c
+    filesystem/tmpfs.c
     
     drivers/pci.c
     drivers/ata.c
