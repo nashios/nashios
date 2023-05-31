@@ -49,8 +49,8 @@ static void *s_syscall_list[] = {
 bool syscall_handler(struct itr_registers *registers)
 {
     uint32_t number = registers->eax;
-    uint32_t (*handler)(uint32_t, ...) = s_syscall_list[number];
-    if (!handler)
+    uint32_t size = sizeof(s_syscall_list) / sizeof(s_syscall_list[0]);
+    if (number > size || !s_syscall_list[number])
     {
         printf("Syscall: Called syscall number = %d without handler\n", number);
         registers->eax = -EINVAL;
@@ -58,6 +58,7 @@ bool syscall_handler(struct itr_registers *registers)
     }
 
     memcpy(&g_scheduler_thread->registers, registers, sizeof(struct itr_registers));
+    uint32_t (*handler)(uint32_t, ...) = s_syscall_list[number];
     uint32_t result = handler(registers->ebx, registers->ecx, registers->edx, registers->esi, registers->edi);
     registers->eax = result;
     printf("Syscall: Called syscall number = %d, result = %d\n", number, result);
