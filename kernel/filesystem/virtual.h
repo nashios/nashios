@@ -117,3 +117,4 @@ ssize_t virtual_fs_read(int fd, void *buf, size_t count);
 int virtual_fs_mknod(const char *pathname, mode_t mode, dev_t dev);
 int virtual_fs_poll(struct pollfd fds[], nfds_t nfds, int timeout);
 void virtual_fs_poll_wait(struct vfs_file *file, struct wait_queue *wait, struct vfs_poll *poll);
+int virtual_fs_close(int fildes);

@@ -415,6 +415,21 @@ int virtual_fs_poll(struct pollfd fds[], nfds_t nfds, int)
     return result;
 }
 
+int virtual_fs_close(int fildes)
+{
+    struct vfs_file *file = g_scheduler_process->files->fd[fildes];
+    if (!file)
+        return -EBADF;
+
+    int result = 0;
+    if (file->op && file->op->release)
+        result = file->op->release(file->dentry->inode, file);
+    free(file);
+
+    g_scheduler_process->files->fd[fildes] = NULL;
+    return result;
+}
+
 int virtual_fs_mount(const char *source, const char *target, const char *filesystemtype, unsigned long mountflags,
                      const void *data)
 {
