@@ -1,5 +1,6 @@
 #include <kernel/api/posix/errno.h>
 #include <kernel/api/posix/sys/syscall.h>
+#include <kernel/filesystem/virtual.h>
 #include <kernel/interrupts/handler.h>
 #include <kernel/ipc/mqueue.h>
 #include <kernel/lib/stdio.h>
@@ -37,14 +38,20 @@ void *syscall_mmap(void *addr, size_t len, int prot, int flags, int fildes)
 
 mqd_t syscall_mq_open(const char *name, int oflag, struct mq_attr *attr) { return mq_open(name, oflag, attr); }
 
+int syscall_mq_timedsend(mqd_t mqdes, const char *msg_ptr, size_t msg_len, unsigned msg_prio,
+                         const struct timespec *abstime)
+{
+    return mq_timedsend(mqdes, msg_ptr, msg_len, msg_prio, abstime);
+}
+
 pid_t syscall_getpid(void) { return g_scheduler_process->pid; }
 
 int syscall_poll(struct pollfd fds[], nfds_t nfds, int timeout) { return virtual_fs_poll(fds, nfds, timeout); }
 
 static void *s_syscall_list[] = {
-    [__NR_exit] = syscall_exit,     [__NR_fork] = syscall_fork,      [__NR_execve] = syscall_execve,
-    [__NR_getpid] = syscall_getpid, [__NR_brk] = syscall_brk,        [__NR_mmap] = syscall_mmap,
-    [__NR_poll] = syscall_poll,     [__NR_mq_open] = syscall_mq_open};
+    [__NR_exit] = syscall_exit,     [__NR_fork] = syscall_fork,       [__NR_execve] = syscall_execve,
+    [__NR_getpid] = syscall_getpid, [__NR_brk] = syscall_brk,         [__NR_mmap] = syscall_mmap,
+    [__NR_poll] = syscall_poll,     [__NR_mq_open] = syscall_mq_open, [__NR_mq_timedsend] = syscall_mq_timedsend};
 
 bool syscall_handler(struct itr_registers *registers)
 {

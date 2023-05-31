@@ -279,6 +279,13 @@ struct thread *scheduler_pop_next_thread()
     return thread;
 }
 
+void scheduler_wake_up(struct wait_queue *queue)
+{
+    struct wait_queue_entry *iter;
+    struct wait_queue_entry *next;
+    dlist_for_each_entry_safe(iter, next, &queue->list, list) { iter->handler(iter->thread); }
+}
+
 void scheduler_exit(int code)
 {
     scheduler_lock();

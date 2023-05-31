@@ -11,9 +11,6 @@
 #define FMODE_WRITE ((fmode_t)0x2)
 #define FMODE_NONOTIFY ((fmode_t)0x4000000)
 
-#define FMODE_CAN_READ ((fmode_t)0x20000)
-#define FMODE_CAN_WRITE ((fmode_t)0x40000)
-
 #define OPEN_FMODE(flag) ((fmode_t)(((flag + 1) & O_ACCMODE) | (flag & FMODE_NONOTIFY)))
 
 struct vfs_nameidata
@@ -25,7 +22,7 @@ struct vfs_nameidata
 struct vfs_poll_entry
 {
     struct vfs_file *file;
-    struct wait_queue wait;
+    struct wait_queue_entry wait;
     struct dlist_head list;
 };
 
@@ -361,7 +358,7 @@ void virtual_fs_poll_free(struct vfs_poll *poll)
 
 void virtual_fs_poll_wakeup(struct thread *thread) { scheduler_update_thread(thread, THREAD_READY_STATE); }
 
-void virtual_fs_poll_wait(struct vfs_file *file, struct dlist_head wait, struct vfs_poll *poll)
+void virtual_fs_poll_wait(struct vfs_file *file, struct wait_queue *wait, struct vfs_poll *poll)
 {
     struct vfs_poll_entry *entry = calloc(1, sizeof(struct vfs_poll_entry));
     if (!entry)
@@ -371,7 +368,7 @@ void virtual_fs_poll_wait(struct vfs_file *file, struct dlist_head wait, struct 
     entry->wait.handler = virtual_fs_poll_wakeup;
     entry->wait.thread = g_scheduler_thread;
 
-    dlist_add_tail(&entry->wait.list, &wait);
+    dlist_add_tail(&entry->wait.list, &wait->list);
     dlist_add_tail(&entry->list, &poll->list);
 }
 

@@ -10,6 +10,9 @@
 
 #define VFS_BYTES_P_SECTOR 512
 
+#define FMODE_CAN_READ ((fmode_t)0x20000)
+#define FMODE_CAN_WRITE ((fmode_t)0x40000)
+
 struct vfs_inode;
 struct vfs_file;
 struct vfs_poll;
@@ -113,4 +116,4 @@ int virtual_fs_fstat(int fd, struct stat *buf);
 ssize_t virtual_fs_read(int fd, void *buf, size_t count);
 int virtual_fs_mknod(const char *pathname, mode_t mode, dev_t dev);
 int virtual_fs_poll(struct pollfd fds[], nfds_t nfds, int timeout);
-void virtual_fs_poll_wait(struct vfs_file *file, struct dlist_head wait, struct vfs_poll *poll);
+void virtual_fs_poll_wait(struct vfs_file *file, struct wait_queue *wait, struct vfs_poll *poll);

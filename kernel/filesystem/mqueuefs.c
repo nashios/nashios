@@ -34,8 +34,10 @@ int mqueuefs_open(struct vfs_inode *inode, struct vfs_file *file)
         if (!queue)
             return -EINVAL;
 
-        dlist_head_init(&queue->wait);
+        dlist_head_init(&queue->wait.list);
         dlist_head_init(&queue->messages);
+        dlist_head_init(&queue->receivers);
+        dlist_head_init(&queue->senders);
 
         if (!hashmap_put(&g_mq_hashmap, &mqueuefs_inode->key, queue))
             return -EINVAL;
@@ -52,7 +54,7 @@ int mqueuefs_poll(struct vfs_file *file, struct vfs_poll *poll)
     if (!queue)
         return -EINVAL;
 
-    virtual_fs_poll_wait(file, queue->wait, poll);
+    virtual_fs_poll_wait(file, &queue->wait, poll);
     return (!dlist_empty(&queue->messages) ? POLLIN : 0) | POLLOUT;
 }
 

@@ -9,6 +9,36 @@
 #define SCHED_HEAP_SIZE 0x20000
 #define SCHED_HEAP_TOP 0x40000000
 
+#define WAIT(condition)                                                                                                \
+    ({                                                                                                                 \
+        while (!(condition))                                                                                           \
+        {                                                                                                              \
+            scheduler_update_thread(g_scheduler_thread, THREAD_WAITING_STATE);                                         \
+            scheduler_schedule();                                                                                      \
+        }                                                                                                              \
+    })
+
+#define WAIT_BEFORE(condition, before)                                                                                 \
+    ({                                                                                                                 \
+        while (!(condition))                                                                                           \
+        {                                                                                                              \
+            before;                                                                                                    \
+            scheduler_update_thread(g_scheduler_thread, THREAD_WAITING_STATE);                                         \
+            scheduler_schedule();                                                                                      \
+        }                                                                                                              \
+    })
+
+#define WAIT_BEFORE_AFTER(condition, before, after)                                                                    \
+    ({                                                                                                                 \
+        while (!(condition))                                                                                           \
+        {                                                                                                              \
+            before;                                                                                                    \
+            scheduler_update_thread(g_scheduler_thread, THREAD_WAITING_STATE);                                         \
+            scheduler_schedule();                                                                                      \
+            after;                                                                                                     \
+        }                                                                                                              \
+    })
+
 enum thread_state
 {
     THREAD_READY_STATE,
@@ -91,6 +121,11 @@ struct thread
 
 struct wait_queue
 {
+    struct dlist_head list;
+};
+
+struct wait_queue_entry
+{
     struct thread *thread;
     struct dlist_head list;
 
@@ -110,3 +145,4 @@ void scheduler_open(const char *path);
 void scheduler_exit(int code);
 struct process *scheduler_fork(struct process *parent);
 int scheduler_execve(const char *path, char *const argv[], char *const envp[]);
+void scheduler_wake_up(struct wait_queue *queue);

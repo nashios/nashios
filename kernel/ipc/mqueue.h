@@ -9,12 +9,14 @@
 struct mq_queue
 {
     struct mq_attr *attr;
-    struct dlist_head wait;
+    struct wait_queue wait;
     struct dlist_head messages;
+    struct dlist_head receivers;
+    struct dlist_head senders;
 };
 
 extern struct hashmap g_mq_hashmap;
 
 void mq_init();
 mqd_t mq_open(const char *name, int oflag, struct mq_attr *attr);
-int mq_timedsend(mqd_t mqdes, const char *msg_ptr, size_t msg_len, unsigned msg_prio, const struct timespec *abstime);
+mqd_t mq_timedsend(mqd_t mqdes, const char *msg_ptr, size_t msg_len, unsigned msg_prio, const struct timespec *abstime);
