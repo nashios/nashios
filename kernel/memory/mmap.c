@@ -112,6 +112,8 @@ void *mmap(void *addr, size_t length, int, int fd, int, off_t)
     struct vfs_file *file = fd >= 0 ? process->files->fd[fd] : NULL;
     if (file)
     {
+        if (!file->op->mmap)
+            return NULL;
         file->op->mmap(file, virtual_mm);
         virtual_mm->file = file;
     }

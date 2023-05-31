@@ -13,10 +13,13 @@
 #define FMODE_CAN_READ ((fmode_t)0x20000)
 #define FMODE_CAN_WRITE ((fmode_t)0x40000)
 
+#define ATTR_MODE (1 << 0)
+#define ATTR_SIZE (1 << 3)
+
 struct vfs_iattr
 {
     unsigned int valid;
-    loff_t size;
+    uint32_t size;
     umode_t mode;
 };
 
@@ -51,6 +54,12 @@ struct vfs_inode_op
     int (*mknod)(struct vfs_inode *inode, struct vfs_dentry *dentry, int mode, dev_t dev);
 };
 
+struct vfs_inode_data
+{
+    uint32_t count;
+    struct dlist_head list;
+};
+
 struct vfs_inode
 {
     ino_t ino;
@@ -59,6 +68,7 @@ struct vfs_inode
     uint32_t size;
     uint32_t blocks;
     uint32_t block_size;
+    struct vfs_inode_data data;
     struct vfs_inode_op *iop;
     struct vfs_file_op *fop;
     struct vfs_superblock *superblock;

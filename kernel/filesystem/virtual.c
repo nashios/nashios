@@ -7,9 +7,6 @@
 #include <kernel/lib/string.h>
 #include <kernel/math.h>
 
-#define ATTR_MODE (1 << 0)
-#define ATTR_SIZE (1 << 3)
-
 #define FMODE_READ ((fmode_t)0x1)
 #define FMODE_WRITE ((fmode_t)0x2)
 #define FMODE_NONOTIFY ((fmode_t)0x4000000)

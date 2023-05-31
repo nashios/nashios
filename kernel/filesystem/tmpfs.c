@@ -1,10 +1,18 @@
+#include <kernel/api/posix/errno.h>
 #include <kernel/api/posix/mount.h>
+#include <kernel/arch/i686/memory/virtual.h>
 #include <kernel/filesystem/devfs.h>
 #include <kernel/filesystem/tmpfs.h>
 #include <kernel/filesystem/virtual.h>
 #include <kernel/lib/stdio.h>
 #include <kernel/lib/stdlib.h>
 #include <kernel/lib/string.h>
+
+struct page
+{
+    uint32_t physical;
+    struct dlist_head list;
+};
 
 struct vfs_inode *tmpfs_get_inode(struct vfs_superblock *superblock, mode_t mode);
 
@@ -13,8 +21,71 @@ struct vfs_inode *tmpfs_create_inode(struct vfs_inode *inode, struct vfs_dentry 
     return tmpfs_get_inode(inode->superblock, mode | S_IFREG);
 }
 
-struct vfs_inode_op s_tmpfs_file_iop = {};
-struct vfs_file_op s_tmpfs_file_fop = {};
+int tmpfs_mmap(struct vfs_file *file, struct process_vm *memory)
+{
+    struct vfs_inode *inode = file->dentry->inode;
+    struct vfs_superblock *superblock = inode->superblock;
+
+    struct page *page;
+    uint32_t virtual_address = memory->start;
+    dlist_for_each_entry(page, &inode->data.list, list)
+    {
+        if (virtual_address >= memory->end)
+            break;
+
+        virtual_mm_map(g_scheduler_process->directory, page->physical, virtual_address,
+                       PAGE_TBL_PRESENT | PAGE_TBL_WRITABLE | PAGE_TBL_USER);
+        virtual_address += superblock->block_size;
+    }
+    printf("tmpfs_mmap()\n");
+    return 0;
+}
+
+int tmpfs_setattr(struct vfs_dentry *dentry, struct vfs_iattr *iattr)
+{
+    struct vfs_inode *inode = dentry->inode;
+    if (!inode)
+        return -EINVAL;
+
+    if (iattr->valid & ATTR_SIZE && iattr->size != inode->size)
+    {
+        uint32_t new_size = PAGE_ALIGN(iattr->size);
+        uint32_t size = PAGE_ALIGN(inode->size);
+        if (size < new_size)
+        {
+            uint32_t frames = (new_size - size) / PAGE_SIZE;
+            for (uint32_t i = 0; i < frames; i++)
+            {
+                struct page *page = (struct page *)calloc(1, sizeof(struct page));
+                if (!page)
+                    return -ENOMEM;
+
+                page->physical = (uint32_t)physical_mm_allocate();
+                if (!page->physical)
+                    return -ENOMEM;
+
+                dlist_add_tail(&page->list, &inode->data.list);
+            }
+        }
+        else if (size > new_size)
+        {
+            uint32_t frames = (size - new_size) / PAGE_SIZE;
+            for (uint32_t i = 0; i < frames; i++)
+                dlist_remove(inode->data.list.previous);
+        }
+
+        inode->data.count = new_size / PAGE_SIZE;
+        inode->size = iattr->size;
+    }
+
+    if (iattr->valid & ATTR_MODE)
+        inode->mode = iattr->mode;
+
+    return 0;
+}
+
+struct vfs_inode_op s_tmpfs_file_iop = {.setattr = tmpfs_setattr};
+struct vfs_file_op s_tmpfs_file_fop = {.mmap = tmpfs_mmap};
 struct vfs_inode_op s_tmpfs_dir_iop = {.create = tmpfs_create_inode};
 struct vfs_file_op s_tmpfs_dir_fop = {};
 struct vfs_inode_op s_tmpfs_special_iop = {};
@@ -49,7 +120,12 @@ struct vfs_inode *tmpfs_get_inode(struct vfs_superblock *superblock, mode_t mode
 
 struct vfs_inode *tmpfs_allocate_inode(struct vfs_superblock *superblock)
 {
-    return virtual_fs_create_inode(superblock);
+    struct vfs_inode *inode = virtual_fs_create_inode(superblock);
+    if (!inode)
+        return NULL;
+
+    dlist_head_init(&inode->data.list);
+    return inode;
 }
 
 static struct vfs_superblock_op s_tmpfs_super_operations = {
