@@ -10,7 +10,7 @@
 
 ___BEGIN_DECLS
 
-void ___assert(const char *message, const char *file, const char *function, int line);
+__attribute__((noreturn)) void ___assert(const char *message, const char *file, const char *function, int line);
 
 ___END_DECLS
 

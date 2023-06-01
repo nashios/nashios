@@ -3,7 +3,7 @@
 #include <kernel/lib/string.h>
 #include <kernel/panic.h>
 
-void panic_shutdown()
+__attribute__((noreturn)) void panic_shutdown()
 {
     io_outw(0xB004, 0x2000);
     io_outw(0x604, 0x2000);
