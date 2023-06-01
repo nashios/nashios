@@ -71,7 +71,7 @@ struct window *gui_create_window(int width, int height, int x, int y)
     if (mq_close(fd) < 0)
         return NULL;
 
-    fd = shm_open(window->name, 0, 0);
+    fd = shm_open(window->name, O_RDWR, 0);
     if (fd < 0)
         return NULL;
 
