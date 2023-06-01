@@ -24,10 +24,11 @@ typedef struct
 void abort(void);
 int atexit(void (*func)(void));
 int atoi(const char *);
-void free(void *);
-char *getenv(const char *);
+char *getenv(const char *name);
 void *malloc(size_t size);
 void *calloc(size_t nelem, size_t elsize);
+void *realloc(void *ptr, size_t size);
+void free(void *ptr);
 void exit(int status);
 void _Exit(int status);
 int abs(int i);
@@ -44,12 +45,12 @@ void qsort(void *base, size_t nel, size_t width, int (*compar)(const void *, con
 int rand(void);
 int rand_r(unsigned *seed);
 void srand(unsigned seed);
-void *realloc(void *ptr, size_t size);
 double strtod(const char *str, char **endptr);
 float strtof(const char *nptr, char **endptr);
 long int strtol(const char *str, char **endptr, int base);
 long double strtold(const char *nptr, char **endptr);
 unsigned long int strtoul(const char *str, char **endptr, int base);
+unsigned long long strtoull(const char *str, char **endptr, int base);
 int system(const char *command);
 
 ___END_DECLS

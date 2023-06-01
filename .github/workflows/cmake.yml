@@ -23,7 +23,7 @@ jobs:
         uses: actions/cache@v3
         with:
           path: ${{ github.workspace }}/binary/cache/toolchain-${{ matrix.arch }}-${{ matrix.toolchain }}.tar.gz
-          key: ${{ runner.os }}-toolchain-${{ matrix.arch }}-${{ hashFiles('meta/scripts/toolchain/*.sh', 'meta/patches/*.patch', 'libraries/c/**/*.h') }}
+          key: ${{ runner.os }}-toolchain-${{ matrix.arch }}-${{ hashFiles('meta/scripts/toolchain/*.sh', 'meta/patches/*.patch', 'Libraries/C/**/*.h') }}
 
       - name: Compile system
         run: USE_CACHE=true meta/scripts/nashios.sh build ${{ matrix.arch }} ${{ matrix.toolchain }}

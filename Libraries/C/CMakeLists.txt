@@ -1,33 +1,33 @@
 set(SOURCES
-    errno.c
-    stdlib.c
-    unistd.c
-    string.c
-    assert.c
-    fcntl.c
-    mqueue.c
-    poll.c
-    stdio.c
-    ctype.c
-    time.c
+    errno.cpp
+    stdlib.cpp
+    unistd.cpp
+    string.cpp
+    assert.cpp
+    fcntl.cpp
+    mqueue.cpp
+    poll.cpp
+    stdio.cpp
+    ctype.cpp
+    time.cpp
     
-    sys/mman.c
-    sys/stat.c
-    sys/ioctl.c)
+    sys/mman.cpp
+    sys/stat.cpp
+    sys/ioctl.cpp)
 
-add_library(crt0 crt0.c)
+add_library(crt0 STATIC crt0.cpp)
 add_custom_command(TARGET crt0 COMMAND "${CMAKE_COMMAND}" -E copy $<TARGET_OBJECTS:crt0> ${CMAKE_INSTALL_PREFIX}/crt0.o)
 
-add_library(crti crti.S)
+add_library(crti STATIC crti.S)
 add_custom_command(TARGET crti COMMAND "${CMAKE_COMMAND}" -E copy $<TARGET_OBJECTS:crti> ${CMAKE_INSTALL_PREFIX}/crti.o)
 
-add_library(crtn crtn.S)
+add_library(crtn STATIC crtn.S)
 add_custom_command(TARGET crtn COMMAND "${CMAKE_COMMAND}" -E copy $<TARGET_OBJECTS:crtn> ${CMAKE_INSTALL_PREFIX}/crtn.o)
 
-nashios_libc(libc c)
-add_dependencies(libc crti crt0 crtn)
+nashios_libc(LibC c)
+add_dependencies(LibC crti crt0 crtn)
 
-file(WRITE "${CMAKE_STAGING_PREFIX}/usr/lib/libpthread.so" "INPUT(libc.a)")
+file(WRITE "${CMAKE_STAGING_PREFIX}/usr/lib/libpthread.a" "INPUT(libc.a)")
 file(WRITE "${CMAKE_STAGING_PREFIX}/usr/lib/libdl.a" "INPUT(libc.a)")
 file(WRITE "${CMAKE_STAGING_PREFIX}/usr/lib/libm.a" "INPUT(libc.a)")
 file(WRITE "${CMAKE_STAGING_PREFIX}/usr/lib/libssp.a" "INPUT(libc.a)")

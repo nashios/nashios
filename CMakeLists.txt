@@ -11,6 +11,12 @@ set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
 set(CMAKE_INSTALL_MESSAGE NEVER)
 
+add_compile_options(-Wall -Wextra)
+
+include_directories(.)
+include_directories(Libraries)
+include_directories(Libraries/C)
+
 function(nashios_install_headers target_name)
     file(GLOB_RECURSE headers RELATIVE ${CMAKE_CURRENT_SOURCE_DIR} "*.h")
     foreach(header ${headers})
@@ -49,16 +55,10 @@ function(nashios_bin target_name)
     nashios_install_sources()
     add_executable(${target_name} ${SOURCES})
     install(TARGETS ${target_name} DESTINATION bin)
-    target_link_libraries(${target_name} libc)
+    target_link_libraries(${target_name} LibC)
 endfunction()
 
-include_directories(.)
-include_directories(libraries)
-include_directories(libraries/c)
-
-add_compile_options(-Wall -Wextra)
-
 add_subdirectory(kernel)
-add_subdirectory(libraries)
+add_subdirectory(Libraries)
 add_subdirectory(services)
 add_subdirectory(applications)
