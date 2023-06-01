@@ -481,6 +481,18 @@ int virtual_fs_ftruncate(int fildes, off_t length)
     return virtual_fs_truncate(file->dentry, length);
 }
 
+int virtual_fs_ioctl(int fd, unsigned long request, unsigned long arg)
+{
+    struct vfs_file *file = g_scheduler_process->files->fd[fd];
+    if (!file)
+        return -EINVAL;
+
+    if (file->op->ioctl)
+        return file->op->ioctl(file->dentry->inode, file, request, arg);
+
+    return -EINVAL;
+}
+
 int virtual_fs_mount(const char *source, const char *target, const char *filesystemtype, unsigned long mountflags,
                      const void *data)
 {

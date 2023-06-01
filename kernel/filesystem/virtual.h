@@ -33,6 +33,7 @@ struct vfs_file_op
     int (*mmap)(struct vfs_file *file, struct process_vm *memory);
     int (*release)(struct vfs_inode *inode, struct vfs_file *file);
     int (*poll)(struct vfs_file *file, struct vfs_poll *poll);
+    int (*ioctl)(struct vfs_inode *inode, struct vfs_file *file, unsigned int cmd, unsigned long arg);
 };
 
 struct vfs_file
@@ -138,3 +139,4 @@ int virtual_fs_poll(struct pollfd fds[], nfds_t nfds, int timeout);
 void virtual_fs_poll_wait(struct vfs_file *file, struct wait_queue *wait, struct vfs_poll *poll);
 int virtual_fs_close(int fildes);
 int virtual_fs_ftruncate(int fildes, off_t length);
+int virtual_fs_ioctl(int fd, unsigned long request, unsigned long arg);
