@@ -96,7 +96,7 @@ struct process_vm *mmap_find_vm(struct process_mm *memory, uint32_t addr)
     return NULL;
 }
 
-void *mmap(void *addr, size_t length, int, int fd, int, off_t)
+void *mmap(void *addr, size_t length, int, int, int fd, off_t)
 {
     uint32_t p_addr = (uint32_t)addr;
     uint32_t aligned_addr = ALIGN_DOWN(p_addr, PAGE_SIZE);

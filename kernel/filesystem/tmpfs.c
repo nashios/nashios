@@ -37,7 +37,6 @@ int tmpfs_mmap(struct vfs_file *file, struct process_vm *memory)
                        PAGE_TBL_PRESENT | PAGE_TBL_WRITABLE | PAGE_TBL_USER);
         virtual_address += superblock->block_size;
     }
-    printf("tmpfs_mmap()\n");
     return 0;
 }
 

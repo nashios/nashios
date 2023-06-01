@@ -129,33 +129,33 @@ struct elf_layout *elf_load(const char *path)
         if ((pheader->p_flags & PF_X) != 0 && (pheader->p_flags & PF_R) != 0)
         {
             printf("Elf: Text segment address = 0x%x, size = 0x%x\n", pheader->p_vaddr, pheader->p_memsz);
-            mmap((void *)pheader->p_vaddr, pheader->p_memsz, 0, -1, 0, 0);
+            mmap((void *)pheader->p_vaddr, pheader->p_memsz, 0, 0, -1, 0);
             memory->code_start = pheader->p_vaddr;
             memory->code_end = pheader->p_vaddr + pheader->p_memsz;
         }
         else if ((pheader->p_flags & PF_W) != 0 && (pheader->p_flags & PF_R) != 0)
         {
             printf("Elf: Data segment address = 0x%x, size = 0x%x\n", pheader->p_vaddr, pheader->p_memsz);
-            mmap((void *)pheader->p_vaddr, pheader->p_memsz, 0, -1, 0, 0);
+            mmap((void *)pheader->p_vaddr, pheader->p_memsz, 0, 0, -1, 0);
             memory->data_start = pheader->p_vaddr;
             memory->data_end = pheader->p_memsz;
         }
         else
         {
             printf("Elf: Ehframe segment address = 0x%x, size = 0x%x\n", pheader->p_vaddr, pheader->p_memsz);
-            mmap((void *)pheader->p_vaddr, pheader->p_memsz, 0, -1, 0, 0);
+            mmap((void *)pheader->p_vaddr, pheader->p_memsz, 0, 0, -1, 0);
         }
 
         memset((char *)pheader->p_vaddr, 0, pheader->p_memsz);
         memcpy((char *)pheader->p_vaddr, buffer + pheader->p_offset, pheader->p_filesz);
     }
 
-    uint32_t heap_start = (uint32_t)mmap(NULL, SCHED_HEAP_SIZE, 0, -1, 0, 0);
+    uint32_t heap_start = (uint32_t)mmap(NULL, SCHED_HEAP_SIZE, 0, 0, -1, 0);
     memory->brk_start = heap_start;
     memory->brk_middle = heap_start;
     memory->brk_end = SCHED_HEAP_TOP;
 
-    uint32_t stack_start = (uint32_t)mmap(NULL, SCHED_STACK_SIZE, 0, -1, 0, 0);
+    uint32_t stack_start = (uint32_t)mmap(NULL, SCHED_STACK_SIZE, 0, 0, -1, 0);
 
     struct elf_layout *layout = (struct elf_layout *)calloc(1, sizeof(struct elf_layout));
     layout->entry = eheader->e_entry;
