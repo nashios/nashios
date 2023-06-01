@@ -288,6 +288,16 @@ int virtual_fs_fstat(int fd, struct stat *buf)
     return virtual_fs_getattr(file->mount, file->dentry, buf);
 }
 
+int virtual_fs_stat(const char *path, struct stat *buf)
+{
+    struct vfs_nameidata nameidata = {};
+    int result = virtual_fs_path_walk(&nameidata, path, 0, S_IFREG);
+    if (result < 0)
+        return result;
+
+    return virtual_fs_getattr(nameidata.mount, nameidata.dentry, buf);
+}
+
 ssize_t virtual_fs_read(int fd, void *buf, size_t count)
 {
     if (fd < 0)

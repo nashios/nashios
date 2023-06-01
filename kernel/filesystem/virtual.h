@@ -131,6 +131,7 @@ struct vfs_dentry *virtual_fs_create_dentry(const char *name);
 void virtual_fs_init_special_inode(struct vfs_inode *inode, umode_t mode, dev_t dev);
 int virtual_fs_open(const char *pathname, int flags, mode_t mode);
 int virtual_fs_fstat(int fd, struct stat *buf);
+int virtual_fs_stat(const char *path, struct stat *buf);
 ssize_t virtual_fs_read(int fd, void *buf, size_t count);
 int virtual_fs_mknod(const char *pathname, mode_t mode, dev_t dev);
 int virtual_fs_poll(struct pollfd fds[], nfds_t nfds, int timeout);
