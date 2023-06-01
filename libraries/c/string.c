@@ -68,6 +68,24 @@ int memcmp(const void *s1, const void *s2, size_t n)
     return 0;
 }
 
+void *memmove(void *s1, const void *s2, size_t n)
+{
+    char *p_s1 = (char *)s1;
+    const char *p_s2 = (const char *)s2;
+
+    if (p_s1 < p_s2)
+        while (n--)
+            *p_s1++ = *p_s2++;
+    else
+    {
+        char *last_s2 = (char *)p_s2 + (n - 1);
+        char *last_s1 = (char *)p_s1 + (n - 1);
+        while (n--)
+            *last_s1-- = *last_s2--;
+    }
+    return s1;
+}
+
 char *strcpy(char *s1, const char *s2) { return memcpy(s1, s2, strlen(s2) + 1); }
 
 char *strcat(char *s1, const char *s2)
