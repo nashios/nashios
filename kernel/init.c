@@ -3,6 +3,7 @@
 #include <kernel/drivers/fb.h>
 #include <kernel/drivers/pci.h>
 #include <kernel/drivers/pit.h>
+#include <kernel/filesystem/chardev.h>
 #include <kernel/filesystem/devfs.h>
 #include <kernel/filesystem/ext2.h>
 #include <kernel/filesystem/mqueuefs.h>
@@ -22,6 +23,7 @@ void kernel_init()
     virtual_fs_init();
     ext2_fs_init();
     devfs_init();
+    chardev_init();
     mqueuefs_init();
     tmpfs_init();
     fb_init();
