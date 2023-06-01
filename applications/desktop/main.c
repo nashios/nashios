@@ -4,7 +4,7 @@
 
 int main()
 {
-    struct window *window = gui_create_window(1024, 768, 0, 0);
+    struct window *window = gui_create_unstyled_window(1024, 768, 0, 0);
     if (!window)
         return EXIT_FAILURE;
 

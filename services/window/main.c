@@ -70,10 +70,34 @@ struct window *window_create_window(int width, int height, int x, int y, bool tr
     if (window->graphic->buffer == MAP_FAILED)
         return NULL;
 
-    dlist_head_init(&window->children);
-    dlist_add_tail(&window->sibling, &s_service.window_list);
-
     return window;
+}
+
+struct window *window_find_window_in_window(struct window *window, char *name)
+{
+    if (!strcmp(window->name, name))
+        return window;
+
+    struct window *iter;
+    dlist_for_each_entry(iter, &window->children, sibling)
+    {
+        struct window *parent = window_find_window_in_window(iter, name);
+        if (parent)
+            return parent;
+    }
+    return NULL;
+}
+
+struct window *window_find_window(char *name)
+{
+    struct window *iter;
+    dlist_for_each_entry(iter, &s_service.window_list, sibling)
+    {
+        struct window *window = window_find_window_in_window(iter, name);
+        if (window)
+            return window;
+    }
+    return NULL;
 }
 
 void window_handle_create_window()
@@ -83,6 +107,17 @@ void window_handle_create_window()
                                                  gui_window->transparent);
     if (!window)
         return;
+
+    dlist_head_init(&window->children);
+    if (strlen(gui_window->parent))
+    {
+        struct window *parent = window_find_window(gui_window->parent);
+        window->parent = parent;
+
+        dlist_add_tail(&window->sibling, &parent->children);
+    }
+    else
+        dlist_add_tail(&window->sibling, &s_service.window_list);
 
     struct mq_attr attr = {
         .mq_msgsize = GUI_WINDOW_LENGTH,

@@ -38,7 +38,7 @@ void gfx_graphic_alpha_draw(char *buffer, char *graphic, int scanline, int x, in
         char *i_buffer = buffer + (y + i) * scanline + x * 4;
         char *i_graphic = graphic + i * width * 4;
 
-        for (int j = 0; j < width; ++j)
+        for (int j = 0; j < width; j++)
         {
             gfx_graphic_set_pixel(i_buffer, i_graphic[0], i_graphic[1], i_graphic[2], i_graphic[3]);
 

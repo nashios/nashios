@@ -14,6 +14,7 @@ int main()
 {
     system_open("/bin/window_service");
     system_open("/bin/desktop");
+    system_open("/bin/terminal");
 
     while (true)
         ;
