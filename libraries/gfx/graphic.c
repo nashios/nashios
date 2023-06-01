@@ -14,3 +14,36 @@ void gfx_graphic_set_pixel(char *buffer, uint8_t red, uint8_t green, uint8_t blu
     buffer[2] = blue * target_alpha + offset * raw_blue;
     buffer[3] = (target_alpha + offset) * 255;
 }
+
+void gfx_graphic_draw(char *buffer, char *graphic, int scanline, int x, int y, int width, int height)
+{
+    for (int i = 0; i < height; i++)
+    {
+        char *i_buffer = buffer + (y + i) * scanline + x * 4;
+        char *i_graphic = graphic + i * width * 4;
+
+        for (int j = 0; j < width; j++)
+        {
+            *(uint32_t *)i_buffer = *(uint32_t *)i_graphic;
+            i_buffer += 4;
+            i_graphic += 4;
+        }
+    }
+}
+
+void gfx_graphic_alpha_draw(char *buffer, char *graphic, int scanline, int x, int y, int width, int height)
+{
+    for (int i = 0; i < height; i++)
+    {
+        char *i_buffer = buffer + (y + i) * scanline + x * 4;
+        char *i_graphic = graphic + i * width * 4;
+
+        for (int j = 0; j < width; ++j)
+        {
+            gfx_graphic_set_pixel(i_buffer, i_graphic[0], i_graphic[1], i_graphic[2], i_graphic[3]);
+
+            i_buffer += 4;
+            i_graphic += 4;
+        }
+    }
+}
