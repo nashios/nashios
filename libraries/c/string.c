@@ -111,7 +111,7 @@ int strncmp(const char *s1, const char *s2, size_t n)
     unsigned char ch1;
     unsigned char ch2;
 
-    for (int i = 0; i < n; i++)
+    for (size_t i = 0; i < n; i++)
     {
         ch1 = (unsigned char)*s1++;
         ch2 = (unsigned char)*s2++;
@@ -123,4 +123,15 @@ int strncmp(const char *s1, const char *s2, size_t n)
             return 0;
     }
     return 0;
+}
+
+char *strchr(const char *s, int c)
+{
+    do
+    {
+        if (*s == c)
+            return (char *)s;
+    } while (*s++);
+
+    return NULL;
 }
