@@ -14,6 +14,10 @@ enum vsn_flags
     VSN_SPECIAL = 64
 };
 
+FILE *stdout;
+FILE *stdin;
+FILE *stderr;
+
 int vsnprintf_atoi(const char **str)
 {
     int i = 0;
