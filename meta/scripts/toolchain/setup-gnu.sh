@@ -93,16 +93,18 @@ buildstep "Headers" rsync -aH --include="*/" --include="*.h" --exclude="*" ${SOU
 
 mkdir -p ${BUILD_TOOLCHAIN_DIR}/build-binutils
 pushd ${BUILD_TOOLCHAIN_DIR}/build-binutils
-    buildstep "Binutils" ../${BINUTILS_PACKAGE}/configure --target=${TARGET} --prefix=${CROSS_TOOLCHAIN_DIR} --with-sysroot=${SYSROOT_DIR} --disable-werror
-    buildstep "Binutils" make -j ${CORES} all
-    buildstep "Binutils" make install
+    buildstep "Binutils/configure" ../${BINUTILS_PACKAGE}/configure --target=${TARGET} --prefix=${CROSS_TOOLCHAIN_DIR} --with-sysroot=${SYSROOT_DIR} --disable-werror
+    buildstep "Binutils/compile" make -j ${CORES} all
+    buildstep "Binutils/install" make install
 popd
 
 mkdir ${BUILD_TOOLCHAIN_DIR}/build-gcc
 pushd ${BUILD_TOOLCHAIN_DIR}/build-gcc
-    buildstep "GCC" ../${GCC_PACKAGE}/configure --target=${TARGET} --prefix=${CROSS_TOOLCHAIN_DIR} --with-sysroot=${SYSROOT_DIR} --enable-languages=c
-    buildstep "GCC" make -j ${CORES} all-gcc all-target-libgcc
-    buildstep "GCC" make install-gcc install-target-libgcc
+    buildstep "GCC/configure" ../${GCC_PACKAGE}/configure --target=${TARGET} --prefix=${CROSS_TOOLCHAIN_DIR} --with-sysroot=${SYSROOT_DIR} --enable-languages=c,c++  --enable-shared --with-newlib
+    buildstep "GCC/compile" make -j ${CORES} all-gcc all-target-libgcc
+    buildstep "GCC/install" make install-gcc install-target-libgcc
+    buildstep "GCC/libstdc++" make all-target-libstdc++-v3
+    buildstep "GCC/libstdc++/install" make install-target-libstdc++-v3
 popd
 
 if [ "${USE_CACHE}" = "true" ] ; then

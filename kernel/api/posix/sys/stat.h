@@ -11,9 +11,16 @@
 #define S_ISDIR(m) (((m)&S_IFMT) == S_IFDIR)
 #define S_ISCHR(m) (((m)&S_IFMT) == S_IFCHR)
 
+#define S_IWUSR 00200
+
 struct stat
 {
-    long st_size;
-    long st_blksize;
-    long st_blocks;
+    unsigned long st_dev;
+    unsigned long st_ino;
+    unsigned short st_mode;
+    unsigned short st_nlink;
+    unsigned long st_size;
+    unsigned long st_blksize;
+    unsigned long st_blocks;
+    unsigned long st_mtime;
 };
