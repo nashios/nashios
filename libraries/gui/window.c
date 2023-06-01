@@ -65,7 +65,7 @@ struct window *gui_create_window(int width, int height, int x, int y)
     if (fd < 0)
         return NULL;
 
-    if (mq_receive(fd, window->name, GUI_WINDOW_LENGTH, 0))
+    if (mq_receive(fd, window->name, GUI_WINDOW_LENGTH, 0) < 0)
         return NULL;
 
     if (mq_close(fd) < 0)
