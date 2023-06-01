@@ -18,7 +18,7 @@ int devfs_mknod(struct vfs_inode *inode, struct vfs_dentry *dentry, int mode, de
     struct vfs_inode *new_inode = devfs_get_inode(inode->superblock, mode);
     if (!inode)
         return -EINVAL;
-    inode->rdev = dev;
+    new_inode->rdev = dev;
 
     dentry->inode = new_inode;
     return 0;
