@@ -58,11 +58,6 @@ include_directories(libraries/c)
 
 add_compile_options(-Wall -Wextra)
 
-
-add_custom_target(run
-    COMMAND ${CMAKE_SOURCE_DIR}/meta/scripts/run.sh
-    USES_TERMINAL)
-
 add_subdirectory(kernel)
 add_subdirectory(libraries)
 add_subdirectory(services)
