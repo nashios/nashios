@@ -66,6 +66,8 @@ int syscall_fstat(int fildes, struct stat *buf) { return virtual_fs_fstat(fildes
 
 ssize_t syscall_read(int fildes, void *buf, size_t nbyte) { return virtual_fs_read(fildes, buf, nbyte); }
 
+int syscall_ioctl(int fd, unsigned long request, unsigned long arg) { return virtual_fs_ioctl(fd, request, arg); }
+
 static void *s_syscall_list[] = {[__NR_exit] = syscall_exit,
                                  [__NR_fork] = syscall_fork,
                                  [__NR_read] = syscall_read,
@@ -74,6 +76,7 @@ static void *s_syscall_list[] = {[__NR_exit] = syscall_exit,
                                  [__NR_execve] = syscall_execve,
                                  [__NR_getpid] = syscall_getpid,
                                  [__NR_brk] = syscall_brk,
+                                 [__NR_ioctl] = syscall_ioctl,
                                  [__NR_mmap] = syscall_mmap,
                                  [__NR_ftruncate] = syscall_ftruncate,
                                  [__NR_stat] = syscall_stat,
