@@ -65,8 +65,7 @@ ssize_t mq_timedreceive(mqd_t mqdes, char *msg_ptr, size_t msg_len, unsigned *ms
         if ((queue->attr->mq_flags & O_NONBLOCK) == 0)
         {
             struct mq_receiver *receiver;
-            bool condition = queue->attr->mq_curmsgs > 0 && dlist_is_poison(&receiver->list);
-            WAIT_BEFORE_AFTER(condition, ({
+            WAIT_BEFORE_AFTER(queue->attr->mq_curmsgs > 0 && dlist_is_poison(&receiver->list), ({
                                   receiver = calloc(1, sizeof(struct mq_receiver));
                                   receiver->priority = (uint32_t)msg_prio;
                                   receiver->thread = g_scheduler_thread;
@@ -122,9 +121,8 @@ mqd_t mq_timedsend(mqd_t mqdes, const char *msg_ptr, size_t msg_len, unsigned ms
     {
         if ((queue->attr->mq_flags & O_NONBLOCK) == 0)
         {
-            struct mq_sender *sender;
-            bool condition = dlist_is_poison(&sender->list) && queue->attr->mq_curmsgs < queue->attr->mq_maxmsg;
-            WAIT_BEFORE_AFTER(condition, ({
+            struct mq_sender *sender = NULL;
+            WAIT_BEFORE_AFTER(dlist_is_poison(&sender->list) && queue->attr->mq_curmsgs < queue->attr->mq_maxmsg, ({
                                   sender = (struct mq_sender *)calloc(1, sizeof(struct mq_sender));
                                   sender->thread = g_scheduler_thread;
                                   sender->priority = msg_prio;
