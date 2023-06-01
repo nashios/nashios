@@ -55,6 +55,19 @@ void *memset(void *str, int c, size_t n)
     return str;
 }
 
+int memcmp(const void *s1, const void *s2, size_t n)
+{
+    const unsigned char *p_s1 = (const unsigned char *)s1;
+    const unsigned char *p_s2 = (const unsigned char *)s2;
+
+    for (size_t i = 0; i < n; i++)
+    {
+        if (*p_s1++ != *p_s2++)
+            return p_s1[-1] < p_s2[-1] ? -1 : 1;
+    }
+    return 0;
+}
+
 char *strcpy(char *s1, const char *s2) { return memcpy(s1, s2, strlen(s2) + 1); }
 
 char *strcat(char *s1, const char *s2)
