@@ -1,9 +1,15 @@
+#include <kernel/api/framebuffer.h>
 #include <kernel/api/posix/errno.h>
 #include <kernel/arch/i686/boot/multiboot.h>
 #include <kernel/arch/i686/cpu/io.h>
+#include <kernel/arch/i686/memory/virtual.h>
 #include <kernel/drivers/fb.h>
 #include <kernel/drivers/pci.h>
+#include <kernel/filesystem/chardev.h>
+#include <kernel/filesystem/devfs.h>
 #include <kernel/lib/stdio.h>
+#include <kernel/math.h>
+#include <kernel/memory/mmap.h>
 
 #define FB_INDEX 0x01CE
 #define FB_DATA 0x01CF
@@ -70,6 +76,47 @@ void fb_init_multiboot()
     s_fb_display.pitch = g_multiboot_info->framebuffer_pitch;
 }
 
+int fb_vscreeninfo(unsigned long arg)
+{
+    struct fb_var_screeninfo *vsinfo = (struct fb_var_screeninfo *)arg;
+    if (!vsinfo)
+        return -EINVAL;
+
+    vsinfo->width = s_fb_display.width;
+    vsinfo->height = s_fb_display.height;
+    vsinfo->bits_per_pixel = sizeof(uint32_t);
+
+    return 0;
+}
+
+int fb_ioctl(struct vfs_inode *, struct vfs_file *, unsigned int cmd, unsigned long arg)
+{
+    switch (cmd)
+    {
+    case FBIOGET_VSCREENINFO:
+        return fb_vscreeninfo(arg);
+        break;
+    }
+    return 0;
+}
+
+int fb_mmap(struct vfs_file *, struct process_vm *area)
+{
+    uint32_t screen_size = s_fb_display.height * s_fb_display.pitch;
+    uint32_t blocks = DIV_ROUND_UP(screen_size, PAGE_SIZE);
+    for (uint32_t i = 0; i < blocks; i++)
+    {
+        virtual_mm_map(g_scheduler_process->directory, s_fb_display.address + i * PAGE_SIZE,
+                       area->start + i * PAGE_SIZE, PAGE_TBL_PRESENT | PAGE_TBL_WRITABLE | PAGE_TBL_USER);
+    }
+
+    return 0;
+}
+
+static struct vfs_file_op s_fb_op = {.ioctl = fb_ioctl, .mmap = fb_mmap};
+
+static struct chardev s_fb_chardev = {.dev = MKDEV(29, 0), .major = 29, .baseminor = 0, .minorct = 0, .op = &s_fb_op};
+
 void fb_init()
 {
     if (g_multiboot_info->framebuffer_addr != 0x00 &&
@@ -98,6 +145,17 @@ void fb_init()
     {
         printf("Fb: Failed to find graphic adapter\n");
         return;
+    }
+
+    chardev_set(&s_fb_chardev);
+    virtual_fs_mknod("/dev/fb0", S_IFCHR, s_fb_chardev.dev);
+
+    uint32_t screen_size = s_fb_display.height * s_fb_display.pitch;
+    uint32_t blocks = DIV_ROUND_UP(screen_size, PAGE_SIZE);
+    for (uint32_t i = 0; i < blocks; i++)
+    {
+        virtual_mm_map(g_scheduler_process->directory, s_fb_display.address + i * PAGE_SIZE,
+                       s_fb_display.address + i * PAGE_SIZE, PAGE_TBL_PRESENT | PAGE_TBL_WRITABLE);
     }
 
     printf("Fb: Address = 0x%x, width = %d, height = %d, pitch = %d\n", s_fb_display.address, s_fb_display.width,
