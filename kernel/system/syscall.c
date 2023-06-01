@@ -64,8 +64,11 @@ int syscall_stat(const char *path, struct stat *buf) { return virtual_fs_stat(pa
 
 int syscall_fstat(int fildes, struct stat *buf) { return virtual_fs_fstat(fildes, buf); }
 
+ssize_t syscall_read(int fildes, void *buf, size_t nbyte) { return virtual_fs_read(fildes, buf, nbyte); }
+
 static void *s_syscall_list[] = {[__NR_exit] = syscall_exit,
                                  [__NR_fork] = syscall_fork,
+                                 [__NR_read] = syscall_read,
                                  [__NR_open] = syscall_open,
                                  [__NR_close] = syscall_close,
                                  [__NR_execve] = syscall_execve,
