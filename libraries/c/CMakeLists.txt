@@ -25,3 +25,5 @@ add_custom_command(TARGET crtn COMMAND "${CMAKE_COMMAND}" -E copy $<TARGET_OBJEC
 
 nashios_libc(libc c)
 add_dependencies(libc crti crt0 crtn)
+
+file(WRITE "${CMAKE_STAGING_PREFIX}/usr/lib/libm.a" "INPUT(libc.a)")
