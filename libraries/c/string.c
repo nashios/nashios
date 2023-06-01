@@ -89,7 +89,7 @@ void *memmove(void *s1, const void *s2, size_t n)
 void *memchr(const void *s, int c, size_t n)
 {
     const unsigned char *p_s = (const unsigned char *)s;
-    for(size_t i = 0; i < n; i++)
+    for (size_t i = 0; i < n; i++)
     {
         if (*p_s == c)
             return (void *)p_s;
@@ -104,4 +104,23 @@ char *strcat(char *s1, const char *s2)
 {
     strcpy(s1 + strlen(s1), s2);
     return s1;
+}
+
+int strncmp(const char *s1, const char *s2, size_t n)
+{
+    unsigned char ch1;
+    unsigned char ch2;
+
+    for (int i = 0; i < n; i++)
+    {
+        ch1 = (unsigned char)*s1++;
+        ch2 = (unsigned char)*s2++;
+
+        if (ch1 != ch2)
+            return ch1 - ch2;
+
+        if (ch1 == '\0')
+            return 0;
+    }
+    return 0;
 }
