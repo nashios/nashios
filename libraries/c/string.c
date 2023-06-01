@@ -86,6 +86,18 @@ void *memmove(void *s1, const void *s2, size_t n)
     return s1;
 }
 
+void *memchr(const void *s, int c, size_t n)
+{
+    const unsigned char *p_s = (const unsigned char *)s;
+    for(size_t i = 0; i < n; i++)
+    {
+        if (*p_s == c)
+            return (void *)p_s;
+        p_s++;
+    }
+    return NULL;
+}
+
 char *strcpy(char *s1, const char *s2) { return memcpy(s1, s2, strlen(s2) + 1); }
 
 char *strcat(char *s1, const char *s2)
