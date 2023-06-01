@@ -51,7 +51,7 @@ void gfx_bitmap_bitfields_draw(struct graphic *graphic, struct bitmap_header *bi
 void gfx_bitmap_draw(struct graphic *graphic, char *bitmap, int x, int y)
 {
     struct bitmap_header *bitmap_header = (struct bitmap_header *)bitmap;
-    struct bitmap_core_header *core_header = (struct bitmap_core_header *)(bitmap_header + 0xE);
+    struct bitmap_core_header *core_header = (struct bitmap_core_header *)(bitmap + 0xE);
 
     switch (core_header->compression)
     {
