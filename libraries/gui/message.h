@@ -6,6 +6,7 @@
 enum mq_gui_type
 {
     GUI_CREATE_WINDOW,
+    GUI_FOCUS_WINDOW,
 };
 
 struct mq_gui
