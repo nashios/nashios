@@ -4,7 +4,7 @@
 #include <stdint.h>
 #include <sys/cdefs.h>
 
-#define EXIT_FAILURE -1
+#define EXIT_FAILURE 1
 #define EXIT_SUCCESS 0
 
 ___BEGIN_DECLS
@@ -22,7 +22,7 @@ typedef struct
 } lldiv_t;
 
 void abort(void);
-int atexit(void (*)(void));
+int atexit(void (*func)(void));
 int atoi(const char *);
 void free(void *);
 char *getenv(const char *);
