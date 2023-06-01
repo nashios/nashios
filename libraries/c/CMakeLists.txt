@@ -9,6 +9,7 @@ set(SOURCES
     poll.c
     stdio.c
     ctype.c
+    time.c
     
     sys/mman.c
     sys/stat.c
@@ -26,4 +27,7 @@ add_custom_command(TARGET crtn COMMAND "${CMAKE_COMMAND}" -E copy $<TARGET_OBJEC
 nashios_libc(libc c)
 add_dependencies(libc crti crt0 crtn)
 
+file(WRITE "${CMAKE_STAGING_PREFIX}/usr/lib/libpthread.so" "INPUT(libc.a)")
+file(WRITE "${CMAKE_STAGING_PREFIX}/usr/lib/libdl.a" "INPUT(libc.a)")
 file(WRITE "${CMAKE_STAGING_PREFIX}/usr/lib/libm.a" "INPUT(libc.a)")
+file(WRITE "${CMAKE_STAGING_PREFIX}/usr/lib/libssp.a" "INPUT(libc.a)")
