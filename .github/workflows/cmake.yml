@@ -9,7 +9,7 @@ jobs:
       matrix:
         os: [ubuntu-latest]
         arch: [i686]
-        toolchain: [gnu]
+        toolchain: [GNU]
 
     steps:
       - uses: actions/checkout@v3
