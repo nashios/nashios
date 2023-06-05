@@ -30,7 +30,7 @@ void kernel_init()
     syscall_init();
     mq_init();
 
-    scheduler_open("/bin/system_service");
+    scheduler_open("/bin/SystemService");
 
     scheduler_update_thread(g_scheduler_thread, THREAD_WAITING_STATE);
     scheduler_schedule();

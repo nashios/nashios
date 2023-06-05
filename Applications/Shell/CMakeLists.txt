@@ -1,4 +1,4 @@
 set(SOURCES
     main.c)
 
-nashios_bin(shell)
+nashios_bin(Shell)
