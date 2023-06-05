@@ -7,9 +7,9 @@ inode_usage() {
 }
 
 INODE_SIZE=128
-INODE_COUNT=$(($(inode_usage "${SOURCE_DIR}/base") + $(inode_usage ${SYSROOT_DIR})))
+INODE_COUNT=$(($(inode_usage "${SOURCE_DIR}/Base") + $(inode_usage ${SYSROOT_DIR})))
 INODE_COUNT=$((INODE_COUNT + 20000))
-DISK_SIZE_BYTES=$((($(disk_usage "${SOURCE_DIR}/base") + $(disk_usage ${SYSROOT_DIR})) * 1024))
+DISK_SIZE_BYTES=$((($(disk_usage "${SOURCE_DIR}/Base") + $(disk_usage ${SYSROOT_DIR})) * 1024))
 DISK_SIZE_BYTES=$((DISK_SIZE_BYTES + (INODE_COUNT * INODE_SIZE)))
 
 if [ -z "$NASHIOS_DISK_SIZE_BYTES" ]; then
