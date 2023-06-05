@@ -100,7 +100,7 @@ popd
 
 mkdir ${BUILD_TOOLCHAIN_DIR}/build-gcc
 pushd ${BUILD_TOOLCHAIN_DIR}/build-gcc
-    buildstep "GCC/configure" ../${GCC_PACKAGE}/configure --target=${TARGET} --prefix=${CROSS_TOOLCHAIN_DIR} --with-sysroot=${SYSROOT_DIR} --disable-nls --disable-libstdcxx-pch --enable-languages=c,c++ --with-newlib
+    buildstep "GCC/configure" ../${GCC_PACKAGE}/configure --target=${TARGET} --prefix=${CROSS_TOOLCHAIN_DIR} --with-sysroot=${SYSROOT_DIR} --disable-nls --enable-languages=c,c++ --with-newlib
     buildstep "GCC/compile" make -j ${CORES} all-gcc all-target-libgcc
     buildstep "GCC/install" make install-gcc install-target-libgcc
     buildstep "GCC/libstdc++" make all-target-libstdc++-v3
