@@ -80,7 +80,7 @@ pushd ${BUILD_TOOLCHAIN_DIR}
         buildstep "GCC" tar -xf ${CACHE_DIR}/${GCC_ARCHIVE}
         
         pushd ${BUILD_TOOLCHAIN_DIR}/${GCC_PACKAGE}
-            buildstep "GCC" patch -p1 < "${SOURCE_DIR}/Meta/Patches/Gcc.patch" > /dev/null
+            buildstep "GCC" patch -p1 < "${SOURCE_DIR}/Meta/Patches/GCC.patch" > /dev/null
         popd
     else
         buildstep "GCC" echo "Using from existing source directory"
