@@ -1,26 +1,3 @@
-FUSE2FS_FOUND=0
-if [ "$(id -u)" != 0 ]; then
-    if fuse2fs --help 2>&1 |grep fakeroot > /dev/null; then
-        FUSE2FS_FOUND=1
-    else
-        set +e
-        sudo -E -- sh -c "\"$0\" $* || exit 42"
-        case $? in
-            1)
-                fail "Script needs root privileges"
-                ;;
-            42)
-                exit 1
-                ;;
-            *)
-                exit 0
-                ;;
-        esac
-    fi
-else
-    : "${SUDO_UID:=0}" "${SUDO_GID:=0}"
-fi
-
 disk_usage() {
     expr "$(du -sk --apparent-size "$1" | cut -f1)"
 }
@@ -31,7 +8,7 @@ inode_usage() {
 
 INODE_SIZE=128
 INODE_COUNT=$(($(inode_usage "${SOURCE_DIR}/base") + $(inode_usage ${SYSROOT_DIR})))
-INODE_COUNT=$((INODE_COUNT + 2000))
+INODE_COUNT=$((INODE_COUNT + 20000))
 DISK_SIZE_BYTES=$((($(disk_usage "${SOURCE_DIR}/base") + $(disk_usage ${SYSROOT_DIR})) * 1024))
 DISK_SIZE_BYTES=$((DISK_SIZE_BYTES + (INODE_COUNT * INODE_SIZE)))
 
@@ -95,26 +72,13 @@ fi
 
 echo "Mounting filesystem"
 mkdir -p $MOUNT_DIR
-if [ $FUSE2FS_FOUND -eq 1 ]; then
-    mount_cmd="fuse2fs $DISK_IMAGE $MOUNT_DIR/ -o fakeroot,rw"
-else
-    mount_cmd="mount $DISK_IMAGE $MOUNT_DIR/"
-fi
-
-if ! eval "$mount_cmd"; then
-    fail "Failed to mount filesystem"
-else
-    echo "OK"
-fi
+mount $DISK_IMAGE $MOUNT_DIR || fail "Failed to mount filesystem"
+echo "OK"
 
 cleanup() {
     if [ -d $MOUNT_DIR ]; then
         echo "Unmounting filesystem"
-        if [ $FUSE2FS_FOUND -eq 1 ]; then
-            fusermount -u $MOUNT_DIR || (sleep 1 && sync && fusermount -u $MOUNT_DIR)
-        else
-            umount $MOUNT_DIR || ( sleep 1 && sync && umount $MOUNT_DIR )
-        fi
+        fusermount -u $MOUNT_DIR || (sleep 1 && sync && fusermount -u $MOUNT_DIR)
         rmdir $MOUNT_DIR
         echo "OK"
     fi
