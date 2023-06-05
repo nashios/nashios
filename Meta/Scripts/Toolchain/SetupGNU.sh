@@ -69,7 +69,7 @@ pushd ${BUILD_TOOLCHAIN_DIR}
         buildstep "Binutils" tar -xf ${CACHE_DIR}/${BINUTILS_ARCHIVE}
         
         pushd ${BUILD_TOOLCHAIN_DIR}/${BINUTILS_PACKAGE}
-            buildstep "Binutils" patch -p1 < "${SOURCE_DIR}/meta/patches/binutils.patch" > /dev/null
+            buildstep "Binutils" patch -p1 < "${SOURCE_DIR}/Meta/Patches/Binutils.patch" > /dev/null
         popd
     else
         buildstep "Binutils" echo "Using from existing source directory"
@@ -80,7 +80,7 @@ pushd ${BUILD_TOOLCHAIN_DIR}
         buildstep "GCC" tar -xf ${CACHE_DIR}/${GCC_ARCHIVE}
         
         pushd ${BUILD_TOOLCHAIN_DIR}/${GCC_PACKAGE}
-            buildstep "GCC" patch -p1 < "${SOURCE_DIR}/meta/patches/gcc.patch" > /dev/null
+            buildstep "GCC" patch -p1 < "${SOURCE_DIR}/Meta/Patches/Gcc.patch" > /dev/null
         popd
     else
         buildstep "GCC" echo "Using from existing source directory"

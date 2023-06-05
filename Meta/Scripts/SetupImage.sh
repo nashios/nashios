@@ -72,7 +72,7 @@ fi
 
 echo "Mounting filesystem"
 mkdir -p $MOUNT_DIR
-mount $DISK_IMAGE $MOUNT_DIR || fail "Failed to mount filesystem"
+fuse2fs $DISK_IMAGE $MOUNT_DIR/ -o fakeroot,rw || fail "Failed to mount filesystem"
 echo "OK"
 
 cleanup() {
@@ -85,4 +85,4 @@ cleanup() {
 }
 trap cleanup EXIT
 
-"$SOURCE_DIR/meta/scripts/setup-root-filesystem.sh"
+"$SOURCE_DIR/Meta/Scripts/SetupRootFilesystem.sh"

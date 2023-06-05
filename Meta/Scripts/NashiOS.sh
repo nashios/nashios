@@ -12,19 +12,17 @@ Usage: $NAME [command] [architecture] [toolchain] [args...]
   Supported architectures: i686
     Default is NASHIOS_ARCH environment variable, or i686 if not defined
 
-  Supported toolchains: gnu
-    Defaults is NASHIOS_TOOLCHAIN, or gnu if not defined
+  Supported toolchains: GNU
+    Defaults is NASHIOS_TOOLCHAIN, or GNU if not defined
 
   Supported commands:
     build:              Compiles architecture binaries, [args...] are passed to cmake
     install:            Install the architecture binary
     image:              Creates a disk image with the installed binaries
     run:                Run the built image in the virtualizer
-    delete:             Removes the architecture build environment
-    recreate:           Remove and recreate the build environment for the architecture
-    rebuild:            Removes and recreates the built environment and builds to architecture
-    rebuild-toolchain:  Remove and rebuild the architecture toolchain
-    rebuild-world:      Remove and rebuild the toolchain and create the environment for architecture
+    toolchain:          Build the architecture toolchain
+    clean:              Clean the architecture build environment
+    clean-all:          Clean the toolchain and the architecture build environment
 EOF
 }
 
@@ -46,14 +44,20 @@ if [ -n "$1" ]; then
 else
     ARCHITECTURE="${NASHIOS_ARCH:-"i686"}"
 fi
+
+if ! [[ "${ARCHITECTURE}" =~ ^(i686)$ ]]; then
+    >&2 echo "Unknown architecture: ${ARCHITECTURE}"
+    exit 1
+fi
 export NASHIOS_ARCH=${ARCHITECTURE}
 
 if [ -n "$1" ]; then
     TOOLCHAIN="$1"; shift
 else
-    TOOLCHAIN="${NASHIOS_TOOLCHAIN:-"gnu"}"
+    TOOLCHAIN="${NASHIOS_TOOLCHAIN:-"GNU"}"
 fi
-if ! [[ "${TOOLCHAIN}" =~ ^(gnu)$ ]]; then
+
+if ! [[ "${TOOLCHAIN}" =~ ^(GNU)$ ]]; then
     >&2 echo "Unknown toolchain: ${TOOLCHAIN}"
     exit 1
 fi
@@ -78,23 +82,22 @@ exit_if_root() {
     fi
 }
 export -f exit_if_root
-
 exit_if_root "It is forbidden to run the $NAME script as root"
 
 compile_cmake() {
     echo "CMake version is not supported"
-    ${SCRIPTS_DIR}/common/setup-cmake.sh
+    ${SCRIPTS_DIR}/Common/SetupCMake.sh
 }
 
 check_cmake() {
-    if [ "$(cmake -P "${SOURCE_DIR}"/meta/cmake/cmake-version.cmake)" -ne 1 ]; then
+    if [ "$(cmake -P ${SOURCE_DIR}/Meta/CMake/CMakeVersion.cmake)" -ne 1 ]; then
         compile_cmake
     fi
 }
 
 compile_qemu() {
     echo "QEMU version is not supported"
-    ${SCRIPTS_DIR}/common/setup-qemu.sh
+    ${SCRIPTS_DIR}/Common/SetupQEMU.sh
 }
 
 check_qemu() {
@@ -117,20 +120,20 @@ check_qemu() {
 }
 
 compile_toolchain() {
-    if [ ${TOOLCHAIN} = "gnu" ]; then
-        ARCH=${ARCHITECTURE} ${SCRIPTS_DIR}/toolchain/setup-gnu.sh
+    if [ ${TOOLCHAIN} = "GNU" ]; then
+        ARCH=${ARCHITECTURE} ${SCRIPTS_DIR}/Toolchain/SetupGNU.sh
     fi
 }
 
 check_toolchain() {
     [ -d "$CROSS_TOOLCHAIN_DIR" ] || compile_toolchain
 
-    if [ ${TOOLCHAIN} = "gnu" ]; then
-        CMAKE_ARGS+=("--toolchain ${SOURCE_DIR}/meta/cmake/toolchain/gnu-toolchain.cmake")
+    if [ ${TOOLCHAIN} = "GNU" ]; then
+        CMAKE_ARGS+=("--toolchain ${SOURCE_DIR}/Meta/CMake/Toolchain/GNUToolchain.cmake")
     fi
 }
 
-delete_toolchain() {
+clean_toolchain() {
     [ ! -d "$CROSS_TOOLCHAIN_DIR" ] || rm -rf "$CROSS_TOOLCHAIN_DIR"
 }
 
@@ -142,18 +145,7 @@ check_architecture() {
     [ -d "$BUILD_ARCH_DIR/build.ninja" ] || compile_architecture
 }
 
-is_architecture_valid() {
-    if [ "$ARCHITECTURE" = "i686" ]; then
-        export NASHIOS_QEMU_BIN="qemu-system-i386"
-
-        CMAKE_ARGS+=("-D PROCESSOR=x86")
-        CMAKE_ARGS+=("-D ARCHITECTURE=i686")
-        return 0
-    fi
-    return 1
-}
-
-delete_architecture() {
+clean_architecture() {
     [ ! -d "$BUILD_ARCH_DIR" ] || rm -rf "$BUILD_ARCH_DIR"
 }
 
@@ -165,48 +157,55 @@ compile_target() {
     fi
 }
 
-project_root() {
-    git rev-parse --show-toplevel
+setup_cmake_args() {
+    CMAKE_ARGS+=("-D TOOLCHAIN_PATH=${CROSS_TOOLCHAIN_DIR}")
+    CMAKE_ARGS+=("-D TOOLCHAIN_TARGET=${TARGET}")
+    CMAKE_ARGS+=("-D SYSROOT_DIR=${SYSROOT_DIR}")
+
+    if [ "$ARCHITECTURE" = "i686" ]; then
+        CMAKE_ARGS+=("-D PROCESSOR=x86")
+        CMAKE_ARGS+=("-D ARCHITECTURE=i686")
+        return 0
+    fi
 }
 
 setup_variables() {
-    is_architecture_valid || ( >&2 echo "Invalid architecture: $ARCHITECTURE"; usage )
+    # Project directories
+    export SOURCE_DIR="$(git rev-parse --show-toplevel)"
+    export SCRIPTS_DIR=${SOURCE_DIR}/Meta/Scripts
 
-    export SOURCE_DIR="$(project_root)"
-    export SCRIPTS_DIR=${SOURCE_DIR}/meta/scripts
+    # Binary directories
+    export BINARY_DIR=${SOURCE_DIR}/Binary
+    export CACHE_DIR=${BINARY_DIR}/Cache
+    export BUILD_DIR=${BINARY_DIR}/Build
+    export CROSS_DIR=${BINARY_DIR}/Cross
+    export MOUNT_DIR=${BINARY_DIR}/Mount
+    export BUILD_COMMON_DIR=${BUILD_DIR}/Common
+    export BUILD_ARCH_DIR=${BUILD_DIR}/Architecture/${ARCHITECTURE}/${TOOLCHAIN}
+    export BUILD_TOOLCHAIN_DIR=${BUILD_DIR}/Toolchain/${ARCHITECTURE}/${TOOLCHAIN}
+    export CROSS_COMMON_DIR=${CROSS_DIR}/Common
+    export CROSS_TOOLCHAIN_DIR=${CROSS_DIR}/Toolchain/${ARCHITECTURE}/${TOOLCHAIN}
+    export SYSROOT_DIR=${BUILD_ARCH_DIR}/Sysroot
 
-    export BINARY_DIR=${SOURCE_DIR}/binary
-    export CACHE_DIR=${BINARY_DIR}/cache
-    export BUILD_DIR=${BINARY_DIR}/build
-    export CROSS_DIR=${BINARY_DIR}/cross
-    export MOUNT_DIR=${BINARY_DIR}/mount
-
-    export BUILD_COMMON_DIR=${BUILD_DIR}/common
-    export BUILD_ARCH_DIR=${BUILD_DIR}/architecture/${ARCHITECTURE}/${TOOLCHAIN}
-    export BUILD_TOOLCHAIN_DIR=${BUILD_DIR}/toolchain/${ARCHITECTURE}/${TOOLCHAIN}
-
-    export CROSS_COMMON_DIR=${CROSS_DIR}/common
-    export CROSS_TOOLCHAIN_DIR=${CROSS_DIR}/toolchain/${ARCHITECTURE}/${TOOLCHAIN}
-    CMAKE_ARGS+=("-D TOOLCHAIN_PATH=${CROSS_TOOLCHAIN_DIR}")
-
-    export SYSROOT_DIR=${BUILD_ARCH_DIR}/sysroot
-    CMAKE_ARGS+=("-D SYSROOT_DIR=${SYSROOT_DIR}")
-
+    # Helpers
     export CORES=$(nproc)
+    export TARGET=$ARCHITECTURE-pc-nashios
+    export DISK_IMAGE=${BUILD_ARCH_DIR}/disk.img
+
+    if [ "$ARCHITECTURE" = "i686" ]; then
+        export NASHIOS_QEMU_BIN="qemu-system-i386"
+    fi
+
+    # Change path to use the compiled binaries
     export PATH="${CROSS_COMMON_DIR}/bin":$PATH
 
-    export TARGET=$ARCHITECTURE-pc-nashios
-    CMAKE_ARGS+=("-D TOOLCHAIN_TARGET=${TARGET}")
-
-    export DISK_IMAGE=${BUILD_ARCH_DIR}/disk.img
+    setup_cmake_args
 }
 
-if [[ ${COMMAND} =~ ^(build|install|image|run|recreate|rebuild)$ ]]; then
+if [[ ${COMMAND} =~ ^(build|install|image|run)$ ]]; then
     setup_variables
     check_cmake
     check_toolchain
-
-    [[ "$COMMAND" != "recreate" && "$COMMAND" != "rebuild" ]] || delete_architecture
     check_architecture
 
     case "$COMMAND" in
@@ -220,35 +219,28 @@ if [[ ${COMMAND} =~ ^(build|install|image|run|recreate|rebuild)$ ]]; then
         image)
             compile_target
             compile_target install
-            ${SCRIPTS_DIR}/setup-image.sh
+            ${SCRIPTS_DIR}/SetupImage.sh
             ;;
         run)
             check_qemu
             compile_target
             compile_target install
-            ${SCRIPTS_DIR}/setup-image.sh
-            ${SCRIPTS_DIR}/run.sh
-            ;;
-        recreate)
-            ;;
-        rebuild)
-            compile_target "$@"
+            ${SCRIPTS_DIR}/SetupImage.sh
+            ${SCRIPTS_DIR}/Run.sh
             ;;
     esac
-elif [[ ${COMMAND} = "delete" ]]; then
+elif [[ ${COMMAND} = "clean" ]]; then
     setup_variables
-    delete_architecture
-elif [[ ${COMMAND} = "rebuild-toolchain" ]]; then
+    clean_architecture
+elif [[ ${COMMAND} = "toolchain" ]]; then
     setup_variables
-    delete_toolchain
-
+    clean_toolchain
     check_cmake
     check_toolchain
-elif [[ ${COMMAND} = "rebuild-world" ]]; then
+elif [[ ${COMMAND} = "clean-all" ]]; then
     setup_variables
-    delete_architecture
-    delete_toolchain
-
+    clean_architecture
+    clean_toolchain
     check_cmake
     check_toolchain
     check_architecture
