@@ -12,9 +12,9 @@ void system_open(const char *path)
 
 int main()
 {
-    system_open("/bin/window_service");
-    system_open("/bin/desktop");
-    system_open("/bin/terminal");
+    system_open("/bin/WindowService");
+    system_open("/bin/Desktop");
+    system_open("/bin/Terminal");
 
     while (true)
         ;
