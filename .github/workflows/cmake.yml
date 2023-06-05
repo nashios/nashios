@@ -26,7 +26,7 @@ jobs:
           key: ${{ runner.os }}-toolchain-${{ matrix.arch }}-${{ hashFiles('Meta/Scripts/Toolchain/*.sh', 'Meta/Patches/*.patch', 'Libraries/C/**/*.h') }}
 
       - name: Compile system
-        run: USE_CACHE=true Meta/Scripts/Nashios.sh build ${{ matrix.arch }} ${{ matrix.toolchain }}
+        run: USE_CACHE=true Meta/Scripts/NashiOS.sh build ${{ matrix.arch }} ${{ matrix.toolchain }}
 
       - name: Install system
-        run: Meta/Scripts/Nashios.sh install ${{ matrix.arch }} ${{ matrix.toolchain }}
+        run: Meta/Scripts/NashiOS.sh install ${{ matrix.arch }} ${{ matrix.toolchain }}
