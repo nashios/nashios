@@ -47,11 +47,11 @@ extern "C"
 
     int faccessat(int, const char *, int, int) { assert(false); }
 
-    int fchdir(int ) { assert(false); }
+    int fchdir(int) { assert(false); }
 
-    int fchown(int , uid_t , gid_t ) { assert(false); }
+    int fchown(int, uid_t, gid_t) { assert(false); }
 
-    int fchownat(int , const char *, uid_t , gid_t , int ) { assert(false); }
+    int fchownat(int, const char *, uid_t, gid_t, int) { assert(false); }
 
     int fdatasync(int) { assert(false); }
 
@@ -79,9 +79,9 @@ extern "C"
 
     long gethostid(void) { assert(false); }
 
-    int gethostname(char *, size_t ) { assert(false); }
+    int gethostname(char *, size_t) { assert(false); }
 
-    int sethostname(const char *, size_t ) { assert(false); }
+    int sethostname(const char *, size_t) { assert(false); }
 
     char *getlogin(void) { assert(false); }
 
@@ -105,9 +105,9 @@ extern "C"
 
     char *getusershell(void) { assert(false); }
 
-    int isatty(int ) { assert(false); }
+    int isatty(int) { assert(false); }
 
-    int lchown(const char *, uid_t , gid_t ) { assert(false); }
+    int lchown(const char *, uid_t, gid_t) { assert(false); }
 
     int link(const char *, const char *) { assert(false); }
 
@@ -115,9 +115,9 @@ extern "C"
 
     int lockf(int, int, off_t) { assert(false); }
 
-    off_t lseek(int , off_t , int ) { assert(false); }
+    off_t lseek(int, off_t, int) { assert(false); }
 
-    off64_t lseek64(int , off64_t , int ) { assert(false); }
+    off64_t lseek64(int, off64_t, int) { assert(false); }
 
     int nice(int) { assert(false); }
 
@@ -131,7 +131,7 @@ extern "C"
 
     ssize_t pwrite(int, const void *, size_t, off_t) { assert(false); }
 
-    ssize_t read(int , void *, size_t ) { assert(false); }
+    ssize_t read(int, void *, size_t) { assert(false); }
 
     ssize_t readlink(const char *__restrict, char *__restrict, size_t) { assert(false); }
 
@@ -185,7 +185,7 @@ extern "C"
 
     int unlinkat(int, const char *, int) { assert(false); }
 
-    ssize_t write(int , const void *, size_t ) { assert(false); }
+    ssize_t write(int, const void *, size_t) { assert(false); }
 
     int getpagesize(void) { assert(false); }
 
@@ -201,15 +201,15 @@ extern "C"
 
     int getentropy(void *, size_t) { assert(false); }
 
-    int pipe2(int *, int ) { assert(false); }
+    int pipe2(int *, int) { assert(false); }
 
-    int setresuid(uid_t , uid_t , uid_t ) { assert(false); }
+    int setresuid(uid_t, uid_t, uid_t) { assert(false); }
 
-    int setresgid(gid_t , gid_t , gid_t ) { assert(false); }
+    int setresgid(gid_t, gid_t, gid_t) { assert(false); }
 
-    int getdomainname(char *, size_t ) { assert(false); }
+    int getdomainname(char *, size_t) { assert(false); }
 
-    int setdomainname(const char *, size_t ) { assert(false); }
+    int setdomainname(const char *, size_t) { assert(false); }
 
     int getresuid(uid_t *, uid_t *, uid_t *) { assert(false); }
 
@@ -217,13 +217,15 @@ extern "C"
 
     char *crypt(const char *, const char *) { assert(false); }
 
-    void encrypt(char [64], int ) { assert(false); }
+    void encrypt(char[64], int) { assert(false); }
 
-    int dup3(int , int , int ) { assert(false); }
+    int dup3(int, int, int) { assert(false); }
 
     int vhangup(void) { assert(false); }
 
     int getdtablesize(void) { assert(false); }
 
-    int syncfs(int ) { assert(false); }
+    int syncfs(int) { assert(false); }
+
+    int __cxa_atexit(void (*function)(void *), void *, void *) { assert(false); }
 }
