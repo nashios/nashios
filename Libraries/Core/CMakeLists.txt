@@ -1,4 +1,5 @@
 set(SOURCES
-    Ini.cpp)
+    Ini.cpp
+    EventLoop.cpp)
 
 nashios_lib(LibCore Core)
