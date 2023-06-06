@@ -7,6 +7,7 @@ set(SOURCES
     stdlib.cpp
     string.cpp
     unistd.cpp
+    wchar.cpp
     
     sys/poll.cpp
     sys/select.cpp
