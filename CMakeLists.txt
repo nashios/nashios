@@ -16,6 +16,7 @@ add_compile_options(-Wall -Wextra)
 include_directories(.)
 include_directories(Libraries)
 include_directories(Libraries/C)
+include_directories(Services)
 
 function(nashios_install_headers target_name)
     file(GLOB_RECURSE headers RELATIVE ${CMAKE_CURRENT_SOURCE_DIR} "*.h" "*.hpp")
