@@ -16,7 +16,8 @@ set(SOURCES
     sys/poll.cpp
     sys/select.cpp
     sys/stat.cpp
-    sys/time.cpp)
+    sys/time.cpp
+    sys/uio.cpp)
 
 add_library(crt0 STATIC crt0.cpp)
 add_custom_command(TARGET crt0 COMMAND "${CMAKE_COMMAND}" -E copy $<TARGET_OBJECTS:crt0> ${CMAKE_INSTALL_PREFIX}/crt0.o)
