@@ -1,5 +1,4 @@
 set(SOURCES
-    main.c)
+    Main.cpp)
 
 nashios_bin(WindowService)
-target_link_libraries(WindowService PRIVATE libgui)

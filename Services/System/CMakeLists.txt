@@ -1,4 +1,4 @@
 set(SOURCES
-    main.c)
+    Main.cpp)
 
 nashios_bin(SystemService)
