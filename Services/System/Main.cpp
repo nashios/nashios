@@ -1,4 +1,5 @@
 #include <Core/Debug.hpp>
+#include <Core/EventLoop.hpp>
 #include <System/Service.hpp>
 
 int main()
@@ -18,6 +19,6 @@ int main()
     for (const auto &service : services)
         service->start();
 
-    while (true)
-        ;
+    auto event_loop = std::unique_ptr<Core::EventLoop>();
+    return event_loop->run();
 }
