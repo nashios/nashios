@@ -24,9 +24,9 @@ struct page_directory
 extern struct page_directory *g_virtual_directory;
 
 void virtual_mm_init();
-void virtual_mm_map(struct page_directory *directory, uint32_t physical, uint32_t virtual, uint32_t flags);
-void virtual_mm_unmap(struct page_directory *directory, uint32_t virtual);
+void virtual_mm_map(struct page_directory *directory, uint32_t physical, uint32_t virtual_address, uint32_t flags);
+void virtual_mm_unmap(struct page_directory *directory, uint32_t virtual_address);
 void virtual_mm_unmap_range(struct page_directory *directory, uint32_t start, uint32_t end);
-uint32_t virtual_mm_get_physical(uint32_t virtual);
+uint32_t virtual_mm_get_physical(uint32_t virtual_address);
 struct page_directory *virtual_mm_create_address();
 struct page_directory *virtual_mm_fork(struct page_directory *old_directory);
