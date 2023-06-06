@@ -378,4 +378,8 @@ extern "C"
     }
 
     int fputs(const char *, FILE *) { assert_not_reached(); }
+
+    size_t fwrite(const void *, size_t, size_t, FILE *) { assert_not_reached(); }
+
+    int fputc(int, FILE *) { assert_not_reached(); }
 }

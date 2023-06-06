@@ -1,15 +1,14 @@
 #pragma once
 
+#define _STDIO_H
+
 #include <kernel/api/filesystem.h>
 #include <stdarg.h>
 #include <stddef.h>
 #include <sys/cdefs.h>
+#include <sys/types.h>
 
 #define EOF (-1)
-
-#define stdout stdout
-#define stdin stdin
-#define stderr stderr
 
 #define _IOFBF 0
 #define _IOLBF 1
@@ -24,19 +23,7 @@ typedef struct
     int unused;
 } FILE;
 
-typedef struct
-{
-} __fpos_t;
-
-typedef struct
-{
-} __fpos64_t;
-
-#ifndef __USE_FILE_OFFSET64
-typedef __fpos_t fpos_t;
-#else
-typedef __fpos64_t fpos_t;
-#endif
+typedef off_t fpos_t;
 
 extern FILE *stdout;
 extern FILE *stdin;
@@ -49,7 +36,7 @@ int fprintf(FILE *, const char *, ...);
 size_t fread(void *, size_t, size_t, FILE *);
 int fseek(FILE *, long, int);
 long ftell(FILE *);
-size_t fwrite(const void *, size_t, size_t, FILE *);
+size_t fwrite(const void *ptr, size_t size, size_t nitems, FILE *stream);
 void setbuf(FILE *, char *);
 int snprintf(char *s, size_t n, const char *format, ...);
 int sprintf(char *s, const char *format, ...);
