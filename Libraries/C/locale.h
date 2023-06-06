@@ -1,32 +1,69 @@
-#pragma once
+#ifndef _LOCALE_H
+#define _LOCALE_H
 
-#include <sys/cdefs.h>
+#include <bits/locale_t.h>
+#include <bits/null.h>
 
-#define __LC_CTYPE 0
-#define __LC_NUMERIC 1
-#define __LC_TIME 2
-#define __LC_COLLATE 3
-#define __LC_MONETARY 4
-#define __LC_ALL 6
+#define LC_ALL 1
+#define LC_COLLATE 2
+#define LC_CTYPE 3
+#define LC_MONETARY 4
+#define LC_NUMERIC 5
+#define LC_TIME 6
+#define LC_MESSAGES 7
 
-#define LC_CTYPE __LC_CTYPE
-#define LC_NUMERIC __LC_NUMERIC
-#define LC_TIME __LC_TIME
-#define LC_COLLATE __LC_COLLATE
-#define LC_MONETARY __LC_MONETARY
-#define LC_ALL __LC_ALL
+#define LC_GLOBAL_LOCALE ((locale_t)-1L)
 
-___BEGIN_DECLS
+#define LC_CTYPE_MASK (1 << LC_CTYPE)
+#define LC_NUMERIC_MASK (1 << LC_NUMERIC)
+#define LC_TIME_MASK (1 << LC_TIME)
+#define LC_COLLATE_MASK (1 << LC_COLLATE)
+#define LC_MONETARY_MASK (1 << LC_MONETARY)
+#define LC_MESSAGES_MASK (1 << LC_MESSAGES)
+#define LC_ALL_MASK 0x7FFFFFFF
 
-struct lconv
+#ifdef __cplusplus
+extern "C"
 {
-};
+#endif
 
-typedef struct
-{
-} locale_t;
+    struct lconv
+    {
+        char *decimal_point;
+        char *thousands_sep;
+        char *grouping;
+        char *mon_decimal_point;
+        char *mon_thousands_sep;
+        char *mon_grouping;
+        char *positive_sign;
+        char *negative_sign;
+        char *currency_symbol;
+        char frac_digits;
+        char p_cs_precedes;
+        char n_cs_precedes;
+        char p_sep_by_space;
+        char n_sep_by_space;
+        char p_sign_posn;
+        char n_sign_posn;
+        char *int_curr_symbol;
+        char int_frac_digits;
+        char int_p_cs_precedes;
+        char int_n_cs_precedes;
+        char int_p_sep_by_space;
+        char int_n_sep_by_space;
+        char int_p_sign_posn;
+        char int_n_sign_posn;
+    };
 
-char *setlocale(int category, const char *locale);
-struct lconv *localeconv(void);
+    char *setlocale(int category, const char *locale);
+    struct lconv *localeconv(void);
+    locale_t newlocale(int category_mask, const char *locale, locale_t base);
+    void freelocale(locale_t locobj);
+    locale_t uselocale(locale_t locobj);
+    locale_t duplocale(locale_t locobj);
 
-___END_DECLS
+#ifdef __cplusplus
+}
+#endif
+
+#endif

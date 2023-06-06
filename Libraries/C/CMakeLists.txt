@@ -3,6 +3,7 @@ set(SOURCES
     ctype.cpp
     errno.cpp
     fcntl.cpp
+    locale.cpp
     stdio.cpp
     stdlib.cpp
     string.cpp
