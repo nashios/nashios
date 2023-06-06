@@ -7,6 +7,7 @@ set(SOURCES
     stdio.cpp
     stdlib.cpp
     string.cpp
+    time.cpp
     unistd.cpp
     wchar.cpp
     wctype.cpp

@@ -1,46 +1,91 @@
-#pragma once
+#ifndef _TIME_H
+#define _TIME_H
 
-#include <bits/types.h>
-#include <kernel/api/posix/time.h>
-#include <locale.h>
-#include <stddef.h>
-#include <sys/cdefs.h>
+#include <bits/clockid_t.h>
+#include <bits/null.h>
+#include <bits/size_t.h>
+#include <bits/time_t.h>
+#include <bits/timespec.h>
+#include <bits/timeval.h>
 
-___BEGIN_DECLS
+#define CLOCKS_PER_SEC ((clock_t)1000000)
 
-struct tm
+#define TIME_UTC 1
+
+#define CLOCK_REALTIME 0
+#define CLOCK_MONOTONIC 1
+#define CLOCK_PROCESS_CPUTIME_ID 2
+#define CLOCK_THREAD_CPUTIME_ID 3
+#define CLOCK_MONOTONIC_RAW 4
+#define CLOCK_REALTIME_COARSE 5
+#define CLOCK_MONOTONIC_COARSE 6
+#define CLOCK_BOOTTIME 7
+#define CLOCK_REALTIME_ALARM 8
+#define CLOCK_BOOTTIME_ALARM 9
+
+#define TIMER_ABSTIME 1
+
+#ifdef __cplusplus
+extern "C"
 {
-    int tm_sec;
-    int tm_min;
-    int tm_hour;
-    int tm_mday;
-    int tm_mon;
-    int tm_year;
-    int tm_wday;
-    int tm_yday;
-};
-
-typedef __clock_t clock_t;
-
-#ifdef __USE_TIME_BITS64
-typedef __time64_t time_t;
-#else
-typedef __time_t time_t;
 #endif
 
-clock_t clock(void);
-double difftime(time_t time1, time_t time0);
-time_t mktime(struct tm *timeptr);
-time_t time(time_t *tloc);
-char *asctime(const struct tm *timeptr);
-char *asctime_r(const struct tm *tm, char *buf);
-char *ctime(const time_t *clock);
-char *ctime_r(const time_t *clock, char *buf);
-struct tm *gmtime(const time_t *timer);
-struct tm *gmtime_r(const time_t *clock, struct tm *result);
-struct tm *localtime(const time_t *timer);
-struct tm *localtime_r(const time_t *timer, struct tm *result);
-size_t strftime(char *s, size_t maxsize, const char *format, const struct tm *timeptr);
-size_t strftime_l(char *s, size_t maxsize, const char *format, const struct tm *timeptr, locale_t locale);
+    typedef long clock_t;
 
-___END_DECLS
+    struct tm
+    {
+        int tm_sec;
+        int tm_min;
+        int tm_hour;
+        int tm_mday;
+        int tm_mon;
+        int tm_year;
+        int tm_wday;
+        int tm_yday;
+        int tm_isdst;
+        long int tm_gmtoff;
+        const char *tm_zone;
+    };
+
+    struct itimerspec
+    {
+        struct timespec it_interval;
+        struct timespec it_value;
+    };
+
+    extern int daylight;
+    extern long timezone;
+    extern char *tzname[2];
+
+    clock_t clock(void);
+    double difftime(time_t a, time_t b);
+    time_t mktime(struct tm *ptr);
+    time_t time(time_t *timer);
+    int timespec_get(struct timespec *ptr, int base);
+    char *asctime(const struct tm *ptr);
+    char *ctime(const time_t *timer);
+    struct tm *gmtime(const time_t *timer);
+    struct tm *gmtime_r(const time_t *__restrict timer, struct tm *__restrict result);
+    struct tm *localtime(const time_t *timer);
+    size_t strftime(char *__restrict dest, size_t max_size, const char *__restrict format,
+                    const struct tm *__restrict ptr);
+    void tzset(void);
+    int nanosleep(const struct timespec *, struct timespec *);
+    int clock_getres(clockid_t, struct timespec *);
+    int clock_gettime(clockid_t, struct timespec *);
+    int clock_nanosleep(clockid_t, int, const struct timespec *, struct timespec *);
+    int clock_settime(clockid_t, const struct timespec *);
+    struct tm *localtime_r(const time_t *, struct tm *);
+    char *asctime_r(const struct tm *tm, char *buf);
+    char *ctime_r(const time_t *, char *);
+    char *strptime(const char *__restrict, const char *__restrict, struct tm *__restrict);
+    time_t timelocal(struct tm *);
+    time_t timegm(struct tm *);
+    int utimes(const char *, const struct timeval[2]);
+    int futimes(int, const struct timeval[2]);
+
+#ifdef __cplusplus
+}
+#endif
+
+#endif
