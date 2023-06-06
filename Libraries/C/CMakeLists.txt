@@ -12,6 +12,7 @@ set(SOURCES
     wchar.cpp
     wctype.cpp
     
+    sys/ioctl.cpp
     sys/poll.cpp
     sys/select.cpp
     sys/stat.cpp
