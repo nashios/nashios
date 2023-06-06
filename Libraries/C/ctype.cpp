@@ -1,8 +1,8 @@
+#include <assert.h>
 #include <ctype.h>
 
 extern "C"
 {
-
     const char _ctype_[256] = {0,       _C,
                                _C,      _C,
                                _C,      _C,
@@ -69,51 +69,63 @@ extern "C"
                                _P,      _P,
                                _C};
 
-#undef isalnum
-    int isalnum(int c) { return ___isalnum(c); }
+    int isalnum(int) { assert(false); }
 
-#undef isalpha
-    int isalpha(int c) { return ___isalpha(c); }
+    int isalpha(int) { assert(false); }
 
-#undef iscntrl
-    int iscntrl(int c) { return ___iscntrl(c); }
+    int isblank(int) { assert(false); }
 
-#undef isdigit
-    int isdigit(int c) { return ___isdigit(c); }
+    int iscntrl(int) { assert(false); }
 
-#undef isxdigit
-    int isxdigit(int c) { return ___isxdigit(c); }
+    int isdigit(int) { assert(false); }
 
-#undef isspace
-    int isspace(int c) { return ___isspace(c); }
+    int isgraph(int) { assert(false); }
 
-#undef ispunct
-    int ispunct(int c) { return ___ispunct(c); }
+    int islower(int) { assert(false); }
 
-#undef isprint
-    int isprint(int c) { return ___isprint(c); }
+    int isprint(int) { assert(false); }
 
-#undef isgraph
-    int isgraph(int c) { return ___isgraph(c); }
+    int ispunct(int) { assert(false); }
 
-#undef isupper
-    int isupper(int c) { return ___isupper(c); }
+    int isspace(int) { assert(false); }
 
-#undef islower
-    int islower(int c) { return ___islower(c); }
+    int isupper(int) { assert(false); }
 
-#undef isascii
-    int isascii(int c) { return ___isascii(c); }
+    int isxdigit(int) { assert(false); }
 
-#undef isblank
-    int isblank(int c) { return ___isblank(c); }
+    int isascii(int) { assert(false); }
 
-#undef toascii
-    int toascii(int c) { return ___toascii(c); }
+    int tolower(int) { assert(false); }
 
-#undef tolower
-    int tolower(int c) { return ___tolower(c); }
+    int toupper(int) { assert(false); }
 
-#undef toupper
-    int toupper(int c) { return ___toupper(c); }
+    int isalnum_l(int, locale_t) { assert(false); }
+
+    int isalpha_l(int, locale_t) { assert(false); }
+
+    int isblank_l(int, locale_t) { assert(false); }
+
+    int iscntrl_l(int, locale_t) { assert(false); }
+
+    int isdigit_l(int, locale_t) { assert(false); }
+
+    int isgraph_l(int, locale_t) { assert(false); }
+
+    int islower_l(int, locale_t) { assert(false); }
+
+    int isprint_l(int, locale_t) { assert(false); }
+
+    int ispunct_l(int, locale_t) { assert(false); }
+
+    int isspace_l(int, locale_t) { assert(false); }
+
+    int isupper_l(int, locale_t) { assert(false); }
+
+    int isxdigit_l(int, locale_t) { assert(false); }
+
+    int isascii_l(int, locale_t) { assert(false); }
+
+    int tolower_l(int, locale_t) { assert(false); }
+
+    int toupper_l(int, locale_t) { assert(false); }
 }

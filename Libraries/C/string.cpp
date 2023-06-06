@@ -1,140 +1,93 @@
+#include <assert.h>
 #include <string.h>
 
 extern "C"
 {
-    size_t strlen(const char *str)
-    {
-        size_t length = 0;
-        while (str[length])
-            length++;
-        return length;
-    }
+    void *memcpy(void *__restrict, const void *__restrict, size_t) { assert(false); }
 
-    size_t strnlen(const char *s, size_t maxlen)
-    {
-        size_t length;
-        for (length = 0; length < maxlen; length++)
-        {
-            if (s[length] == '\0')
-                break;
-        }
-        return length;
-    }
+    void *memmove(void *, const void *, size_t) { assert(false); }
 
-    int strcmp(const char *str1, const char *str2)
-    {
-        const unsigned char *p_str1 = (const unsigned char *)str1;
-        const unsigned char *p_str2 = (const unsigned char *)str2;
-        unsigned char c1;
-        unsigned char c2;
+    char *strcpy(char *__restrict, const char *) { assert(false); }
 
-        do
-        {
-            c1 = (unsigned char)*p_str1++;
-            c2 = (unsigned char)*p_str2++;
+    char *strncpy(char *__restrict, const char *, size_t) { assert(false); }
 
-            if (c1 == '\0')
-                return c1 - c2;
-        } while (c1 == c2);
+    char *strcat(char *__restrict, const char *__restrict) { assert(false); }
 
-        return c1 - c2;
-    }
+    char *strncat(char *__restrict, const char *__restrict, size_t) { assert(false); }
 
-    void *memcpy(void *dest, const void *src, size_t n)
-    {
-        char *p_dest = (char *)dest;
-        const char *p_src = (const char *)src;
-        for (size_t i = 0; i < n; i++)
-            *p_dest++ = *p_src++;
-        return dest;
-    }
+    int memcmp(const void *, const void *, size_t) { assert(false); }
 
-    void *memset(void *str, int c, size_t n)
-    {
-        unsigned char *p_str = (unsigned char *)str;
-        for (size_t i = 0; i < n; i++)
-            *p_str++ = (char)c;
-        return str;
-    }
+    int strcmp(const char *, const char *) { assert(false); }
 
-    int memcmp(const void *s1, const void *s2, size_t n)
-    {
-        const unsigned char *p_s1 = (const unsigned char *)s1;
-        const unsigned char *p_s2 = (const unsigned char *)s2;
+    int strcoll(const char *, const char *) { assert(false); }
 
-        for (size_t i = 0; i < n; i++)
-        {
-            if (*p_s1++ != *p_s2++)
-                return p_s1[-1] < p_s2[-1] ? -1 : 1;
-        }
-        return 0;
-    }
+    int strncmp(const char *, const char *, size_t) { assert(false); }
 
-    void *memmove(void *s1, const void *s2, size_t n)
-    {
-        char *p_s1 = (char *)s1;
-        const char *p_s2 = (const char *)s2;
+    size_t strxfrm(char *__restrict, const char *__restrict, size_t) { assert(false); }
 
-        if (p_s1 < p_s2)
-            while (n--)
-                *p_s1++ = *p_s2++;
-        else
-        {
-            char *last_s2 = (char *)p_s2 + (n - 1);
-            char *last_s1 = (char *)p_s1 + (n - 1);
-            while (n--)
-                *last_s1-- = *last_s2--;
-        }
-        return s1;
-    }
+    void *memchr(const void *, int, size_t) { assert(false); }
 
-    void *memchr(const void *s, int c, size_t n)
-    {
-        const unsigned char *p_s = (const unsigned char *)s;
-        for (size_t i = 0; i < n; i++)
-        {
-            if (*p_s == c)
-                return (void *)p_s;
-            p_s++;
-        }
-        return NULL;
-    }
+    char *strchr(const char *, int) { assert(false); }
 
-    char *strcpy(char *s1, const char *s2) { return (char *)memcpy(s1, s2, strlen(s2) + 1); }
+    size_t strcspn(const char *, const char *) { assert(false); }
 
-    char *strcat(char *s1, const char *s2)
-    {
-        strcpy(s1 + strlen(s1), s2);
-        return s1;
-    }
+    char *strpbrk(const char *, const char *) { assert(false); }
 
-    int strncmp(const char *s1, const char *s2, size_t n)
-    {
-        unsigned char ch1;
-        unsigned char ch2;
+    char *strrchr(const char *, int) { assert(false); }
 
-        for (size_t i = 0; i < n; i++)
-        {
-            ch1 = (unsigned char)*s1++;
-            ch2 = (unsigned char)*s2++;
+    size_t strspn(const char *, const char *) { assert(false); }
 
-            if (ch1 != ch2)
-                return ch1 - ch2;
+    char *strstr(const char *, const char *) { assert(false); }
 
-            if (ch1 == '\0')
-                return 0;
-        }
-        return 0;
-    }
+    char *strtok(char *__restrict, const char *__restrict) { assert(false); }
 
-    char *strchr(const char *s, int c)
-    {
-        do
-        {
-            if (*s == c)
-                return (char *)s;
-        } while (*s++);
+    char *strchrnul(const char *, int) { assert(false); }
 
-        return NULL;
-    }
+    void *memset(void *, int, size_t) { assert(false); }
+
+    char *strerror(int) { assert(false); }
+
+    size_t strlen(const char *) { assert(false); }
+
+    int strerror_r(int, char *, size_t) { assert(false); }
+
+    void *mempcpy(void *, const void *, size_t) { assert(false); }
+
+    int strverscmp(const char *, const char *) { assert(false); }
+
+    int ffsl(long) { assert(false); }
+
+    int ffsll(long long) { assert(false); }
+
+    void *memmem(const void *, size_t, const void *, size_t) { assert(false); }
+
+    char *strdup(const char *) { assert(false); }
+
+    char *strndup(const char *, size_t) { assert(false); }
+
+    size_t strnlen(const char *, size_t) { assert(false); }
+
+    char *strtok_r(char *__restrict, const char *__restrict, char **__restrict) { assert(false); }
+
+    char *strsep(char **, const char *) { assert(false); }
+
+    char *strsignal(int) { assert(false); }
+
+    char *stpcpy(char *__restrict, const char *__restrict) { assert(false); }
+
+    char *stpncpy(char *__restrict, const char *__restrict, size_t) { assert(false); }
+
+    void *memccpy(void *__restrict, const void *__restrict, int, size_t) { assert(false); }
+
+    int strcoll_l(const char *, const char *, locale_t) { assert(false); }
+
+    char *strcasestr(const char *, const char *) { assert(false); }
+
+    char *strdupa(const char *) { assert(false); }
+
+    char *strndupa(const char *, size_t) { assert(false); }
+
+    size_t strlcpy(char *, const char *, size_t) { assert(false); }
+
+    size_t strlcat(char *, const char *, size_t) { assert(false); }
 }

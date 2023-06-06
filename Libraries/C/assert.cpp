@@ -1,7 +1,6 @@
 #include <assert.h>
-#include <stdlib.h>
 
 extern "C"
 {
-    void ___assert(const char *, const char *, const char *, int) { abort(); }
+    void __assert_fail(const char *assertion, const char *file, unsigned int line, const char *function) {}
 }

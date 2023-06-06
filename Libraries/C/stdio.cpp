@@ -1,385 +1,219 @@
-#include <ctype.h>
-#include <limits.h>
-#include <st/assert.h>
+#include <assert.h>
 #include <stdio.h>
-#include <string.h>
 
 extern "C"
 {
-    enum vsn_flags
-    {
-        VSN_ZEROPAD = 1,
-        VSN_SIGN = 2,
-        VSN_PLUS = 4,
-        VSN_SPACE = 8,
-        VSN_LEFT = 16,
-        VSN_SMALL = 32,
-        VSN_SPECIAL = 64
-    };
-
-    FILE *stdout;
-    FILE *stdin;
     FILE *stderr;
+    FILE *stdin;
+    FILE *stdout;
 
-    int vsnprintf_atoi(const char **str)
+    int remove(const char *) { assert(false); }
+
+    int rename(const char *, const char *) { assert(false); }
+
+    int renameat(int, const char *, int, const char *) { assert(false); }
+
+    FILE *tmpfile(void) { assert(false); }
+
+    char *tmpnam(char *) { assert(false); }
+
+    int fclose(FILE *) { assert(false); }
+
+    int fflush(FILE *) { assert(false); }
+
+    FILE *fopen(const char *__restrict, const char *__restrict) { assert(false); }
+
+    FILE *freopen(const char *__restrict, const char *__restrict, FILE *__restrict) { assert(false); }
+
+    void setbuf(FILE *__restrict, char *__restrict) { assert(false); }
+
+    int setvbuf(FILE *__restrict, char *__restrict, int, size_t) { assert(false); }
+
+    void setlinebuf(FILE *) { assert(false); }
+
+    void set(FILE *, char *, size_t) { assert(false); }
+
+    __attribute__((__format__(gnu_printf, 2, 3))) int fprintf(FILE *__restrict, const char *__restrict, ...)
     {
-        int i = 0;
-        while (isdigit(**str))
-            i = i * 10 + *((*str)++) - '0';
-        return i;
+        assert(false);
     }
 
-    char *vsnprintf_number(char *str, char *end, long number, int base, int size, int precision, int type)
+    __attribute__((__format__(gnu_scanf, 2, 3))) int fscanf(FILE *__restrict, const char *__restrict, ...)
     {
-        char lower_case = (type & VSN_SMALL);
-        if (type & VSN_LEFT)
-            type &= ~VSN_ZEROPAD;
-
-        if (base < 2 || base > 16)
-            return NULL;
-
-        char c = (type & VSN_ZEROPAD) ? '0' : ' ';
-        char sign = 0;
-        if (type & VSN_SIGN)
-        {
-            if (number < 0)
-            {
-                sign = '-';
-                number = -number;
-                size--;
-            }
-            else if (type & VSN_PLUS)
-            {
-                sign = '+';
-                size--;
-            }
-            else if (type & VSN_SPACE)
-            {
-                sign = ' ';
-                size--;
-            }
-        }
-
-        if (type & VSN_SPECIAL)
-        {
-            if (base == 16)
-                size -= 2;
-            else if (base == 8)
-                size--;
-        }
-
-        char tmp[66];
-        int i = 0;
-        if (number == 0)
-            tmp[i++] = '0';
-        else
-        {
-            const char digits[17] = "0123456789ABCDEF";
-            while (number != 0)
-            {
-                tmp[i++] = digits[((unsigned long)number) % (unsigned)base] | lower_case;
-                number = ((unsigned long)number) / (unsigned)base;
-            }
-        }
-
-        if (i > precision)
-            precision = i;
-        size -= precision;
-
-        if (!(type & (VSN_ZEROPAD + VSN_LEFT)))
-        {
-            while (size-- > 0)
-            {
-                if (str <= end)
-                    *str = ' ';
-                str++;
-            }
-        }
-
-        if (sign)
-        {
-            if (str <= end)
-                *str = sign;
-            str++;
-        }
-
-        if (type & VSN_SPECIAL)
-        {
-            if (base == 8)
-            {
-                if (str <= end)
-                    *str = '0';
-                str++;
-            }
-            else if (base == 16)
-            {
-                if (str <= end)
-                    *str = '0';
-                str++;
-
-                if (str <= end)
-                    *str = ('X' | lower_case);
-                str++;
-            }
-        }
-
-        if (!(type & VSN_LEFT))
-        {
-            while (size-- > 0)
-            {
-                if (str <= end)
-                    *str = c;
-                str++;
-            }
-        }
-
-        while (i < precision--)
-        {
-            if (str <= end)
-                *str = '0';
-            str++;
-        }
-
-        while (i-- > 0)
-        {
-            if (str <= end)
-                *str = tmp[i];
-            str++;
-        }
-
-        while (size-- > 0)
-        {
-            if (str <= end)
-                *str = ' ';
-            str++;
-        }
-
-        return str;
+        assert(false);
     }
 
-    int vsnprintf(char *str, size_t size, const char *format, va_list ap)
+    __attribute__((__format__(gnu_printf, 1, 2))) int printf(const char *__restrict, ...) { assert(false); }
+
+    __attribute__((__format__(gnu_scanf, 1, 2))) int scanf(const char *__restrict, ...) { assert(false); }
+
+    __attribute__((__format__(gnu_printf, 3, 4))) int snprintf(char *__restrict, size_t, const char *__restrict, ...)
     {
-        char *p_str = str;
-        char *end = str + size;
-        if (end < str)
-        {
-            end = nullptr;
-            size = end - str;
-        }
-
-        for (; *format; format++)
-        {
-            if (*format != '%')
-            {
-                if (p_str <= end)
-                    *p_str = *format;
-                p_str++;
-                continue;
-            }
-
-            int flags = 0;
-        repeat_flags:
-            format++;
-            switch (*format)
-            {
-            case '-':
-                flags |= VSN_LEFT;
-                goto repeat_flags;
-            case '+':
-                flags |= VSN_PLUS;
-                goto repeat_flags;
-            case ' ':
-                flags |= VSN_SPACE;
-                goto repeat_flags;
-            case '#':
-                flags |= VSN_SPECIAL;
-                goto repeat_flags;
-            case '0':
-                flags |= VSN_ZEROPAD;
-                goto repeat_flags;
-            }
-
-            int field_width = -1;
-            if (isdigit(*format))
-                field_width = vsnprintf_atoi(&format);
-            else if (*format == '*')
-            {
-                format++;
-                field_width = va_arg(ap, int);
-                if (field_width < 0)
-                {
-                    field_width = -field_width;
-                    flags |= VSN_LEFT;
-                }
-            }
-
-            int precision = -1;
-            if (*format == '.')
-            {
-                format++;
-                if (isdigit(*format))
-                    precision = vsnprintf_atoi(&format);
-                else if (*format == '*')
-                {
-                    format++;
-                    precision = va_arg(ap, int);
-                }
-                if (precision < 0)
-                    precision = 0;
-            }
-
-            int qualifier = -1;
-            if (*format == 'h' || *format == 'l' || *format == 'L')
-            {
-                qualifier = *format;
-                format++;
-            }
-
-            int base = 10;
-            switch (*format)
-            {
-            case 'c':
-                if (!(flags & VSN_LEFT))
-                {
-                    while (--field_width > 0)
-                        *p_str++ = ' ';
-                }
-
-                *p_str++ = (unsigned char)va_arg(ap, int);
-                while (--field_width > 0)
-                    *p_str++ = ' ';
-
-                continue;
-            case 's': {
-                const char *s = va_arg(ap, char *);
-                size_t length = strnlen(s, precision);
-
-                if (!(flags & VSN_LEFT))
-                {
-                    while ((int)length < field_width--)
-                    {
-                        if (p_str <= end)
-                            *p_str = ' ';
-                        p_str++;
-                    }
-                }
-
-                for (size_t i = 0; i < length; i++)
-                {
-                    if (p_str <= end)
-                        *p_str = *s;
-
-                    p_str++;
-                    s++;
-                }
-
-                while ((int)length < field_width--)
-                {
-                    if (p_str <= end)
-                        *p_str = ' ';
-                    p_str++;
-                }
-
-                continue;
-            }
-            case 'p':
-                if (field_width == -1)
-                {
-                    field_width = 2 * sizeof(void *);
-                    flags |= VSN_ZEROPAD;
-                }
-
-                p_str =
-                    vsnprintf_number(p_str, end, (unsigned long)va_arg(ap, void *), 16, field_width, precision, flags);
-                continue;
-            case 'n':
-                if (qualifier == 'l')
-                {
-                    long *ip = va_arg(ap, long *);
-                    *ip = (p_str - str);
-                }
-                else
-                {
-                    int *ip = va_arg(ap, int *);
-                    *ip = (p_str - str);
-                }
-                continue;
-            case '%':
-                if (p_str <= end)
-                    *p_str = '%';
-                p_str++;
-                continue;
-            case 'o':
-                base = 8;
-                break;
-            case 'x':
-                flags |= VSN_SMALL;
-                // fall through
-            case 'X':
-                base = 16;
-                break;
-            case 'd':
-            case 'i':
-                flags |= VSN_SIGN;
-            case 'u':
-                break;
-            default:
-                if (p_str <= end)
-                    *p_str = '%';
-                p_str++;
-
-                if (*format)
-                {
-                    if (p_str <= end)
-                        *p_str = *format;
-                    p_str++;
-                }
-                else
-                    format--;
-
-                continue;
-            }
-
-            unsigned long number = 0;
-            if (qualifier == 'l')
-                number = va_arg(ap, unsigned long);
-            else if (qualifier == 'h')
-            {
-                number = (unsigned short)va_arg(ap, int);
-                if (flags & VSN_SIGN)
-                    number = (short)number;
-            }
-            else if (flags & VSN_SIGN)
-                number = va_arg(ap, int);
-            else
-                number = va_arg(ap, unsigned int);
-
-            p_str = vsnprintf_number(p_str, end, number, base, field_width, precision, flags);
-        }
-
-        if (p_str <= end)
-            *p_str = '\0';
-        else if (size > 0)
-            *end = '\0';
-
-        return p_str - str;
+        assert(false);
     }
 
-    int vsprintf(char *s, const char *format, va_list ap) { return vsnprintf(s, INT_MAX, format, ap); }
-
-    int sprintf(char *s, const char *format, ...)
+    __attribute__((__format__(gnu_printf, 2, 3))) int sprintf(char *__restrict, const char *__restrict, ...)
     {
-        va_list args;
-        va_start(args, format);
-        size_t length = vsnprintf(s, INT_MAX, format, args);
-        va_end(args);
-
-        return length;
+        assert(false);
     }
 
-    int fputs(const char *, FILE *) { assert_not_reached(); }
+    __attribute__((__format__(gnu_scanf, 2, 3))) int sscanf(const char *__restrict, const char *__restrict, ...)
+    {
+        assert(false);
+    }
 
-    size_t fwrite(const void *, size_t, size_t, FILE *) { assert_not_reached(); }
+    __attribute__((__format__(gnu_printf, 2, 0))) int vfprintf(FILE *__restrict, const char *__restrict,
+                                                               __builtin_va_list)
+    {
+        assert(false);
+    }
 
-    int fputc(int, FILE *) { assert_not_reached(); }
+    __attribute__((__format__(gnu_scanf, 2, 0))) int vfscanf(FILE *__restrict, const char *__restrict,
+                                                             __builtin_va_list)
+    {
+        assert(false);
+    }
+
+    __attribute__((__format__(gnu_printf, 1, 0))) int vprintf(const char *__restrict, __builtin_va_list)
+    {
+        assert(false);
+    }
+
+    __attribute__((__format__(gnu_scanf, 1, 0))) int vscanf(const char *__restrict, __builtin_va_list)
+    {
+        assert(false);
+    }
+
+    __attribute__((__format__(gnu_printf, 3, 0))) int vsnprintf(char *__restrict, size_t, const char *__restrict,
+                                                                __builtin_va_list)
+    {
+        assert(false);
+    }
+
+    __attribute__((__format__(gnu_printf, 2, 0))) int vsprintf(char *__restrict, const char *__restrict,
+                                                               __builtin_va_list)
+    {
+        assert(false);
+    }
+
+    __attribute__((__format__(gnu_scanf, 2, 0))) int vsscanf(const char *__restrict, const char *__restrict,
+                                                             __builtin_va_list)
+    {
+        assert(false);
+    }
+
+    __attribute__((__format__(gnu_printf, 2, 0))) int vasprintf(char **, const char *, __builtin_va_list)
+    {
+        assert(false);
+    }
+
+    int fgetc(FILE *) { assert(false); }
+
+    char *fgets(char *__restrict, size_t, FILE *__restrict) { assert(false); }
+
+    int fputc(int, FILE *) { assert(false); }
+
+    int fputs(const char *__restrict, FILE *__restrict) { assert(false); }
+
+    char *gets(char *) { assert(false); }
+
+    int getc(FILE *) { assert(false); }
+
+    int getchar(void) { assert(false); }
+
+    int putc(int, FILE *) { assert(false); }
+
+    int putchar(int) { assert(false); }
+
+    int puts(const char *) { assert(false); }
+
+    int ungetc(int c, FILE *) { assert(false); }
+
+    size_t fread(void *__restrict, size_t, size_t, FILE *__restrict) { assert(false); }
+
+    size_t fwrite(const void *__restrict, size_t, size_t, FILE *__restrict) { assert(false); }
+
+    int fgetpos(FILE *__restrict, fpos_t *__restrict) { assert(false); }
+
+    int fseek(FILE *, long, int) { assert(false); }
+
+    int fsetpos(FILE *, const fpos_t *) { assert(false); }
+
+    long ftell(FILE *) { assert(false); }
+
+    void rewind(FILE *) { assert(false); }
+
+    void clearerr(FILE *) { assert(false); }
+
+    int feof(FILE *) { assert(false); }
+
+    int ferror(FILE *) { assert(false); }
+
+    void perror(const char *) { assert(false); }
+
+    int getc_unlocked(FILE *) { assert(false); }
+
+    int getchar_unlocked(void) { assert(false); }
+
+    int putc_unlocked(int, FILE *) { assert(false); }
+
+    int putchar_unlocked(int) { assert(false); }
+
+    ssize_t getline(char **, size_t *, FILE *) { assert(false); }
+
+    ssize_t getdelim(char **, size_t *, int, FILE *) { assert(false); }
+
+    int asprintf(char **, const char *, ...) { assert(false); }
+
+    void flockfile(FILE *) { assert(false); }
+
+    void funlockfile(FILE *) { assert(false); }
+
+    int ftrylockfile(FILE *) { assert(false); }
+
+    void clearerr_unlocked(FILE *) { assert(false); }
+
+    int feof_unlocked(FILE *) { assert(false); }
+
+    int ferror_unlocked(FILE *) { assert(false); }
+
+    int fileno_unlocked(FILE *) { assert(false); }
+
+    int fflush_unlocked(FILE *) { assert(false); }
+
+    int fgetc_unlocked(FILE *) { assert(false); }
+
+    int fputc_unlocked(int, FILE *) { assert(false); }
+
+    size_t fread_unlocked(void *__restrict, size_t, size_t, FILE *__restrict) { assert(false); }
+
+    size_t fwrite_unlocked(const void *__restrict, size_t, size_t, FILE *__restrict) { assert(false); }
+
+    char *fgets_unlocked(char *, int, FILE *) { assert(false); }
+
+    int fputs_unlocked(const char *, FILE *) { assert(false); }
+
+    int fileno(FILE *) { assert(false); }
+
+    FILE *fdopen(int, const char *) { assert(false); }
+
+    FILE *fmemopen(void *__restrict, size_t, const char *__restrict) { assert(false); }
+
+    int pclose(FILE *) { assert(false); }
+
+    FILE *popen(const char *, const char *) { assert(false); }
+
+    FILE *open_mem(char **, size_t *) { assert(false); }
+
+    int fseeko(FILE *, off_t, int) { assert(false); }
+
+    off_t ftello(FILE *) { assert(false); }
+
+    int dprintf(int, const char *, ...) { assert(false); }
+
+    int vdprintf(int, const char *, __builtin_va_list) { assert(false); }
+
+    char *fgetln(FILE *, size_t *) { assert(false); }
+
+    FILE *fopencookie(void *__restrict, const char *__restrict, cookie_io_functions_t) { assert(false); }
 }

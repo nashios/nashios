@@ -1,19 +1,17 @@
 set(SOURCES
-    errno.cpp
-    stdlib.cpp
-    unistd.cpp
-    string.cpp
     assert.cpp
-    fcntl.cpp
-    mqueue.cpp
-    poll.cpp
-    stdio.cpp
     ctype.cpp
-    time.cpp
+    errno.cpp
+    fcntl.cpp
+    stdio.cpp
+    stdlib.cpp
+    string.cpp
+    unistd.cpp
     
-    sys/mman.cpp
+    sys/poll.cpp
+    sys/select.cpp
     sys/stat.cpp
-    sys/ioctl.cpp)
+    sys/time.cpp)
 
 add_library(crt0 STATIC crt0.cpp)
 add_custom_command(TARGET crt0 COMMAND "${CMAKE_COMMAND}" -E copy $<TARGET_OBJECTS:crt0> ${CMAKE_INSTALL_PREFIX}/crt0.o)

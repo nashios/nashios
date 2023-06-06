@@ -1,156 +1,148 @@
-#include <st/assert.h>
-#include <st/pointer-arith.h>
-#include <stdbool.h>
+#include <assert.h>
 #include <stdlib.h>
-#include <string.h>
-#include <unistd.h>
-
-#define MALLOC_MAGIC 0xEF8E
-
-struct malloc_block
-{
-    size_t size;
-    uint32_t magic;
-    bool free;
-    struct malloc_block *next;
-};
 
 extern "C"
 {
-    static struct malloc_block *s_malloc_list = NULL;
-    static uint32_t s_malloc_address = 0;
-    static uint32_t s_malloc_remaining = 0;
+    double atof(const char *) { assert(false); }
 
-    void exit(int status) { _exit(status); }
+    int atoi(const char *) { assert(false); }
 
-    void _Exit(int status) { exit(status); }
+    long atol(const char *) { assert(false); }
 
-    void malloc_verify_block(struct malloc_block *block)
+    long long atoll(const char *) { assert(false); }
+
+    double strtod(const char *__restrict, char **__restrict) { assert(false); }
+
+    float strtof(const char *__restrict, char **__restrict) { assert(false); }
+
+    long double strtold(const char *__restrict, char **__restrict) { assert(false); }
+
+    long strtol(const char *__restrict, char **__restrict, int) { assert(false); }
+
+    long long strtoll(const char *__restrict, char **__restrict, int) { assert(false); }
+
+    unsigned long strtoul(const char *__restrict, char **__restrict, int) { assert(false); }
+
+    unsigned long long strtoull(const char *__restrict, char **__restrict, int) { assert(false); }
+
+    int rand(void) { assert(false); }
+
+    int rand_r(unsigned *) { assert(false); }
+
+    void srand(unsigned int) { assert(false); }
+
+    void *aligned_alloc(size_t, size_t) { assert(false); }
+
+    void *calloc(size_t, size_t) { assert(false); }
+
+    void free(void *) { assert(false); }
+
+    void *malloc(size_t) { assert(false); }
+
+    void *realloc(void *, size_t) { assert(false); }
+
+    int posix_memalign(void **, size_t, size_t) { assert(false); }
+
+    __attribute__((__noreturn__)) void abort(void) { assert(false); }
+
+    int atexit(void (*func)(void)) { assert(false); }
+
+    int at_quick_exit(void (*func)(void)) { assert(false); }
+
+    __attribute__((__noreturn__)) void exit(int) { assert(false); }
+
+    __attribute__((__noreturn__)) void _Exit(int) { assert(false); }
+
+    char *getenv(const char *) { assert(false); }
+
+    __attribute__((__noreturn__)) void quick_exit(int) { assert(false); }
+
+    int system(const char *) { assert(false); }
+
+    char *mktemp(char *) { assert(false); }
+
+    void *bsearch(const void *, const void *, size_t, size_t, int (*compare)(const void *, const void *))
     {
-        if (block->magic != MALLOC_MAGIC || block->size > 0x2000000)
-            assert_not_reached();
+        assert(false);
     }
 
-    void *malloc_sbrk(uint32_t size)
-    {
-        if (!s_malloc_address)
-            s_malloc_address = (uint32_t)sbrk(0);
+    void qsort(void *, size_t, size_t, int (*compare)(const void *, const void *)) { assert(false); }
 
-        uint32_t address = s_malloc_address;
-        if (size <= s_malloc_remaining)
-            s_malloc_remaining -= size;
-        else
-        {
-            sbrk(size);
-            s_malloc_remaining = (uint32_t)sbrk(0) - (s_malloc_address + size);
-        }
+    void qsort_r(void *, size_t, size_t, int (*compar)(const void *, const void *, void *), void *) { assert(false); }
 
-        s_malloc_address += size;
-        return (void *)address;
-    }
+    int abs(int) { assert(false); }
 
-    struct malloc_block *malloc_request_space(struct malloc_block *last, size_t size)
-    {
-        struct malloc_block *block = (struct malloc_block *)malloc_sbrk(size + sizeof(struct malloc_block));
-        if (last)
-            last->next = block;
+    long labs(long) { assert(false); }
 
-        block->size = size;
-        block->next = NULL;
-        block->free = false;
-        block->magic = MALLOC_MAGIC;
-        return block;
-    }
+    long long llabs(long long) { assert(false); }
 
-    void *malloc(size_t size)
-    {
-        if (size <= 0)
-            return NULL;
-        size = ALIGN_UP(size, 4);
+    div_t div(int, int) { assert(false); }
 
-        struct malloc_block *block;
-        if (s_malloc_list)
-        {
-            block = s_malloc_list;
-            struct malloc_block *last = s_malloc_list;
-            while (block && !(block->free && block->size >= size))
-            {
-                malloc_verify_block(block);
-                last = block;
-                block = block->next;
-                if (block)
-                    malloc_verify_block(block);
-            }
+    ldiv_t ldiv(long, long) { assert(false); }
 
-            if (block)
-            {
-                block->free = false;
-                if (block->size > size + sizeof(struct malloc_block))
-                {
-                    struct malloc_block *splited_block =
-                        (struct malloc_block *)((char *)block + sizeof(struct malloc_block) + size);
-                    splited_block->free = true;
-                    splited_block->magic = MALLOC_MAGIC;
-                    splited_block->size = block->size - size - sizeof(struct malloc_block);
-                    splited_block->next = block->next;
+    lldiv_t lldiv(long long, long long) { assert(false); }
 
-                    block->size = size;
-                    block->next = splited_block;
-                }
-            }
-            else
-                block = malloc_request_space(last, size);
-        }
-        else
-        {
-            block = malloc_request_space(NULL, size);
-            s_malloc_list = block;
-        }
+    int mblen(const char *, size_t) { assert(false); }
 
-        malloc_verify_block(block);
+    int mbtowc(wchar_t *__restrict, const char *__restrict, size_t) { assert(false); }
 
-        if (block)
-            return block + 1;
-        else
-            return NULL;
-    }
+    int wctomb(char *, wchar_t) { assert(false); }
 
-    void *calloc(size_t nitems, size_t size)
-    {
-        void *block = malloc(nitems * size);
-        if (block)
-            memset(block, 0, nitems * size);
-        return block;
-    }
+    size_t mbstowcs(wchar_t *__restrict, const char *__restrict, size_t) { assert(false); }
 
-    void *realloc(void *ptr, size_t size)
-    {
-        if (!ptr && size == 0)
-        {
-            free(ptr);
-            return NULL;
-        }
-        else if (!ptr)
-            return calloc(size, sizeof(char));
+    size_t wcstombs(char *, const wchar_t *__restrict, size_t) { assert(false); }
 
-        void *newptr = calloc(size, sizeof(char));
-        memcpy(newptr, ptr, size);
-        return newptr;
-    }
+    long random(void) { assert(false); }
 
-    void free(void *ptr)
-    {
-        if (!ptr)
-            return;
+    double drand48(void) { assert(false); }
 
-        struct malloc_block *block = (struct malloc_block *)ptr - 1;
-        malloc_verify_block(block);
-        block->free = true;
-    }
+    void srand48(long int) { assert(false); }
 
-    void abort(void) { _exit(1); }
+    char *initstate(unsigned int, char *, size_t) { assert(false); }
 
-    char *getenv(const char *) { assert_not_reached(); }
+    char *setstate(char *) { assert(false); }
 
-    unsigned long int strtoul(const char *, char **, int) { assert_not_reached(); }
+    void srandom(unsigned int) { assert(false); }
+
+    int putenv(char *) { assert(false); }
+
+    int setenv(const char *, const char *, int) { assert(false); }
+
+    int unsetenv(const char *) { assert(false); }
+
+    int mkstemp(char *) { assert(false); }
+
+    int mkostemp(char *, int) { assert(false); }
+
+    int mkostemps(char *, int, int) { assert(false); }
+
+    char *mkdtemp(char *) { assert(false); }
+
+    char *realpath(const char *__restrict, char *__restrict) { assert(false); }
+
+    int posix_openpt(int) { assert(false); }
+
+    int grantpt(int) { assert(false); }
+
+    int unlockpt(int) { assert(false); }
+
+    char *ptsname(int) { assert(false); }
+
+    int ptsname_r(int, char *, size_t) { assert(false); }
+
+    double strtod_l(const char *__restrict__, char **__restrict__, locale_t) { assert(false); }
+
+    long double strtold_l(const char *__restrict__, char **__restrict__, locale_t) { assert(false); }
+
+    float strtof_l(const char *__restrict, char **__restrict, locale_t) { assert(false); }
+
+    int getloadavg(double *, int) { assert(false); }
+
+    char *secure_getenv(const char *) { assert(false); }
+
+    char *canonicalize_file_name(const char *) { assert(false); }
+
+    void *reallocarray(void *, size_t, size_t) { assert(false); }
+
+    int clearenv(void) { assert(false); }
 }
