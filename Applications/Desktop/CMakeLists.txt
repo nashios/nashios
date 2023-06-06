@@ -1,5 +1,4 @@
 set(SOURCES
-    main.c)
+    Main.cpp)
 
 nashios_bin(Desktop)
-target_link_libraries(Desktop PRIVATE libgui)
