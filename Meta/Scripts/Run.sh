@@ -3,7 +3,7 @@
 [ -z "$NASHIOS_QEMU_CPU" ] && NASHIOS_QEMU_CPU="max"
 [ -z "$NASHIOS_DISK_IMAGE" ] && NASHIOS_DISK_IMAGE="${DISK_IMAGE}"
 [ -z "$NASHIOS_QEMU_ARGS" ] && NASHIOS_QEMU_ARGS="
-    -Kernel $NASHIOS_QEMU_KERNEL
+    -kernel $NASHIOS_QEMU_KERNEL
     -m $NASHIOS_QEMU_RAM
     -cpu $NASHIOS_QEMU_CPU
     -drive file=${NASHIOS_DISK_IMAGE},format=raw,index=0,media=disk
