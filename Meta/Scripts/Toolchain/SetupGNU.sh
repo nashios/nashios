@@ -87,9 +87,9 @@ pushd ${BUILD_TOOLCHAIN_DIR}
     fi
 popd
 
-mkdir -p ${SYSROOT_DIR}/usr/include/kernel/api
+mkdir -p ${SYSROOT_DIR}/usr/include/Kernel/api
 buildstep "Headers" rsync -aH --include="*/" --include="*.h" --exclude="*" ${SOURCE_DIR}/Libraries/C/ ${SYSROOT_DIR}/usr/include
-buildstep "Headers" rsync -aH --include="*/" --include="*.h" --exclude="*" ${SOURCE_DIR}/kernel/api/ ${SYSROOT_DIR}/usr/include/kernel/api
+buildstep "Headers" rsync -aH --include="*/" --include="*.h" --exclude="*" ${SOURCE_DIR}/Kernel/api/ ${SYSROOT_DIR}/usr/include/Kernel/api
 
 mkdir -p ${BUILD_TOOLCHAIN_DIR}/build-binutils
 pushd ${BUILD_TOOLCHAIN_DIR}/build-binutils

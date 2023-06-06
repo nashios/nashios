@@ -60,7 +60,7 @@ function(nashios_bin target_name)
     target_link_libraries(${target_name} PRIVATE LibC)
 endfunction()
 
-add_subdirectory(kernel)
+add_subdirectory(Kernel)
 add_subdirectory(Libraries)
 add_subdirectory(Services)
 add_subdirectory(Applications)

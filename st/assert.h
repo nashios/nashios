@@ -1,7 +1,7 @@
 #pragma once
 
 #if KERNEL
-#include <kernel/lib/assert.h>
+#include <Kernel/lib/assert.h>
 #else
 #include <assert.h>
 #endif
