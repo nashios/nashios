@@ -9,6 +9,7 @@ set(SOURCES
     string.cpp
     unistd.cpp
     wchar.cpp
+    wctype.cpp
     
     sys/poll.cpp
     sys/select.cpp
