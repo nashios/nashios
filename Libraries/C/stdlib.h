@@ -10,6 +10,8 @@
 #define MB_CUR_MAX 4
 #define MB_LEN_MAX 16
 
+#define RAND_MAX 32767
+
 ___BEGIN_DECLS
 
 typedef struct
