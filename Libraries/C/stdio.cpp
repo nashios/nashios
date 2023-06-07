@@ -36,10 +36,10 @@ extern "C"
     __attribute__((__format__(gnu_printf, 2, 3))) int fprintf(FILE *__restrict stream, const char *__restrict format,
                                                               ...)
     {
-        va_list ap;
-        va_start(ap, format);
-        int result = vfprintf(stream, format, ap);
-        va_end(ap);
+        va_list args;
+        va_start(args, format);
+        auto result = vfprintf(stream, format, args);
+        va_end(args);
 
         return result;
     }
@@ -49,7 +49,15 @@ extern "C"
         assert(false);
     }
 
-    __attribute__((__format__(gnu_printf, 1, 2))) int printf(const char *__restrict, ...) { assert(false); }
+    __attribute__((__format__(gnu_printf, 1, 2))) int printf(const char *__restrict format, ...)
+    {
+        va_list args;
+        va_start(args, format);
+        auto result = vprintf(format, args);
+        va_end(args);
+
+        return result;
+    }
 
     __attribute__((__format__(gnu_scanf, 1, 2))) int scanf(const char *__restrict, ...) { assert(false); }
 
@@ -68,27 +76,19 @@ extern "C"
         assert(false);
     }
 
-    __attribute__((__format__(gnu_printf, 2, 0))) int vfprintf(FILE *__restrict, const char *__restrict,
-                                                               va_list)
+    __attribute__((__format__(gnu_printf, 2, 0))) int vfprintf(FILE *__restrict, const char *__restrict, va_list)
     {
         assert(false);
     }
 
-    __attribute__((__format__(gnu_scanf, 2, 0))) int vfscanf(FILE *__restrict, const char *__restrict,
-                                                             va_list)
+    __attribute__((__format__(gnu_scanf, 2, 0))) int vfscanf(FILE *__restrict, const char *__restrict, va_list)
     {
         assert(false);
     }
 
-    __attribute__((__format__(gnu_printf, 1, 0))) int vprintf(const char *__restrict, va_list)
-    {
-        assert(false);
-    }
+    __attribute__((__format__(gnu_printf, 1, 0))) int vprintf(const char *__restrict, va_list) { assert(false); }
 
-    __attribute__((__format__(gnu_scanf, 1, 0))) int vscanf(const char *__restrict, va_list)
-    {
-        assert(false);
-    }
+    __attribute__((__format__(gnu_scanf, 1, 0))) int vscanf(const char *__restrict, va_list) { assert(false); }
 
     __attribute__((__format__(gnu_printf, 3, 0))) int vsnprintf(char *__restrict, size_t, const char *__restrict,
                                                                 va_list)
@@ -96,22 +96,17 @@ extern "C"
         assert(false);
     }
 
-    __attribute__((__format__(gnu_printf, 2, 0))) int vsprintf(char *__restrict, const char *__restrict,
-                                                               va_list)
+    __attribute__((__format__(gnu_printf, 2, 0))) int vsprintf(char *__restrict, const char *__restrict, va_list)
     {
         assert(false);
     }
 
-    __attribute__((__format__(gnu_scanf, 2, 0))) int vsscanf(const char *__restrict, const char *__restrict,
-                                                             va_list)
+    __attribute__((__format__(gnu_scanf, 2, 0))) int vsscanf(const char *__restrict, const char *__restrict, va_list)
     {
         assert(false);
     }
 
-    __attribute__((__format__(gnu_printf, 2, 0))) int vasprintf(char **, const char *, va_list)
-    {
-        assert(false);
-    }
+    __attribute__((__format__(gnu_printf, 2, 0))) int vasprintf(char **, const char *, va_list) { assert(false); }
 
     int fgetc(FILE *) { assert(false); }
 

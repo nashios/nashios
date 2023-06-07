@@ -87,7 +87,7 @@ extern "C"
      * %), the additional arguments following format are formatted and inserted in the resulting string replacing their
      * respective specifiers.
      *
-     * @param stream Pointer to a FILE object that identifies an output stream.
+     * @param stream Pointer to a FILE object that identifies an output stream
      * @param format C string that contains the text to be written to the stream
      *
      * @return On success, the total number of characters written is returned. On failure, the error indicator (ferror)
@@ -97,6 +97,17 @@ extern "C"
                                                               ...);
     __attribute__((__format__(gnu_scanf, 2, 3))) int fscanf(FILE *__restrict stream, const char *__restrict format,
                                                             ...);
+
+    /**
+     * @brief Writes a formatted string to stdout. If format includes format specifiers (subsequences beginning with %),
+     * the additional arguments following format are formatted and inserted in the resulting string replacing their
+     * respective specifiers.
+     *
+     * @param format C string that contains the text to be written to stdout
+     *
+     * @return On success, the total number of characters written is returned. On failure, the error indicator (ferror)
+     * is set and a negative number is returned.
+     */
     __attribute__((__format__(gnu_printf, 1, 2))) int printf(const char *__restrict format, ...);
     __attribute__((__format__(gnu_scanf, 1, 2))) int scanf(const char *__restrict format, ...);
     __attribute__((__format__(gnu_printf, 3, 4))) int snprintf(char *__restrict buffer, size_t max_size,
