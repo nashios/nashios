@@ -1,11 +1,12 @@
 #ifndef _STDIO_H
 #define _STDIO_H
 
-#include <bits/seek-whence.h>
 #include <bits/null.h>
 #include <bits/off_t.h>
+#include <bits/seek-whence.h>
 #include <bits/size_t.h>
 #include <bits/ssize_t.h>
+#include <stdarg.h>
 
 #define P_tmpdir "/tmp"
 
@@ -80,6 +81,19 @@ extern "C"
     int setvbuf(FILE *__restrict stream, char *__restrict buffer, int mode, size_t size);
     void setlinebuf(FILE *stream);
     void setbuffer(FILE *, char *, size_t);
+
+    /**
+     * @brief Writes a formatted string to a stream. If format includes format specifiers (subsequences beginning with
+     * %), the additional arguments following format are formatted and inserted in the resulting string replacing their
+     * respective specifiers.
+     *
+     * @param stream Pointer to a FILE object that identifies an output stream.
+     * @param format C string that contains the text to be written to the stream. It can optionally contain embedded
+     *
+     * @return On success, the total number of characters written is returned. On failure, the error indicator (ferror)
+     * is set and a negative number is returned.
+     *
+     */
     __attribute__((__format__(gnu_printf, 2, 3))) int fprintf(FILE *__restrict stream, const char *__restrict format,
                                                               ...);
     __attribute__((__format__(gnu_scanf, 2, 3))) int fscanf(FILE *__restrict stream, const char *__restrict format,
@@ -93,18 +107,18 @@ extern "C"
     __attribute__((__format__(gnu_scanf, 2, 3))) int sscanf(const char *__restrict buffer,
                                                             const char *__restrict format, ...);
     __attribute__((__format__(gnu_printf, 2, 0))) int vfprintf(FILE *__restrict stream, const char *__restrict format,
-                                                               __builtin_va_list args);
+                                                               va_list args);
     __attribute__((__format__(gnu_scanf, 2, 0))) int vfscanf(FILE *__restrict stream, const char *__restrict format,
-                                                             __builtin_va_list args);
-    __attribute__((__format__(gnu_printf, 1, 0))) int vprintf(const char *__restrict format, __builtin_va_list args);
-    __attribute__((__format__(gnu_scanf, 1, 0))) int vscanf(const char *__restrict format, __builtin_va_list args);
+                                                             va_list args);
+    __attribute__((__format__(gnu_printf, 1, 0))) int vprintf(const char *__restrict format, va_list args);
+    __attribute__((__format__(gnu_scanf, 1, 0))) int vscanf(const char *__restrict format, va_list args);
     __attribute__((__format__(gnu_printf, 3, 0))) int vsnprintf(char *__restrict buffer, size_t max_size,
-                                                                const char *__restrict format, __builtin_va_list args);
+                                                                const char *__restrict format, va_list args);
     __attribute__((__format__(gnu_printf, 2, 0))) int vsprintf(char *__restrict buffer, const char *__restrict format,
-                                                               __builtin_va_list args);
+                                                               va_list args);
     __attribute__((__format__(gnu_scanf, 2, 0))) int vsscanf(const char *__restrict buffer,
-                                                             const char *__restrict format, __builtin_va_list args);
-    __attribute__((__format__(gnu_printf, 2, 0))) int vasprintf(char **, const char *, __builtin_va_list);
+                                                             const char *__restrict format, va_list args);
+    __attribute__((__format__(gnu_printf, 2, 0))) int vasprintf(char **, const char *, va_list);
 
     int fgetc(FILE *stream);
     char *fgets(char *__restrict buffer, size_t max_size, FILE *__restrict stream);
@@ -158,7 +172,7 @@ extern "C"
     int fseeko(FILE *stream, off_t offset, int whence);
     off_t ftello(FILE *stream);
     int dprintf(int fd, const char *format, ...);
-    int vdprintf(int fd, const char *format, __builtin_va_list args);
+    int vdprintf(int fd, const char *format, va_list args);
     char *fgetln(FILE *, size_t *);
     FILE *fopencookie(void *__restrict cookie, const char *__restrict mode, cookie_io_functions_t io_funcs);
 
