@@ -26,6 +26,11 @@ extern "C"
 #ifdef NDEBUG
 
 #undef assert
+
+/**
+ * @brief Does nothing, as NDEBUG is defined.
+ *
+ */
 #define assert(ignore) ((void)0)
 
 #undef assert_perror
@@ -34,6 +39,12 @@ extern "C"
 #else
 
 #undef assert
+
+/**
+ * @brief Evaluates the assertion and if it is false, prints assertion message, file, line and function to stderr and
+ * aborts.
+ *
+ */
 #define assert(assertion) ((void)((assertion) || (__assert_fail(#assertion, __FILE__, __LINE__, __func__), 0)))
 
 #undef assert_perror
