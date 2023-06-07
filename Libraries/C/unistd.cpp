@@ -1,4 +1,5 @@
 #include <assert.h>
+#include <syscall.h>
 #include <unistd.h>
 
 extern "C"
@@ -95,7 +96,11 @@ extern "C"
 
     pid_t getpgrp(void) { assert(false); }
 
-    pid_t getpid(void) { assert(false); }
+    pid_t getpid(void)
+    {
+        auto result = syscall(__NR_getpid);
+        return static_cast<pid_t>(result);
+    }
 
     pid_t getppid(void) { assert(false); }
 

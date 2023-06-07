@@ -240,6 +240,12 @@ extern "C"
     char *getpass(const char *);
     pid_t getpgid(pid_t);
     pid_t getpgrp(void);
+
+    /**
+     * @brief Returns the process ID of the calling process.
+     *
+     * @return pid_t Always returns the process ID of the calling process.
+     */
     pid_t getpid(void);
     pid_t getppid(void);
     pid_t getsid(pid_t);
