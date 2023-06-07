@@ -3,6 +3,7 @@ set(SOURCES
     ctype.cpp
     errno.cpp
     fcntl.cpp
+    iconv.cpp
     locale.cpp
     mqueue.cpp
     pthread.cpp

@@ -1,14 +1,21 @@
-#pragma once
+#ifndef _ICONV_H
+#define _ICONV_H
 
-#include <stddef.h>
-#include <sys/cdefs.h>
+#include <bits/size_t.h>
 
-___BEGIN_DECLS
+#ifdef __cplusplus
+extern "C"
+{
+#endif
 
-typedef void *iconv_t;
+    typedef void *iconv_t;
 
-iconv_t iconv_open(const char *tocode, const char *fromcode);
-size_t iconv(iconv_t cd, char **inbuf, size_t *inbytesleft, char **outbuf, size_t *outbytesleft);
-int iconv_close(iconv_t cd);
+    size_t iconv(iconv_t, char **__restrict, size_t *__restrict, char **__restrict, size_t *__restrict);
+    int iconv_close(iconv_t);
+    iconv_t iconv_open(const char *, const char *);
 
-___END_DECLS
+#ifdef __cplusplus
+}
+#endif
+
+#endif
