@@ -6,6 +6,7 @@ set(SOURCES
     locale.cpp
     pthread.cpp
     sched.cpp
+    setjmp.cpp
     signal.cpp
     stdio.cpp
     stdlib.cpp

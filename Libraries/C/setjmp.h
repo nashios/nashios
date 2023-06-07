@@ -1,19 +1,33 @@
-#pragma once
+#ifndef _SETJMP_H
+#define _SETJMP_H
 
-#include <bits/types.h>
-#include <sys/cdefs.h>
+#include <bits/machine.h>
+#include <bits/signal.h>
 
-___BEGIN_DECLS
-
-struct __jmp_buf_tag
+#ifdef __cplusplus
+extern "C"
 {
-};
+#endif
 
-typedef struct __jmp_buf_tag jmp_buf[1];
-typedef struct __jmp_buf_tag sigjmp_buf[1];
-typedef __sig_atomic_t sig_atomic_t;
+    typedef struct __jmp_buf
+    {
+        struct __libc_jmpbuf_register_state reg_state;
+    } jmp_buf[1];
 
-int setjmp(jmp_buf env);
-void longjmp(jmp_buf env, int val);
+    typedef struct
+    {
+        struct __libc_jmpbuf_register_state reg_state;
+        int savesigs;
+        sigset_t sigset;
+    } sigjmp_buf[1];
 
-___END_DECLS
+    __attribute__((__returns_twice__)) int setjmp(jmp_buf buffer);
+    __attribute__((__noreturn__)) void longjmp(jmp_buf buffer, int value);
+    __attribute__((__returns_twice__)) int sigsetjmp(sigjmp_buf buffer, int savesigs);
+    __attribute__((__noreturn__)) void siglongjmp(sigjmp_buf buffer, int value);
+
+#ifdef __cplusplus
+}
+#endif
+
+#endif
