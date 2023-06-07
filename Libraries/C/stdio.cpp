@@ -61,9 +61,13 @@ extern "C"
 
     __attribute__((__format__(gnu_scanf, 1, 2))) int scanf(const char *__restrict, ...) { assert(false); }
 
-    __attribute__((__format__(gnu_printf, 3, 4))) int snprintf(char *__restrict, size_t, const char *__restrict, ...)
+    __attribute__((__format__(gnu_printf, 3, 4))) int snprintf(char *__restrict s, size_t n, const char *__restrict format, ...)
     {
-        assert(false);
+        va_list args;
+        va_start(args, format);
+        auto result = vsnprintf(s, n, format, args);
+        va_end(args);
+        return result;
     }
 
     __attribute__((__format__(gnu_printf, 2, 3))) int sprintf(char *__restrict, const char *__restrict, ...)
