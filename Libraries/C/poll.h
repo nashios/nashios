@@ -1,11 +1,6 @@
-#pragma once
+#ifndef _POLL_H
+#define _POLL_H
 
-#include <kernel/api/posix/poll.h>
-#include <sys/cdefs.h>
-#include <sys/types.h>
+#include <sys/poll.h>
 
-___BEGIN_DECLS
-
-int poll(struct pollfd fds[], nfds_t nfds, int timeout);
-
-___END_DECLS
+#endif
