@@ -66,6 +66,13 @@ extern "C"
     typedef int sig_atomic_t;
 
     __sighandler signal(int sig, __sighandler handler);
+
+    /**
+     * @brief Send a signal to the executing process.
+     *
+     * @param sig The signal to send
+     * @return 0 on success, a non-zero error code on failure
+     */
     int raise(int sig);
     int sigemptyset(sigset_t *);
     int sigfillset(sigset_t *);

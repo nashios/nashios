@@ -1,11 +1,12 @@
 #include <assert.h>
+#include <pthread.h>
 #include <signal.h>
 
 extern "C"
 {
     __sighandler signal(int, __sighandler) { assert(false); }
 
-    int raise(int) { assert(false); }
+    int raise(int sig) { pthread_kill(pthread_self(), sig); }
 
     int sigemptyset(sigset_t *) { assert(false); }
 
