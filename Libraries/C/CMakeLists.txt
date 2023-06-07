@@ -16,6 +16,7 @@ set(SOURCES
     wctype.cpp
 
     bits/cpu_set.cpp
+    bits/syscall.cpp
     
     sys/ioctl.cpp
     sys/poll.cpp
