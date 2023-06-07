@@ -35,6 +35,8 @@ set(C_SOURCES
     
     ipc/mqueue.c)
 
+set(CXX_SOURCES)
+
 if(ARCHITECTURE STREQUAL "i686")
     list(APPEND ASM_SOURCES
         arch/i686/boot/boot.S
@@ -54,8 +56,6 @@ if(ARCHITECTURE STREQUAL "i686")
         arch/i686/task/scheduler_return_usermode.S)
 
     list(APPEND C_SOURCES
-        arch/i686/main.c
-
         arch/i686/boot/multiboot.c
         arch/i686/boot/serial.c
 
@@ -71,10 +71,13 @@ if(ARCHITECTURE STREQUAL "i686")
         
         arch/i686/task/tss.c)
 
+    list(APPEND CXX_SOURCES
+        arch/i686/Main.cpp)
+
     set(LINKER_FILE ${CMAKE_CURRENT_SOURCE_DIR}/arch/i686/linker.ld)
 endif()
 
-add_executable(Kernel ${ASM_SOURCES} ${C_SOURCES})
+add_executable(Kernel ${ASM_SOURCES} ${C_SOURCES} ${CXX_SOURCES})
 target_compile_options(Kernel PRIVATE -ffreestanding -O2)
 target_link_options(Kernel PRIVATE -T ${LINKER_FILE} -ffreestanding -O2 -nostdlib)
 target_link_libraries(Kernel PRIVATE gcc)
