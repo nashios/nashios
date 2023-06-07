@@ -115,7 +115,15 @@ extern "C"
 
     __attribute__((__format__(gnu_printf, 2, 0))) int vasprintf(char **, const char *, va_list) { assert(false); }
 
-    int fgetc(FILE *) { assert(false); }
+    int fgetc(FILE *stream)
+    {
+        assert(stream);
+        unsigned char ch;
+        auto result = fread(&ch, sizeof(unsigned char), 1, stream);
+        if (result == 1)
+            return ch;
+        return EOF;
+    }
 
     char *fgets(char *__restrict, size_t, FILE *__restrict) { assert(false); }
 

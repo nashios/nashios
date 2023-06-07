@@ -167,6 +167,13 @@ extern "C"
                                                              const char *__restrict format, va_list args);
     __attribute__((__format__(gnu_printf, 2, 0))) int vasprintf(char **, const char *, va_list);
 
+    /**
+     * @brief Returns the current value of the file position indicator for the stream pointed to by stream.
+     *
+     * @param stream Pointer to a FILE object that identifies the stream
+     * @return int On success, the current value of the position indicator is returned. On failure, a negative value is
+     * returned.
+     */
     int fgetc(FILE *stream);
     char *fgets(char *__restrict buffer, size_t max_size, FILE *__restrict stream);
     int fputc(int c, FILE *stream);
