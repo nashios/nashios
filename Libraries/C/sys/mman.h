@@ -1,13 +1,35 @@
-#pragma once
+#ifndef _SYS_MMAN_H
+#define _SYS_MMAN_H
 
-#include <kernel/api/posix/mman.h>
-#include <stddef.h>
-#include <sys/cdefs.h>
-#include <sys/types.h>
+#include <bits/mode_t.h>
+#include <bits/off_t.h>
+#include <bits/size_t.h>
+#include <bits/vm-flags.h>
 
-___BEGIN_DECLS
+#ifdef __cplusplus
+extern "C"
+{
+#endif
 
-void *mmap(void *addr, size_t len, int prot, int flags, int fildes, off_t off);
-int shm_open(const char *name, int oflag, mode_t mode);
+    void *mmap(void *, size_t, int, int, int, off_t);
+    int mprotect(void *, size_t, int);
+    int munmap(void *, size_t);
+    int mlock(const void *, size_t);
+    int mlockall(int);
+    int munlock(const void *, size_t);
+    int munlockall(void);
+    int posix_madvise(void *, size_t, int);
+    int msync(void *, size_t, int);
+    int shm_open(const char *, int, mode_t);
+    int shm_unlink(const char *);
+    void *mremap(void *, size_t, size_t, int, ...);
+    int remap_file_pages(void *, size_t, int, size_t, int);
+    int memfd_create(const char *, unsigned int);
+    int madvise(void *, size_t, int);
+    int mincore(void *, size_t, unsigned char *);
 
-___END_DECLS
+#ifdef __cplusplus
+}
+#endif
+
+#endif

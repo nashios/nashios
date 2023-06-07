@@ -22,6 +22,7 @@ set(SOURCES
     bits/syscall.cpp
     
     sys/ioctl.cpp
+    sys/mman.cpp
     sys/poll.cpp
     sys/select.cpp
     sys/stat.cpp
