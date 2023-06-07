@@ -149,6 +149,12 @@ extern "C"
     int pthread_getaffinity_np(pthread_t thread, size_t cpusetsize, cpu_set_t *cpuset);
     int pthread_setaffinity_np(pthread_t thread, size_t cpusetsize, const cpu_set_t *cpuset);
     int pthread_create(pthread_t *__restrict, const pthread_attr_t *__restrict, void *(*)(void *), void *__restrict);
+
+    /**
+     * @brief Get the calling thread ID
+     *
+     * @return pthread_t The calling thread ID
+     */
     pthread_t pthread_self(void);
     int pthread_equal(pthread_t, pthread_t);
     int pthread_exit(void *);

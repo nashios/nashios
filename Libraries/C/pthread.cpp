@@ -1,3 +1,4 @@
+#include <asm/tcb.h>
 #include <assert.h>
 #include <pthread.h>
 
@@ -56,7 +57,13 @@ extern "C"
         assert(false);
     }
 
-    pthread_t pthread_self(void) { assert(false); }
+    pthread_t pthread_self(void)
+    {
+        uintptr_t ptr;
+        asm("mov %%fs:0, %0" : "=r"(ptr));
+        auto thread = reinterpret_cast<tcb *>(ptr);
+        return reinterpret_cast<pthread_t>(thread);
+    }
 
     int pthread_equal(pthread_t, pthread_t) { assert(false); }
 
