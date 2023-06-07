@@ -4,6 +4,7 @@ set(SOURCES
     errno.cpp
     fcntl.cpp
     locale.cpp
+    signal.cpp
     stdio.cpp
     stdlib.cpp
     string.cpp
