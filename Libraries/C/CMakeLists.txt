@@ -4,6 +4,7 @@ set(SOURCES
     errno.cpp
     fcntl.cpp
     locale.cpp
+    mqueue.cpp
     pthread.cpp
     sched.cpp
     setjmp.cpp
