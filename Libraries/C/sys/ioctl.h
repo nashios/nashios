@@ -2,7 +2,6 @@
 #define _SYS_IOCTL_H
 
 #include <asm/ioctls.h>
-#include <bits/abi/ioctls.h>
 
 #define FIONREAD 0x541B
 #define FIONBIO 0x5421
