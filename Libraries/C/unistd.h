@@ -206,6 +206,14 @@ extern "C"
     char *ctermid(char *s);
     int dup(int fd);
     int dup2(int src_fd, int dest_fd);
+
+    /**
+     * @brief Terminates the calling process immediately.
+     *
+     * @note This function does not flush stdio buffers.
+     *
+     * @param status Exit status of the process.
+     */
     __attribute__((__noreturn__)) void _exit(int status);
     void endusershell(void);
     int execl(const char *, const char *, ...);

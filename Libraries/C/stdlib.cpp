@@ -1,6 +1,7 @@
 #include <assert.h>
 #include <signal.h>
 #include <stdlib.h>
+#include <unistd.h>
 
 extern "C"
 {
@@ -59,9 +60,9 @@ extern "C"
 
     int at_quick_exit(void (*func)(void)) { assert(false); }
 
-    __attribute__((__noreturn__)) void exit(int) { assert(false); }
+    __attribute__((__noreturn__)) void exit(int status) { _exit(status); }
 
-    __attribute__((__noreturn__)) void _Exit(int) { assert(false); }
+    __attribute__((__noreturn__)) void _Exit(int status) { _exit(status); }
 
     char *getenv(const char *) { assert(false); }
 

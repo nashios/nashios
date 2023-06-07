@@ -66,7 +66,21 @@ extern "C"
     __attribute__((__noreturn__)) void abort(void);
     int atexit(void (*func)(void));
     int at_quick_exit(void (*func)(void));
+
+    /**
+     * @brief Terminates the calling process immediately.
+     *
+     * @param status Exit status of the process.
+     */
     __attribute__((__noreturn__)) void exit(int status);
+
+    /**
+     * @brief Terminates the calling process immediately.
+     *
+     * @note This function does not flush stdio buffers.
+     *
+     * @param status Exit status of the process.
+     */
     __attribute__((__noreturn__)) void _Exit(int status);
     char *getenv(const char *name);
     __attribute__((__noreturn__)) void quick_exit(int status);

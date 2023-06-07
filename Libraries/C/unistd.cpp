@@ -28,7 +28,11 @@ extern "C"
 
     int dup2(int, int) { assert(false); }
 
-    __attribute__((__noreturn__)) void _exit(int) { assert(false); }
+    __attribute__((__noreturn__)) void _exit(int status)
+    {
+        syscall(SYS_exit_group, status);
+        __builtin_trap();
+    }
 
     void endusershell(void) { assert(false); }
 
@@ -98,7 +102,7 @@ extern "C"
 
     pid_t getpid(void)
     {
-        auto result = syscall(__NR_getpid);
+        auto result = syscall(SYS_getpid);
         return static_cast<pid_t>(result);
     }
 
