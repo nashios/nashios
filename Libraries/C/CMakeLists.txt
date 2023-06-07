@@ -12,6 +12,8 @@ set(SOURCES
     unistd.cpp
     wchar.cpp
     wctype.cpp
+
+    bits/cpu_set.cpp
     
     sys/ioctl.cpp
     sys/poll.cpp
