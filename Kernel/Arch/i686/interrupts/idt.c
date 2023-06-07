@@ -1,5 +1,5 @@
-#include <Kernel/arch/i686/interrupts/idt.h>
-#include <Kernel/arch/i686/interrupts/pic.h>
+#include <Kernel/Arch/i686/interrupts/idt.h>
+#include <Kernel/Arch/i686/interrupts/pic.h>
 #include <Kernel/cpu/processor.h>
 #include <Kernel/interrupts/handler.h>
 #include <Kernel/lib/stdio.h>

@@ -1,5 +1,5 @@
 #define ASM_FILE
-#include <Kernel/arch/i686/boot/multiboot.h>
+#include <Kernel/Arch/i686/Boot/multiboot.h>
 
 .section .multiboot
 .align 4

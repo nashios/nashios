@@ -1,4 +1,4 @@
-#include <Kernel/arch/i686/cpu/io.h>
+#include <Kernel/Arch/i686/cpu/io.h>
 #include <Kernel/cpu/processor.h>
 #include <Kernel/lib/string.h>
 #include <Kernel/panic.h>

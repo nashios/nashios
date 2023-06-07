@@ -1,5 +1,5 @@
 #include <Kernel/api/posix/errno.h>
-#include <Kernel/arch/i686/cpu/io.h>
+#include <Kernel/Arch/i686/cpu/io.h>
 #include <Kernel/drivers/ata.h>
 #include <Kernel/interrupts/handler.h>
 #include <Kernel/lib/stdio.h>

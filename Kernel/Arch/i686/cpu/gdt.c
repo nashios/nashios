@@ -1,5 +1,5 @@
-#include <Kernel/arch/i686/cpu/gdt.h>
-#include <Kernel/arch/i686/task/tss.h>
+#include <Kernel/Arch/i686/cpu/gdt.h>
+#include <Kernel/Arch/i686/task/tss.h>
 #include <Kernel/lib/stdio.h>
 
 #define GDT_ENTRIES 6

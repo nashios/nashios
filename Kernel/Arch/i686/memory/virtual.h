@@ -1,7 +1,7 @@
 #pragma once
 
 #include <Kernel/api/posix/limits.h>
-#include <Kernel/arch/i686/memory/physical.h>
+#include <Kernel/Arch/i686/memory/physical.h>
 
 #define PHYS_TO_VIRT(address) (address + KERNEL_HIGHER_HALF)
 #define VIRT_TO_PHYS(address) (address - KERNEL_HIGHER_HALF)

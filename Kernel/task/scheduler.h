@@ -1,7 +1,7 @@
 #pragma once
 
 #include <Kernel/api/posix/sys/types.h>
-#include <Kernel/arch/i686/memory/virtual.h>
+#include <Kernel/Arch/i686/memory/virtual.h>
 #include <Kernel/interrupts/handler.h>
 #include <st/plist.h>
 

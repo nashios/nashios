@@ -1,8 +1,8 @@
 #include <Kernel/api/framebuffer.h>
 #include <Kernel/api/posix/errno.h>
-#include <Kernel/arch/i686/boot/multiboot.h>
-#include <Kernel/arch/i686/cpu/io.h>
-#include <Kernel/arch/i686/memory/virtual.h>
+#include <Kernel/Arch/i686/Boot/multiboot.h>
+#include <Kernel/Arch/i686/cpu/io.h>
+#include <Kernel/Arch/i686/memory/virtual.h>
 #include <Kernel/drivers/fb.h>
 #include <Kernel/drivers/pci.h>
 #include <Kernel/filesystem/chardev.h>

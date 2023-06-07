@@ -39,42 +39,43 @@ set(CXX_SOURCES)
 
 if(ARCHITECTURE STREQUAL "i686")
     list(APPEND ASM_SOURCES
-        arch/i686/boot/boot.S
+        Arch/i686/Boot/boot.S
 
-        arch/i686/cpu/gdt.S
+        Arch/i686/cpu/gdt.S
         
-        arch/i686/memory/page_enable.S
-        arch/i686/memory/flush_tbl.S
+        Arch/i686/memory/page_enable.S
+        Arch/i686/memory/flush_tbl.S
         
-        arch/i686/interrupts/idt_flush.S
-        arch/i686/interrupts/irq_common.S
-        arch/i686/interrupts/isr_common.S
+        Arch/i686/interrupts/idt_flush.S
+        Arch/i686/interrupts/irq_common.S
+        Arch/i686/interrupts/isr_common.S
         
-        arch/i686/task/tss_flush.S
-        arch/i686/task/scheduler_switch.S
-        arch/i686/task/scheduler_enter_usermode.S
-        arch/i686/task/scheduler_return_usermode.S)
+        Arch/i686/task/tss_flush.S
+        Arch/i686/task/scheduler_switch.S
+        Arch/i686/task/scheduler_enter_usermode.S
+        Arch/i686/task/scheduler_return_usermode.S)
 
     list(APPEND C_SOURCES
-        arch/i686/boot/multiboot.c
-        arch/i686/boot/serial.c
+        Arch/i686/Boot/multiboot.c
 
-        arch/i686/cpu/gdt.c
-        arch/i686/cpu/io.c
-        arch/i686/cpu/processor.c
+        Arch/i686/cpu/gdt.c
+        Arch/i686/cpu/io.c
+        Arch/i686/cpu/processor.c
         
-        arch/i686/interrupts/idt.c
-        arch/i686/interrupts/pic.c
+        Arch/i686/interrupts/idt.c
+        Arch/i686/interrupts/pic.c
         
-        arch/i686/memory/physical.c
-        arch/i686/memory/virtual.c
+        Arch/i686/memory/physical.c
+        Arch/i686/memory/virtual.c
         
-        arch/i686/task/tss.c)
+        Arch/i686/task/tss.c)
 
     list(APPEND CXX_SOURCES
-        arch/i686/Main.cpp)
+        Arch/i686/Main.cpp
 
-    set(LINKER_FILE ${CMAKE_CURRENT_SOURCE_DIR}/arch/i686/linker.ld)
+        Arch/i686/Boot/Serial.cpp)
+
+    set(LINKER_FILE ${CMAKE_CURRENT_SOURCE_DIR}/Arch/i686/linker.ld)
 endif()
 
 add_executable(Kernel ${ASM_SOURCES} ${C_SOURCES} ${CXX_SOURCES})

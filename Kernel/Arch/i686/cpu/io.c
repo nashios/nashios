@@ -1,4 +1,4 @@
-#include <Kernel/arch/i686/cpu/io.h>
+#include <Kernel/Arch/i686/cpu/io.h>
 
 uint8_t io_inb(uint16_t port)
 {
