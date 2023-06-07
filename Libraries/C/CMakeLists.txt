@@ -5,6 +5,7 @@ set(SOURCES
     fcntl.cpp
     iconv.cpp
     locale.cpp
+    math.cpp
     mqueue.cpp
     pthread.cpp
     sched.cpp
