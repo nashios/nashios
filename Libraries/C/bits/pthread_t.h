@@ -1,4 +1,5 @@
 #pragma once
 
-struct __thread_data;
-typedef struct __thread_data *pthread_t;
+#include <bits/threads.h>
+
+typedef struct __libc_thread_data *pthread_t;
