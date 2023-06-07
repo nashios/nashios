@@ -4,6 +4,7 @@ set(SOURCES
     errno.cpp
     fcntl.cpp
     iconv.cpp
+    langinfo.cpp
     locale.cpp
     math.cpp
     mqueue.cpp
