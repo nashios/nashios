@@ -88,11 +88,10 @@ extern "C"
      * respective specifiers.
      *
      * @param stream Pointer to a FILE object that identifies an output stream.
-     * @param format C string that contains the text to be written to the stream. It can optionally contain embedded
+     * @param format C string that contains the text to be written to the stream
      *
      * @return On success, the total number of characters written is returned. On failure, the error indicator (ferror)
      * is set and a negative number is returned.
-     *
      */
     __attribute__((__format__(gnu_printf, 2, 3))) int fprintf(FILE *__restrict stream, const char *__restrict format,
                                                               ...);
@@ -106,6 +105,17 @@ extern "C"
                                                               ...);
     __attribute__((__format__(gnu_scanf, 2, 3))) int sscanf(const char *__restrict buffer,
                                                             const char *__restrict format, ...);
+
+    /**
+     * @brief Writes a formatted string to a stream using a pointer to a list of arguments.
+     *
+     * @param stream Pointer to a FILE object that identifies an output stream.
+     * @param format C string that contains the text to be written to the stream
+     * @param args A value identifying a variable arguments list initialized with va_start.
+     *
+     * @return On success, the total number of characters written is returned. On failure, the error indicator (ferror)
+     * is set and a negative number is returned.
+     */
     __attribute__((__format__(gnu_printf, 2, 0))) int vfprintf(FILE *__restrict stream, const char *__restrict format,
                                                                va_list args);
     __attribute__((__format__(gnu_scanf, 2, 0))) int vfscanf(FILE *__restrict stream, const char *__restrict format,
