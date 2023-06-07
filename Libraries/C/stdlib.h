@@ -56,6 +56,13 @@ extern "C"
     void *malloc(size_t size);
     void *realloc(void *pointer, size_t size);
     int posix_memalign(void **, size_t, size_t);
+
+    /**
+     * @brief Cause abnormal program termination, unless SIGABRT is being caught and the signal handler does not return.
+     *
+     * @note Include the default actions of SIGABRT, such as flushing streams.
+     *
+     */
     __attribute__((__noreturn__)) void abort(void);
     int atexit(void (*func)(void));
     int at_quick_exit(void (*func)(void));
