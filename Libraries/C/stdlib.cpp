@@ -1,4 +1,5 @@
 #include <assert.h>
+#include <signal.h>
 #include <stdlib.h>
 
 extern "C"
@@ -43,7 +44,16 @@ extern "C"
 
     int posix_memalign(void **, size_t, size_t) { assert(false); }
 
-    __attribute__((__noreturn__)) void abort(void) { assert(false); }
+    __attribute__((__noreturn__)) void abort(void)
+    {
+        raise(SIGABRT);
+
+        sigset_t set;
+        sigemptyset(&set);
+        sigaddset(&set, SIGABRT);
+        sigprocmask(SIG_UNBLOCK, &set, nullptr);
+        raise(SIGABRT);
+    }
 
     int atexit(void (*func)(void)) { assert(false); }
 
