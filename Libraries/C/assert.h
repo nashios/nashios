@@ -6,6 +6,14 @@ extern "C"
 {
 #endif
 
+    /**
+     * @brief Used to implement assert() macro. Prints assertion message, file, line and function to stderr and aborts.
+     *
+     * @param assertion The assertion message
+     * @param file The filename
+     * @param line The file line
+     * @param function The function name
+     */
     void __assert_fail(const char *assertion, const char *file, unsigned int line, const char *function);
     void __assert_fail_perror(int errno, const char *file, unsigned int line, const char *function);
 
