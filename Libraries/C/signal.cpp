@@ -1,6 +1,9 @@
+#include <asm/tcb.h>
 #include <assert.h>
 #include <pthread.h>
 #include <signal.h>
+#include <syscall.h>
+#include <unistd.h>
 
 extern "C"
 {
@@ -24,7 +27,11 @@ extern "C"
 
     int pthread_sigmask(int, const sigset_t *__restrict, sigset_t *__restrict) { assert(false); }
 
-    int pthread_kill(pthread_t, int) { assert(false); }
+    int pthread_kill(pthread_t thread, int sig)
+    {
+        auto tcb_thread = reinterpret_cast<tcb *>(thread);
+        return syscall(SYS_tgkill, getpid(), tcb_thread->tid, sig);
+    }
 
     int sigaction(int, const struct sigaction *__restrict, struct sigaction *__restrict) { assert(false); }
 

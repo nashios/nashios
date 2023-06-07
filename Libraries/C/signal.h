@@ -82,7 +82,16 @@ extern "C"
     int sigsuspend(const sigset_t *);
     int sigprocmask(int, const sigset_t *__restrict, sigset_t *__restrict);
     int pthread_sigmask(int, const sigset_t *__restrict, sigset_t *__restrict);
-    int pthread_kill(pthread_t, int);
+
+    /**
+     * @brief Request that a signal be sent to a thread.
+     *
+     * @param thread The thread to send the signal to
+     * @param sig The signal to send
+     *
+     * @return int 0 on success, a non-zero error code on failure
+     */
+    int pthread_kill(pthread_t thread, int sig);
     int sigaction(int, const struct sigaction *__restrict, struct sigaction *__restrict);
     int sigpending(sigset_t *);
     int siginterrupt(int sig, int flag);
