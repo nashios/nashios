@@ -126,8 +126,20 @@ extern "C"
      */
     __attribute__((__format__(gnu_printf, 3, 4))) int snprintf(char *__restrict s, size_t n,
                                                                const char *__restrict format, ...);
-    __attribute__((__format__(gnu_printf, 2, 3))) int sprintf(char *__restrict buffer, const char *__restrict format,
-                                                              ...);
+
+    /**
+     * @brief Writes a formatted string to a buffer. If format includes format specifiers (subsequences beginning with
+     * %), the additional arguments following format are formatted and inserted in the resulting string replacing their
+     * respective specifiers
+     *
+     * @param str Pointer to a buffer where the resulting C-string is stored. The buffer should be large enough to
+     * contain the resulting string
+     * @param format C string that contains the text to be written to the buffer
+     *
+     * @return On success, the total number of characters written is returned. On failure, a negative number is
+     * returned.
+     */
+    __attribute__((__format__(gnu_printf, 2, 3))) int sprintf(char *__restrict str, const char *__restrict format, ...);
     __attribute__((__format__(gnu_scanf, 2, 3))) int sscanf(const char *__restrict buffer,
                                                             const char *__restrict format, ...);
 
