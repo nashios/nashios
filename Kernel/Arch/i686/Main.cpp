@@ -1,4 +1,5 @@
 #include <Kernel/Arch/i686/Boot/Serial.hpp>
+#include <Kernel/Init.hpp>
 
 extern "C"
 {
@@ -8,7 +9,6 @@ extern "C"
 #include <Kernel/Arch/i686/memory/physical.h>
 #include <Kernel/Arch/i686/memory/virtual.h>
 #include <Kernel/cpu/processor.h>
-#include <Kernel/init.h>
 }
 
 namespace Kernel::Arch::i686
@@ -24,6 +24,6 @@ namespace Kernel::Arch::i686
         physical_mm_init();
         virtual_mm_init();
 
-        Kernel_main();
+        Init::main();
     }
 } // namespace Kernel::Arch::i686

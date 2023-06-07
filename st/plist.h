@@ -44,12 +44,12 @@ static inline struct plist_node *plist_last(const struct plist_head *head)
 static inline void plist_add(struct plist_node *node, struct plist_head *head)
 {
     struct dlist_head *node_next = &head->node_list;
-    if (plist_head_empty(head))
-        goto ins_node;
-
     struct plist_node *first = plist_first(head);
     struct plist_node *iter = plist_first(head);
     struct plist_node *previous = NULL;
+    if (plist_head_empty(head))
+        goto ins_node;
+
     do
     {
         if (node->priority < iter->priority)

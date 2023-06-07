@@ -1,7 +1,6 @@
 set(ASM_SOURCES)
 
 set(C_SOURCES
-    init.c
     bitmap.c
     panic.c
     
@@ -35,7 +34,8 @@ set(C_SOURCES
     
     ipc/mqueue.c)
 
-set(CXX_SOURCES)
+set(CXX_SOURCES
+    Init.cpp)
 
 if(ARCHITECTURE STREQUAL "i686")
     list(APPEND ASM_SOURCES
