@@ -26,6 +26,19 @@ extern "C"
      */
     void *mmap(void *addr, size_t len, int prot, int flags, int fildes, off_t off);
 
+    /**
+     * @brief Open a shared memory object
+     *
+     * @note See more at: https://pubs.opengroup.org/onlinepubs/9699919799/functions/shm_open.html
+     *
+     * @param name The name of the shared memory object to create or open
+     * @param oflag The flags to use when opening the shared memory object
+     * @param mode The permissions to use when creating the shared memory object
+     * @return int On success, shm_open() returns a non-negative integer, otherwise, -1 is returned and errno is set to
+     * indicate the error.
+     */
+    int shm_open(const char *name, int oflag, mode_t mode);
+
 #ifdef __cplusplus
 }
 #endif
