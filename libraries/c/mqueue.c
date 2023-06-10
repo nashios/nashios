@@ -2,6 +2,8 @@
 #include <stdarg.h>
 #include <string.h>
 #include <sys/syscall.h>
+#include <stdlib.h>
+#include <unistd.h>
 
 mqd_t mq_open(const char *name, int oflag, ...)
 {
