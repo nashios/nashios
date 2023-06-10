@@ -13,6 +13,15 @@ extern "C"
     char *getenv(const char *);
     void *malloc(size_t);
 
+    /**
+     * @brief Exit the program with the given status.
+     *
+     * @note See more at: https://pubs.opengroup.org/onlinepubs/9699919799/functions/exit.html
+     *
+     * @param status The exit status.
+     */
+    void exit(int status);
+
 #ifdef __cplusplus
 }
 #endif
