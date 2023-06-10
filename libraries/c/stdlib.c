@@ -148,3 +148,9 @@ void exit(int status)
     while (true)
         syscall(__NR_exit, status);
 }
+
+void abort(void)
+{
+    // FIXME: Implement abort() using SIGABRT
+    exit(1);
+}

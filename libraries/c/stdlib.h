@@ -8,6 +8,11 @@ extern "C"
 {
 #endif
 
+    /**
+     * @brief Generate an abnormal program termination.
+     *
+     * @note See more at: https://pubs.opengroup.org/onlinepubs/9699919799/functions/abort.html
+     */
     void abort(void);
     int atexit(void (*)(void));
     int atoi(const char *);
