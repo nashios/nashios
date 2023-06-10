@@ -26,6 +26,11 @@ size_t strlen(const char *str)
         length++;
     return length;
 }
-}
 
 char *strcpy(char *restrict s1, const char *restrict s2) { return memcpy(s1, s2, strlen(s2) + 1); }
+
+char *strcat(char *restrict s1, const char *restrict s2)
+{
+    strcpy(s1 + strlen(s1), s2);
+    return s1;
+}

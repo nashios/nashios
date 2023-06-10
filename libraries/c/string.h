@@ -54,6 +54,18 @@ extern "C"
      */
     size_t strlen(const char *s);
 
+    /**
+     * @brief Concatenate strings
+     *
+     * @note See more at: https://pubs.opengroup.org/onlinepubs/9699919799/functions/strcat.html
+     *
+     * @param s1 The pointer to the destination array, which should contain a C string, and be large enough to contain
+     * the concatenated resulting string
+     * @param s2 The string to be appended
+     * @return char* A pointer to the resulting string s1
+     */
+    char *strcat(char *restrict s1, const char *restrict s2);
+
 #ifdef __cplusplus
 }
 #endif
