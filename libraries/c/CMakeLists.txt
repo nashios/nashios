@@ -2,7 +2,8 @@ set(SOURCES
     errno.c
     stdlib.c
     string.c
-    unistd.c)
+    unistd.c
+    stdio.c)
 
 if(${CMAKE_SYSTEM_PROCESSOR} MATCHES "i686")
     set(CRTI_FILE arch/i686/crti.S)
