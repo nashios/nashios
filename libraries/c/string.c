@@ -1,0 +1,12 @@
+#include <string.h>
+
+void *memcpy(void *restrict s1, const void *restrict s2, size_t n)
+{
+    char *p_s1 = (char *)s1;
+    const char *p_s2 = (const char *)s2;
+
+    for (size_t i = 0; i < n; i++)
+        *p_s1++ = *p_s2++;
+
+    return s1;
+}
