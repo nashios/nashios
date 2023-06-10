@@ -1,5 +1,7 @@
+#include <ctype.h>
 #include <limits.h>
 #include <stdio.h>
+#include <string.h>
 
 enum vsn_flags
 {
@@ -27,7 +29,7 @@ int fprintf(FILE *restrict stream, const char *restrict format, ...)
     return result;
 }
 
-int vsnprintf_atoi(const char **str)
+int vsnprintf_atoi(const char *restrict *str)
 {
     int i = 0;
     while (isdigit(**str))

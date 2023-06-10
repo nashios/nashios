@@ -8,6 +8,7 @@ set(SOURCES
     poll.c
     fcntl.c
     mqueue.c
+    ctype.c
 
     sys/ioctl.c
     sys/mman.c
