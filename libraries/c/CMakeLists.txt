@@ -10,7 +10,8 @@ set(SOURCES
     mqueue.c
 
     sys/ioctl.c
-    sys/mman.c)
+    sys/mman.c
+    sys/stat.c)
 
 if(${CMAKE_SYSTEM_PROCESSOR} MATCHES "i686")
     set(CRTI_FILE arch/i686/crti.S)
