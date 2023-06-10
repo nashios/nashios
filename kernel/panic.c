@@ -9,7 +9,7 @@ __attribute__((noreturn)) void panic_shutdown()
     io_outw(0x604, 0x2000);
 
     io_outw(0x4004, 0x3400);
-    PAUSE();
+    STOP();
 }
 
 void panic_backtrace_handler(uint32_t base)
