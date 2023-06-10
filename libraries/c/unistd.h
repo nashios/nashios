@@ -56,13 +56,24 @@ extern "C"
 
     /**
      * @brief Close a file descriptor
-     * 
+     *
      * @note See more at: https://pubs.opengroup.org/onlinepubs/9699919799/functions/close.html
-     * 
+     *
      * @param fildes The file descriptor to close
      * @return int On success, zero is returned. On error, -1 is returned, and errno is set appropriately.
      */
     int close(int fildes);
+
+    /**
+     * @brief Truncate a file to a specified length
+     *
+     * @note See more at: https://pubs.opengroup.org/onlinepubs/9699919799/functions/ftruncate.html
+     *
+     * @param fildes The file descriptor of the file to truncate
+     * @param length The length to truncate the file to
+     * @return int On success, zero is returned. On error, -1 is returned, and errno is set appropriately.
+     */
+    int ftruncate(int fildes, off_t length);
 
 #ifdef __cplusplus
 }

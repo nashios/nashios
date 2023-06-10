@@ -14,4 +14,6 @@ pid_t fork(void) { return syscall(__NR_fork); }
 
 int execve(const char *path, char *const argv[], char *const envp[]) { return syscall(__NR_execve, path, argv, envp); }
 
-int close(int fildes) {return syscall(__NR_close, fildes);}
+int close(int fildes) { return syscall(__NR_close, fildes); }
+
+int ftruncate(int fildes, off_t length) { return syscall(__NR_ftruncate, fildes, length); }
