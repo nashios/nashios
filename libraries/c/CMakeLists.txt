@@ -7,7 +7,8 @@ set(SOURCES
     assert.c
     poll.c
     fcntl.c
-    
+    mqueue.c
+
     sys/ioctl.c)
 
 if(${CMAKE_SYSTEM_PROCESSOR} MATCHES "i686")
