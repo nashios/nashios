@@ -48,7 +48,7 @@ extern "C"
 
     /**
      * @brief Write formatted output using a pointer to a list of arguments
-     * 
+     *
      * @note See more at: https://pubs.opengroup.org/onlinepubs/9699919799/functions/vfprintf.html
      *
      * @param stream The stream to write to
@@ -58,6 +58,33 @@ extern "C"
      * returned.
      */
     int vfprintf(FILE *restrict stream, const char *restrict format, va_list ap);
+
+    /**
+     * @brief Write formatted output to sized buffer
+     *
+     * @note See more at: https://pubs.opengroup.org/onlinepubs/9699919799/functions/vsnprintf.html
+     *
+     * @param s The buffer to write to
+     * @param n The size of the buffer
+     * @param format The format string
+     * @param ap The arguments to the format string
+     * @return int On success, the total number of characters written is returned. On failure, a negative number is
+     * returned.
+     */
+    int vsnprintf(char *restrict s, size_t n, const char *restrict format, va_list ap);
+
+    /**
+     * @brief Write formatted output to buffer
+     *
+     * @note See more at: https://pubs.opengroup.org/onlinepubs/9699919799/functions/sprintf.html
+     *
+     * @param s The buffer to write to
+     * @param format The format string
+     * @param ... The arguments to the format string
+     * @return int On success, the total number of characters written is returned. On failure, a negative number is
+     * returned.
+     */
+    int sprintf(char *restrict s, const char *restrict format, ...);
 
 #ifdef __cplusplus
 }
