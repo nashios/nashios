@@ -25,8 +25,11 @@ jobs:
           path: ${{ github.workspace }}/binary/cache/toolchain-${{ matrix.arch }}-${{ matrix.toolchain }}.tar.gz
           key: ${{ runner.os }}-toolchain-${{ matrix.arch }}-${{ hashFiles('meta/scripts/toolchain/*.sh', 'meta/patches/*.patch', 'libraries/c/**/*.h') }}
 
+      - name: Compile toolchain
+        run: USE_CACHE=true Meta/Scripts/NashiOS.sh toolchain ${{ matrix.arch }} ${{ matrix.toolchain }}
+
       - name: Compile system
-        run: USE_CACHE=true meta/scripts/nashios.sh build ${{ matrix.arch }} ${{ matrix.toolchain }}
+        run: Meta/Scripts/NashiOS.sh build ${{ matrix.arch }} ${{ matrix.toolchain }}
 
       - name: Install system
-        run: meta/scripts/nashios.sh install ${{ matrix.arch }} ${{ matrix.toolchain }}
+        run: Meta/Scripts/NashiOS.sh install ${{ matrix.arch }} ${{ matrix.toolchain }}
