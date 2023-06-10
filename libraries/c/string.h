@@ -33,7 +33,16 @@ extern "C"
      */
     void *memset(void *s, int c, size_t n);
     char *strcpy(char *, const char *);
-    size_t strlen(const char *);
+
+    /**
+     * @brief Get length of string
+     *
+     * @note See more at: https://pubs.opengroup.org/onlinepubs/9699919799/functions/strlen.html
+     *
+     * @param s The string to get the length of
+     * @return size_t The length of the string
+     */
+    size_t strlen(const char *s);
 
 #ifdef __cplusplus
 }

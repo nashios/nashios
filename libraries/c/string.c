@@ -18,3 +18,11 @@ void *memset(void *s, int c, size_t n)
         *p_s++ = (char)c;
     return s;
 }
+
+size_t strlen(const char *str)
+{
+    size_t length = 0;
+    while (str[length])
+        length++;
+    return length;
+}
