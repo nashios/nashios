@@ -4,7 +4,8 @@ set(SOURCES
     string.c
     unistd.c
     stdio.c
-    assert.c)
+    assert.c
+    poll.c)
 
 if(${CMAKE_SYSTEM_PROCESSOR} MATCHES "i686")
     set(CRTI_FILE arch/i686/crti.S)
