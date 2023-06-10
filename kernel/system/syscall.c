@@ -31,9 +31,9 @@ int syscall_brk(void *addr)
     return mmap_brk(p_addr);
 }
 
-void *syscall_mmap(void *addr, size_t len, int prot, int flags, int fildes)
+void *syscall_mmap(void *addr, size_t len, int prot, int flags, int fildes, off_t off)
 {
-    return mmap(addr, len, prot, flags, fildes, 0);
+    return mmap(addr, len, prot, flags, fildes, off);
 }
 
 mqd_t syscall_mq_open(const char *name, int oflag, struct mq_attr *attr) { return mq_open(name, oflag, attr); }
