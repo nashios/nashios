@@ -22,8 +22,8 @@ pushd ${CACHE_DIR}
     fi
 popd
 
-mkdir -p ${BUILD_COMMON_DIR}
-pushd ${BUILD_COMMON_DIR}
+mkdir -p ${COMMON_BUILD_DIR}
+pushd ${COMMON_BUILD_DIR}
     if [ ! -d "${CMAKE_PACKAGE}" ]; then
         buildstep "CMake" echo "Extracting"
         buildstep "CMake" tar -xf ${CACHE_DIR}/${CMAKE_ARCHIVE}
@@ -32,8 +32,8 @@ pushd ${BUILD_COMMON_DIR}
     fi
 popd
 
-pushd ${BUILD_COMMON_DIR}/${CMAKE_PACKAGE}
-    buildstep "CMake" ./bootstrap --generator=${GENERATOR} --parallel=${CORES} --prefix=${CROSS_COMMON_DIR}
+pushd ${COMMON_BUILD_DIR}/${CMAKE_PACKAGE}
+    buildstep "CMake" ./bootstrap --generator=${GENERATOR} --parallel=${CORES} --prefix=${COMMON_CROSS_DIR}
     buildstep "CMake" ninja -j ${CORES} all
     buildstep "CMake" ninja install
 popd

@@ -18,8 +18,8 @@ pushd ${CACHE_DIR}
             buildstep "Cache" echo "Cache file ${CACHE_ARCHIVE} exists"
             buildstep "Cache" echo "Extracting toolchain from cache"
 
-            mkdir -p ${CROSS_TOOLCHAIN_DIR}
-            pushd ${CROSS_TOOLCHAIN_DIR}
+            mkdir -p ${TOOLCHAIN_CROSS_DIR}
+            pushd ${TOOLCHAIN_CROSS_DIR}
                 if tar -xzf "${CACHE_ARCHIVE}" ; then
                     buildstep "Cache" echo "Cache unchanged"
                     exit 0
@@ -62,13 +62,13 @@ pushd ${CACHE_DIR}
     fi
 popd
 
-mkdir -p ${BUILD_TOOLCHAIN_DIR}
-pushd ${BUILD_TOOLCHAIN_DIR}
+mkdir -p ${TOOLCHAIN_BUILD_DIR}
+pushd ${TOOLCHAIN_BUILD_DIR}
     if [ ! -d "${BINUTILS_PACKAGE}" ]; then
         buildstep "Binutils" echo "Extracting"
         buildstep "Binutils" tar -xf ${CACHE_DIR}/${BINUTILS_ARCHIVE}
         
-        pushd ${BUILD_TOOLCHAIN_DIR}/${BINUTILS_PACKAGE}
+        pushd ${TOOLCHAIN_BUILD_DIR}/${BINUTILS_PACKAGE}
             buildstep "Binutils" patch -p1 < "${SOURCE_DIR}/meta/patches/binutils.patch" > /dev/null
         popd
     else
@@ -79,7 +79,7 @@ pushd ${BUILD_TOOLCHAIN_DIR}
         buildstep "GCC" echo "Extracting"
         buildstep "GCC" tar -xf ${CACHE_DIR}/${GCC_ARCHIVE}
         
-        pushd ${BUILD_TOOLCHAIN_DIR}/${GCC_PACKAGE}
+        pushd ${TOOLCHAIN_BUILD_DIR}/${GCC_PACKAGE}
             buildstep "GCC" patch -p1 < "${SOURCE_DIR}/meta/patches/gcc.patch" > /dev/null
         popd
     else
@@ -91,16 +91,16 @@ mkdir -p ${SYSROOT_DIR}/usr/include/kernel/api
 buildstep "Headers" rsync -aH --include="*/" --include="*.h" --exclude="*" ${SOURCE_DIR}/libraries/c/ ${SYSROOT_DIR}/usr/include
 buildstep "Headers" rsync -aH --include="*/" --include="*.h" --exclude="*" ${SOURCE_DIR}/kernel/api/ ${SYSROOT_DIR}/usr/include/kernel/api
 
-mkdir -p ${BUILD_TOOLCHAIN_DIR}/build-binutils
-pushd ${BUILD_TOOLCHAIN_DIR}/build-binutils
-    buildstep "Binutils/configure" ../${BINUTILS_PACKAGE}/configure --target=${TARGET} --prefix=${CROSS_TOOLCHAIN_DIR} --with-sysroot=${SYSROOT_DIR} --disable-werror
+mkdir -p ${TOOLCHAIN_BUILD_DIR}/build-binutils
+pushd ${TOOLCHAIN_BUILD_DIR}/build-binutils
+    buildstep "Binutils/configure" ../${BINUTILS_PACKAGE}/configure --target=${TARGET} --prefix=${TOOLCHAIN_CROSS_DIR} --with-sysroot=${SYSROOT_DIR} --disable-werror
     buildstep "Binutils/compile" make -j ${CORES} all
     buildstep "Binutils/install" make install
 popd
 
-mkdir ${BUILD_TOOLCHAIN_DIR}/build-gcc
-pushd ${BUILD_TOOLCHAIN_DIR}/build-gcc
-    buildstep "GCC/configure" ../${GCC_PACKAGE}/configure --target=${TARGET} --prefix=${CROSS_TOOLCHAIN_DIR} --with-sysroot=${SYSROOT_DIR} --enable-languages=c,c++  --enable-shared --with-newlib
+mkdir ${TOOLCHAIN_BUILD_DIR}/build-gcc
+pushd ${TOOLCHAIN_BUILD_DIR}/build-gcc
+    buildstep "GCC/configure" ../${GCC_PACKAGE}/configure --target=${TARGET} --prefix=${TOOLCHAIN_CROSS_DIR} --with-sysroot=${SYSROOT_DIR} --enable-languages=c,c++  --enable-shared --with-newlib
     buildstep "GCC/compile" make -j ${CORES} all-gcc all-target-libgcc
     buildstep "GCC/install" make install-gcc install-target-libgcc
     buildstep "GCC/libstdc++" make all-target-libstdc++-v3
@@ -108,7 +108,7 @@ pushd ${BUILD_TOOLCHAIN_DIR}/build-gcc
 popd
 
 if [ "${USE_CACHE}" = "true" ] ; then
-    pushd ${CROSS_TOOLCHAIN_DIR}
+    pushd ${TOOLCHAIN_CROSS_DIR}
         buildstep "Cache" echo "Creating toolchain cache"
         buildstep "Cache" tar -czf "${CACHE_ARCHIVE}" .
     popd

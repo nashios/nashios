@@ -21,8 +21,8 @@ pushd ${CACHE_DIR}
     fi
 popd
 
-mkdir -p ${BUILD_COMMON_DIR}
-pushd ${BUILD_COMMON_DIR}
+mkdir -p ${COMMON_BUILD_DIR}
+pushd ${COMMON_BUILD_DIR}
     if [ ! -d "${QEMU_PACKAGE}" ]; then
         buildstep "QEMU" echo "Extracting"
         buildstep "QEMU" tar -xf ${CACHE_DIR}/${QEMU_ARCHIVE}
@@ -31,8 +31,8 @@ pushd ${BUILD_COMMON_DIR}
     fi
 popd
 
-pushd ${BUILD_COMMON_DIR}/${QEMU_PACKAGE}
-    buildstep "QEMU" ./configure --prefix=${CROSS_COMMON_DIR} --target-list=i386-softmmu --enable-gtk
+pushd ${COMMON_BUILD_DIR}/${QEMU_PACKAGE}
+    buildstep "QEMU" ./configure --prefix=${COMMON_CROSS_DIR} --target-list=i386-softmmu --enable-gtk
     buildstep "CMake" make -j ${CORES} all
     buildstep "CMake" make install
 popd

@@ -35,7 +35,7 @@ set(C_SOURCES
     
     ipc/mqueue.c)
 
-if(ARCHITECTURE STREQUAL "i686")
+if(${CMAKE_SYSTEM_PROCESSOR} STREQUAL "i686")
     list(APPEND ASM_SOURCES
         arch/i686/boot/boot.S
 
