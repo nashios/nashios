@@ -82,22 +82,19 @@ static inline void dlist_remove(struct dlist_head *entry)
     entry->previous = NULL;
 }
 
-static inline void ___dlist_add(struct dlist_head *new_list, struct dlist_head *previous, struct dlist_head *next)
+static inline void ___dlist_add(struct dlist_head *new, struct dlist_head *previous, struct dlist_head *next)
 {
-    next->previous = new_list;
-    new_list->next = next;
-    new_list->previous = previous;
-    previous->next = new_list;
+    next->previous = new;
+    new->next = next;
+    new->previous = previous;
+    previous->next = new;
 }
 
-static inline void dlist_add(struct dlist_head *new_list, struct dlist_head *head)
-{
-    ___dlist_add(new_list, head, head->next);
-}
+static inline void dlist_add(struct dlist_head *new, struct dlist_head *head) { ___dlist_add(new, head, head->next); }
 
-static inline void dlist_add_tail(struct dlist_head *new_list, struct dlist_head *head)
+static inline void dlist_add_tail(struct dlist_head *new, struct dlist_head *head)
 {
-    ___dlist_add(new_list, head->previous, head);
+    ___dlist_add(new, head->previous, head);
 }
 
 static inline bool dlist_is_poison(const struct dlist_head *entry)

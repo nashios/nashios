@@ -4,12 +4,12 @@
 
 NashiOS is a unix-like operating system built entirely from scratch. The NashiOS project started in May 2023 with the goal of being a complete and functional operating system (maybe in 10 years?). The name comes from the fruit [Pyrus pyrifolia](https://en.wikipedia.org/wiki/Pyrus_pyrifolia) which is a species of pear native to East Asia and is also called nashi pear.
 
-![Alt text](Meta/Images/Screenshot-2023-06-01-012328.png)
-_Nashi OS boot time_
+![Alt text](meta/images/screenshot-2023-06-01-012328.png)
+*Nashi OS boot time*
 
 ## Building
 
-See the [build instructions](Documentation/BuildInstructions.md) file in the [documentation](Documentation) folder. In this folder we can find system-specific code documents, guidelines documents and also some explanations about hardware or system functionality.
+See the [build instructions](documentation/build-instructions.md) file in the [documentation](documentation) folder. In this folder we can find system-specific code documents, guidelines documents and also some explanations about hardware or system functionality.
 
 ## Contributing
 
@@ -20,7 +20,7 @@ Please make sure to update tests as appropriate.
 
 ## Authors
 
-- **Saullo** - [saullo](https://github.com/saullo)
+* **Saullo** - [saullo](https://github.com/saullo)
 
 ## License
 

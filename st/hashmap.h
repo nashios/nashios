@@ -5,9 +5,9 @@
 #include <stddef.h>
 
 #ifdef KERNEL
-#include <Kernel/api/posix/errno.h>
-#include <Kernel/lib/stdlib.h>
-#include <Kernel/lib/string.h>
+#include <kernel/api/posix/errno.h>
+#include <kernel/lib/stdlib.h>
+#include <kernel/lib/string.h>
 #else
 #include <errno.h>
 #include <stdlib.h>
