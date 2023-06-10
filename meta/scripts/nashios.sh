@@ -237,7 +237,7 @@ check_cmake() {
 }
 
 setup
-if [[ ${COMMAND} = @(build|install|run) ]]; then
+if [[ ${COMMAND} = @(build|install|image|run) ]]; then
     check_cmake
     [[ -d ${TOOLCHAIN_CROSS_DIR} ]] || compile_toolchain
     [[ -d ${SYSTEM_BUILD_DIR}/Makefile ]] || generate_cmake
@@ -247,6 +247,7 @@ if [[ ${COMMAND} = @(build|install|run) ]]; then
             build $@
             ;;
         install)
+            build $@
             install $@
             ;;
         image)
