@@ -66,6 +66,17 @@ extern "C"
      */
     char *strcat(char *restrict s1, const char *restrict s2);
 
+    /**
+     * @brief Compare two strings
+     * 
+     * @note See more at: https://pubs.opengroup.org/onlinepubs/9699919799/functions/strcmp.html
+     * 
+     * @param str1 The first string to compare
+     * @param str2 The second string to compare
+     * @return int Returns an integral value indicating the relationship between the strings:
+     */
+    int strcmp(const char *str1, const char *str2);
+
 #ifdef __cplusplus
 }
 #endif
