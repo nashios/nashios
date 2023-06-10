@@ -16,8 +16,12 @@ extern "C"
 {
 #endif
 
+    extern FILE *stdin;
+    extern FILE *stdout;
     extern FILE *stderr;
 
+#define stdin stdin
+#define stdout stdout
 #define stderr stderr
 
     int fclose(FILE *);
