@@ -1,3 +1,6 @@
-#pragma once
+#ifndef _SYS_TYPES_H
+#define _SYS_TYPES_H
 
-#include <kernel/api/posix/sys/types.h>
+typedef int pid_t;
+
+#endif

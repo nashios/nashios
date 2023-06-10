@@ -1,10 +1,6 @@
-#pragma once
-
-#include <kernel/api/posix/errno.h>
-#include <sys/cdefs.h>
-
-___BEGIN_DECLS
+#ifndef _ERRNO_H
+#define _ERRNO_H
 
 extern int errno;
 
-___END_DECLS
+#endif
