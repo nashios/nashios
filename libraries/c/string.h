@@ -20,7 +20,18 @@ extern "C"
      * @return void* A pointer to the destination, which is s1
      */
     void *memcpy(void *restrict s1, const void *restrict s2, size_t n);
-    void *memset(void *, int, size_t);
+
+    /**
+     * @brief Set n bytes of s to the value of c
+     *
+     * @note See more at: https://pubs.opengroup.org/onlinepubs/9699919799/functions/memset.html
+     *
+     * @param s The pointer to the block of memory to fill
+     * @param c The value to be set
+     * @param n The number of bytes to be set to the value
+     * @return void* A pointer to the memory area s
+     */
+    void *memset(void *s, int c, size_t n);
     char *strcpy(char *, const char *);
     size_t strlen(const char *);
 

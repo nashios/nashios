@@ -10,3 +10,11 @@ void *memcpy(void *restrict s1, const void *restrict s2, size_t n)
 
     return s1;
 }
+
+void *memset(void *s, int c, size_t n)
+{
+    unsigned char *p_s = (unsigned char *)s;
+    for (size_t i = 0; i < n; i++)
+        *p_s++ = (char)c;
+    return s;
+}
