@@ -32,7 +32,17 @@ extern "C"
      * @return void* A pointer to the memory area s
      */
     void *memset(void *s, int c, size_t n);
-    char *strcpy(char *, const char *);
+
+    /**
+     * @brief Copy the string pointed to by s2 into the object pointed to by s1
+     *
+     * @note See more at: https://pubs.opengroup.org/onlinepubs/9699919799/functions/strcpy.html
+     *
+     * @param s1 The pointer to the destination array where the content is to be copied
+     * @param s2 The string to be copied
+     * @return char* A pointer to the destination string s1
+     */
+    char *strcpy(char *restrict s1, const char *restrict s2);
 
     /**
      * @brief Get length of string
