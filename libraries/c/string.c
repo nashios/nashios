@@ -27,6 +27,17 @@ size_t strlen(const char *str)
     return length;
 }
 
+size_t strnlen(const char *s, size_t maxlen)
+{
+    size_t length;
+    for (length = 0; length < maxlen; length++)
+    {
+        if (s[length] == '\0')
+            break;
+    }
+    return length;
+}
+
 char *strcpy(char *restrict s1, const char *restrict s2) { return memcpy(s1, s2, strlen(s2) + 1); }
 
 char *strcat(char *restrict s1, const char *restrict s2)

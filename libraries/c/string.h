@@ -55,6 +55,17 @@ extern "C"
     size_t strlen(const char *s);
 
     /**
+     * @brief Get length of string limited by maxlen
+     *
+     * @note See more at: https://pubs.opengroup.org/onlinepubs/9699919799/functions/strnlen.html
+     *
+     * @param s The string to get the length of
+     * @param maxlen The maximum number of characters to check
+     * @return size_t The length of the string
+     */
+    size_t strnlen(const char *s, size_t maxlen);
+
+    /**
      * @brief Concatenate strings
      *
      * @note See more at: https://pubs.opengroup.org/onlinepubs/9699919799/functions/strcat.html
@@ -68,9 +79,9 @@ extern "C"
 
     /**
      * @brief Compare two strings
-     * 
+     *
      * @note See more at: https://pubs.opengroup.org/onlinepubs/9699919799/functions/strcmp.html
-     * 
+     *
      * @param str1 The first string to compare
      * @param str2 The second string to compare
      * @return int Returns an integral value indicating the relationship between the strings:
