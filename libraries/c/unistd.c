@@ -9,3 +9,5 @@ void *sbrk(intptr_t increment)
     brk(value + increment);
     return value;
 }
+
+pid_t fork(void) { return syscall(__NR_fork); }
