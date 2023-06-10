@@ -54,6 +54,16 @@ extern "C"
      */
     void *sbrk(intptr_t increment);
 
+    /**
+     * @brief Close a file descriptor
+     * 
+     * @note See more at: https://pubs.opengroup.org/onlinepubs/9699919799/functions/close.html
+     * 
+     * @param fildes The file descriptor to close
+     * @return int On success, zero is returned. On error, -1 is returned, and errno is set appropriately.
+     */
+    int close(int fildes);
+
 #ifdef __cplusplus
 }
 #endif
