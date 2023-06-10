@@ -75,6 +75,15 @@ extern "C"
      */
     int ftruncate(int fildes, off_t length);
 
+    /**
+     * @brief Get the process ID
+     *
+     * @note See more at: https://pubs.opengroup.org/onlinepubs/9699919799/functions/getpid.html
+     *
+     * @return pid_t The process ID
+     */
+    pid_t getpid(void);
+
 #ifdef __cplusplus
 }
 #endif

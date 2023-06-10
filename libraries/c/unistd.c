@@ -17,3 +17,5 @@ int execve(const char *path, char *const argv[], char *const envp[]) { return sy
 int close(int fildes) { return syscall(__NR_close, fildes); }
 
 int ftruncate(int fildes, off_t length) { return syscall(__NR_ftruncate, fildes, length); }
+
+pid_t getpid(void) { return syscall(__NR_getpid); }
