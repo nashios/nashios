@@ -1,6 +1,7 @@
 #ifndef _UNISTD_H
 #define _UNISTD_H
 
+#include <stddef.h>
 #include <stdint.h>
 #include <sys/types.h>
 
@@ -83,6 +84,19 @@ extern "C"
      * @return pid_t The process ID
      */
     pid_t getpid(void);
+
+    /**
+     * @brief Read from a file descriptor
+     *
+     * @note See more at: https://pubs.opengroup.org/onlinepubs/9699919799/functions/read.html
+     *
+     * @param fildes The file descriptor to read from
+     * @param buf The buffer to read into
+     * @param nbyte The number of bytes to read
+     * @return ssize_t On success, the number of bytes read is returned. On error, -1 is returned, and errno is set
+     * appropriately.
+     */
+    ssize_t read(int fildes, void *buf, size_t nbyte);
 
 #ifdef __cplusplus
 }

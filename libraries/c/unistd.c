@@ -19,3 +19,5 @@ int close(int fildes) { return syscall(__NR_close, fildes); }
 int ftruncate(int fildes, off_t length) { return syscall(__NR_ftruncate, fildes, length); }
 
 pid_t getpid(void) { return syscall(__NR_getpid); }
+
+ssize_t read(int fildes, void *buf, size_t nbyte) { return syscall(__NR_read, fildes, buf, nbyte); }
