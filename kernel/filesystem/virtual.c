@@ -481,7 +481,7 @@ int virtual_fs_ftruncate(int fildes, off_t length)
     return virtual_fs_truncate(file->dentry, length);
 }
 
-int virtual_fs_ioctl(int fd, unsigned long request, unsigned long arg)
+int virtual_fs_ioctl(int fd, unsigned long request, void *arg)
 {
     struct vfs_file *file = g_scheduler_process->files->fd[fd];
     if (!file)

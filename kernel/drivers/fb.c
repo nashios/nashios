@@ -76,7 +76,7 @@ void fb_init_multiboot()
     s_fb_display.pitch = g_multiboot_info->framebuffer_pitch;
 }
 
-int fb_vscreeninfo(unsigned long arg)
+int fb_vscreeninfo(void *arg)
 {
     struct fb_var_screeninfo *vsinfo = (struct fb_var_screeninfo *)arg;
     if (!vsinfo)
@@ -89,7 +89,7 @@ int fb_vscreeninfo(unsigned long arg)
     return 0;
 }
 
-int fb_ioctl(struct vfs_inode *, struct vfs_file *, unsigned int cmd, unsigned long arg)
+int fb_ioctl(struct vfs_inode *, struct vfs_file *, unsigned int cmd, void *arg)
 {
     switch (cmd)
     {

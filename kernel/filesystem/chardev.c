@@ -7,7 +7,7 @@ static struct dlist_head s_chardev_list = {};
 
 struct chardev *chardev_find(dev_t dev);
 
-int chardev_ioctl(struct vfs_inode *inode, struct vfs_file *file, unsigned int request, unsigned long arg)
+int chardev_ioctl(struct vfs_inode *inode, struct vfs_file *file, unsigned int request, void *arg)
 {
     struct chardev *device = chardev_find(file->dentry->inode->rdev);
     if (device == NULL)
