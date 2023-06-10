@@ -10,7 +10,18 @@ extern "C"
 #endif
 
     int execv(const char *, char *const[]);
-    int execve(const char *, char *const[], char *const[]);
+
+    /**
+     * @brief Execute a file
+     *
+     * @note See more at: https://pubs.opengroup.org/onlinepubs/9699919799/functions/exec.html
+     *
+     * @param path The path to the file to execute
+     * @param argv The arguments to pass to the file
+     * @param envp The environment variables to pass to the file
+     * @return int On success, execve() does not return, on error -1 is returned, and errno is set appropriately.
+     */
+    int execve(const char *path, char *const argv[], char *const envp[]);
     int execvp(const char *, char *const[]);
 
     /**
