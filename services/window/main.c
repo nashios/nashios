@@ -12,6 +12,9 @@
 #include <sys/mman.h>
 #include <unistd.h>
 
+#define MOUSE_WIDTH 32
+#define MOUSE_HEIGHT 32
+
 #define FD_COUNT 1
 
 #include <gfx/bitmap.h>
@@ -25,9 +28,15 @@ struct service_fb
     char *buffer;
 };
 
+struct service_mouse
+{
+    struct graphic *graphic;
+};
+
 struct service
 {
     struct service_fb fb;
+    struct service_mouse mouse;
     struct dlist_head window_list;
     char *buffer;
 };
@@ -151,7 +160,7 @@ void window_draw_window(char *buffer, struct window *window, int x, int y)
     dlist_for_each_entry(child, &window->children, sibling) { window_draw_window(buffer, child, target_x, target_y); }
 }
 
-void window_draw()
+void window_handle_focus_window()
 {
     struct window *window;
     dlist_for_each_entry(window, &s_service.window_list, sibling)
@@ -159,10 +168,12 @@ void window_draw()
         window_draw_window(s_service.buffer, window, 0, 0);
     }
 
+    gfx_graphic_alpha_draw(s_service.buffer, s_service.mouse.graphic->buffer, s_service.fb.pitch,
+                           s_service.mouse.graphic->x, s_service.mouse.graphic->y, s_service.mouse.graphic->width,
+                           s_service.mouse.graphic->height);
+
     memcpy(s_service.fb.buffer, s_service.buffer, s_service.fb.screen_size);
 }
-
-void window_handle_focus_window() { window_draw(); }
 
 void window_handle_gui()
 {
@@ -198,22 +209,37 @@ void window_init_fb()
     s_service.fb.pitch = vinfo.width * vinfo.bits_per_pixel;
     s_service.fb.screen_size = s_service.fb.height * s_service.fb.pitch;
 
-    char *buffer = (char *)mmap(NULL, s_service.fb.screen_size, PROT_READ | PROT_WRITE, MAP_SHARED, fd, 0);
-    if (buffer == MAP_FAILED)
+    s_service.fb.buffer = (char *)mmap(NULL, s_service.fb.screen_size, PROT_READ | PROT_WRITE, MAP_SHARED, fd, 0);
+    if (s_service.fb.buffer == MAP_FAILED)
         exit(ENOMEM);
-
-    s_service.fb.buffer = buffer;
 }
 
 void window_init_service()
 {
     dlist_head_init(&s_service.window_list);
 
-    char *buffer = (char *)calloc(s_service.fb.screen_size, sizeof(char));
-    if (!buffer)
+    s_service.buffer = (char *)calloc(s_service.fb.screen_size, sizeof(char));
+    if (!s_service.buffer)
         exit(ENOMEM);
 
-    s_service.buffer = buffer;
+    s_service.mouse.graphic = (struct graphic *)calloc(1, sizeof(struct graphic));
+    if (!s_service.mouse.graphic)
+        exit(ENOMEM);
+
+    s_service.mouse.graphic->x = s_service.fb.width / 2;
+    s_service.mouse.graphic->y = s_service.fb.height / 2;
+    s_service.mouse.graphic->width = MOUSE_WIDTH;
+    s_service.mouse.graphic->height = MOUSE_HEIGHT;
+    s_service.mouse.graphic->buffer = (char *)calloc(MOUSE_WIDTH * MOUSE_HEIGHT * 4, sizeof(char));
+    if (!s_service.mouse.graphic->buffer)
+        exit(ENOMEM);
+
+    char *mouse_bitmap = gfx_bitmap_open("/usr/share/icons/cursors/arrow.bmp");
+    if (!mouse_bitmap)
+        exit(ENOENT);
+
+    gfx_bitmap_draw(s_service.mouse.graphic, mouse_bitmap, 0, 0);
+    free(mouse_bitmap);
 }
 
 void window_init_mq()

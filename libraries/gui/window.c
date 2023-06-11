@@ -56,7 +56,7 @@ void gui_init_window(struct window *window, struct window *parent, int width, in
     window->graphic->y = y;
     window->graphic->width = width;
     window->graphic->height = height;
-    window->graphic->transparent = false;
+    window->graphic->transparent = transparent;
     window->parent = parent;
 
     dlist_head_init(&window->children);
@@ -107,7 +107,43 @@ void gui_init_window_topbar(struct window *window)
         return;
 
     gui_init_window(topbar, window, window->graphic->width, 36, 0, 0, false);
-    gui_set_window_bg_color(topbar, 0xFFFFFFF);
+    gui_set_window_bg_color(topbar, 0xFFFFFFFF);
+
+    struct window *close = (struct window *)calloc(1, sizeof(struct window));
+    if (!close)
+        return;
+
+    gui_init_window(close, topbar, 16, 16, topbar->graphic->width - 24, 8, true);
+
+    char *close_bitmap = gfx_bitmap_open("/usr/share/icons/16x16/window-close.bmp");
+    if (!close_bitmap)
+        return;
+    gfx_bitmap_draw(close->graphic, close_bitmap, 0, 0);
+    free(close_bitmap);
+
+    struct window *maximize = (struct window *)calloc(1, sizeof(struct window));
+    if (!maximize)
+        return;
+
+    gui_init_window(maximize, topbar, 16, 16, topbar->graphic->width - 48, 8, true);
+
+    char *maximize_bitmap = gfx_bitmap_open("/usr/share/icons/16x16/window-maximize.bmp");
+    if (!maximize_bitmap)
+        return;
+    gfx_bitmap_draw(maximize->graphic, maximize_bitmap, 0, 0);
+    free(maximize_bitmap);
+
+    struct window *minimize = (struct window *)calloc(1, sizeof(struct window));
+    if (!minimize)
+        return;
+
+    gui_init_window(minimize, topbar, 16, 16, topbar->graphic->width - 72, 8, true);
+
+    char *minimize_bitmap = gfx_bitmap_open("/usr/share/icons/16x16/window-minimize.bmp");
+    if (!minimize_bitmap)
+        return;
+    gfx_bitmap_draw(minimize->graphic, minimize_bitmap, 0, 0);
+    free(minimize_bitmap);
 }
 
 void gui_init_window_body(struct window *window)
@@ -116,8 +152,8 @@ void gui_init_window_body(struct window *window)
     if (!body)
         return;
 
-    gui_init_window(body, window, window->graphic->width, window->graphic->height - 37, 0, 37, false);
-    gui_set_window_bg_color(body, 0xFFFFFFF);
+    gui_init_window(body, window, window->graphic->width, window->graphic->height - 36, 0, 36, false);
+    gui_set_window_bg_color(body, 0x00000000);
 }
 
 struct window *gui_create_unstyled_window(int width, int height, int x, int y)
