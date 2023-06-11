@@ -89,6 +89,8 @@ int fb_vscreeninfo(void *arg)
     return 0;
 }
 
+int fb_open(struct vfs_inode *, struct vfs_file *) { return 0; }
+
 int fb_ioctl(struct vfs_inode *, struct vfs_file *, unsigned int cmd, void *arg)
 {
     switch (cmd)
@@ -113,7 +115,7 @@ int fb_mmap(struct vfs_file *, struct process_vm *area)
     return 0;
 }
 
-static struct vfs_file_op s_fb_op = {.ioctl = fb_ioctl, .mmap = fb_mmap};
+static struct vfs_file_op s_fb_op = {.open = fb_open, .ioctl = fb_ioctl, .mmap = fb_mmap};
 
 static struct chardev s_fb_chardev = {.dev = MKDEV(29, 0), .major = 29, .baseminor = 0, .minorct = 0, .op = &s_fb_op};
 

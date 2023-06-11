@@ -24,6 +24,7 @@ set(C_SOURCES
     drivers/ata.c
     drivers/fb.c
     drivers/pit.c
+    drivers/mouse.c
     
     lib/string.c
     lib/ctype.c

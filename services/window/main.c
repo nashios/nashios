@@ -2,6 +2,7 @@
 #include <fcntl.h>
 #include <gui/window.h>
 #include <kernel/api/framebuffer.h>
+#include <kernel/api/mouse.h>
 #include <mqueue.h>
 #include <poll.h>
 #include <stdbool.h>
@@ -15,7 +16,7 @@
 #define MOUSE_WIDTH 32
 #define MOUSE_HEIGHT 32
 
-#define FD_COUNT 1
+#define FD_COUNT 2
 
 #include <gfx/bitmap.h>
 
@@ -30,20 +31,27 @@ struct service_fb
 
 struct service_mouse
 {
+    int fd;
     struct graphic *graphic;
+    struct mouse_event event;
+};
+
+struct service_gui
+{
+    int fd;
+    struct mq_gui messages;
 };
 
 struct service
 {
     struct service_fb fb;
+    struct service_gui gui;
     struct service_mouse mouse;
     struct dlist_head window_list;
     char *buffer;
 };
 
-static struct mq_gui s_window_gui_buffer = {};
 static struct service s_service = {};
-static int s_window_gui_fd = -1;
 static int s_window_id = 0;
 
 struct window *window_create_window(int width, int height, int x, int y, bool transparent)
@@ -111,7 +119,7 @@ struct window *window_find_window(char *name)
 
 void window_handle_create_window()
 {
-    struct mq_gui_window *gui_window = (struct mq_gui_window *)s_window_gui_buffer.data;
+    struct mq_gui_window *gui_window = (struct mq_gui_window *)s_service.gui.messages.data;
     struct window *window = window_create_window(gui_window->width, gui_window->height, gui_window->x, gui_window->y,
                                                  gui_window->transparent);
     if (!window)
@@ -160,7 +168,7 @@ void window_draw_window(char *buffer, struct window *window, int x, int y)
     dlist_for_each_entry(child, &window->children, sibling) { window_draw_window(buffer, child, target_x, target_y); }
 }
 
-void window_handle_focus_window()
+void window_draw()
 {
     struct window *window;
     dlist_for_each_entry(window, &s_service.window_list, sibling)
@@ -175,13 +183,15 @@ void window_handle_focus_window()
     memcpy(s_service.fb.buffer, s_service.buffer, s_service.fb.screen_size);
 }
 
+void window_handle_focus_window() { window_draw(); }
+
 void window_handle_gui()
 {
-    memset(&s_window_gui_buffer, 0x00, sizeof(struct mq_gui));
-    if (mq_receive(s_window_gui_fd, (char *)&s_window_gui_buffer, sizeof(struct mq_gui), 0) < 0)
+    memset(&s_service.gui.messages, 0x00, sizeof(struct mq_gui));
+    if (mq_receive(s_service.gui.fd, (char *)&s_service.gui.messages, sizeof(struct mq_gui), 0) < 0)
         return;
 
-    switch (s_window_gui_buffer.type)
+    switch (s_service.gui.messages.type)
     {
     case GUI_CREATE_WINDOW:
         window_handle_create_window();
@@ -190,6 +200,28 @@ void window_handle_gui()
         window_handle_focus_window();
         break;
     }
+}
+
+void window_handle_mouse()
+{
+    memset(&s_service.mouse.event, 0x00, sizeof(struct mouse_event));
+    if (read(s_service.mouse.fd, (char *)&s_service.mouse.event, sizeof(struct mouse_event)) < 0)
+        return;
+
+    s_service.mouse.graphic->x += s_service.mouse.event.x;
+    s_service.mouse.graphic->y += s_service.mouse.event.y;
+
+    if (s_service.mouse.graphic->x < 0)
+        s_service.mouse.graphic->x = 0;
+    else if (s_service.mouse.graphic->x + (int32_t)s_service.mouse.graphic->width > (int32_t)s_service.fb.width)
+        s_service.mouse.graphic->x = s_service.fb.width - s_service.mouse.graphic->width;
+
+    if (s_service.mouse.graphic->y < 0)
+        s_service.mouse.graphic->y = 0;
+    else if (s_service.mouse.graphic->y + (int32_t)s_service.mouse.graphic->height > (int32_t)s_service.fb.height)
+        s_service.mouse.graphic->y = s_service.fb.height - s_service.mouse.graphic->height;
+
+    window_draw();
 }
 
 void window_init_fb()
@@ -245,11 +277,16 @@ void window_init_service()
 void window_init_mq()
 {
     struct mq_attr attr = {.mq_msgsize = sizeof(struct mq_gui), .mq_maxmsg = 32};
-    int fd = mq_open(GUI_SERVICE_PATH, O_RDONLY | O_CREAT, &attr);
-    if (fd < 0)
-        exit(fd);
+    s_service.gui.fd = mq_open(GUI_SERVICE_PATH, O_RDONLY | O_CREAT, &attr);
+    if (s_service.gui.fd < 0)
+        exit(s_service.gui.fd);
+}
 
-    s_window_gui_fd = fd;
+void window_init_mouse()
+{
+    s_service.mouse.fd = open("/dev/input/mouse0", O_RDONLY);
+    if (s_service.mouse.fd < 0)
+        exit(s_service.mouse.fd);
 }
 
 int main()
@@ -257,8 +294,10 @@ int main()
     window_init_fb();
     window_init_service();
     window_init_mq();
+    window_init_mouse();
 
-    struct pollfd fds[FD_COUNT] = {{.fd = s_window_gui_fd, .events = POLLIN}};
+    struct pollfd fds[FD_COUNT] = {{.fd = s_service.gui.fd, .events = POLLIN},
+                                   {.fd = s_service.mouse.fd, .events = POLLIN}};
 
     while (true)
     {
@@ -271,8 +310,10 @@ int main()
             if (!(fds[i].revents & POLLIN))
                 continue;
 
-            if (fds[i].fd == s_window_gui_fd)
+            if (fds[i].fd == s_service.gui.fd)
                 window_handle_gui();
+            else if (fds[i].fd == s_service.mouse.fd)
+                window_handle_mouse();
         }
     }
 

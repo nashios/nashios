@@ -140,3 +140,4 @@ void virtual_fs_poll_wait(struct vfs_file *file, struct wait_queue *wait, struct
 int virtual_fs_close(int fildes);
 int virtual_fs_ftruncate(int fildes, off_t length);
 int virtual_fs_ioctl(int fd, unsigned long request, void *arg);
+void virtual_fs_poll_wakeup(struct thread *thread);

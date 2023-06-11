@@ -7,6 +7,30 @@ static struct dlist_head s_chardev_list = {};
 
 struct chardev *chardev_find(dev_t dev);
 
+int chardev_open(struct vfs_inode *inode, struct vfs_file *file)
+{
+    struct chardev *device = chardev_find(file->dentry->inode->rdev);
+    if (device == NULL)
+        return -ENODEV;
+
+    if (device->op->open)
+        return device->op->open(inode, file);
+
+    return -EINVAL;
+}
+
+ssize_t chardev_read(struct vfs_file *file, char *buf, size_t count, loff_t ppos)
+{
+    struct chardev *device = chardev_find(file->dentry->inode->rdev);
+    if (device == NULL)
+        return -ENODEV;
+
+    if (device->op->read)
+        return device->op->read(file, buf, count, ppos);
+
+    return -EINVAL;
+}
+
 int chardev_ioctl(struct vfs_inode *inode, struct vfs_file *file, unsigned int request, void *arg)
 {
     struct chardev *device = chardev_find(file->dentry->inode->rdev);
@@ -31,7 +55,20 @@ int chardev_mmap(struct vfs_file *file, struct process_vm *memory)
     return -EINVAL;
 }
 
-struct vfs_file_op g_chardev_fop = {.ioctl = chardev_ioctl, .mmap = chardev_mmap};
+int chardev_poll(struct vfs_file *file, struct vfs_poll *poll)
+{
+    struct chardev *device = chardev_find(file->dentry->inode->rdev);
+    if (device == NULL)
+        return -ENODEV;
+
+    if (device->op->poll)
+        return device->op->poll(file, poll);
+
+    return -EINVAL;
+}
+
+struct vfs_file_op g_chardev_fop = {
+    .open = chardev_open, .read = chardev_read, .ioctl = chardev_ioctl, .mmap = chardev_mmap, .poll = chardev_poll};
 
 struct chardev *chardev_find(dev_t dev)
 {

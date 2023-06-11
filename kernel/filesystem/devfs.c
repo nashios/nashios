@@ -94,6 +94,7 @@ void devfs_init()
 {
     virtual_fs_set_type(&s_devfs_type);
     virtual_fs_mount("devfs", "/dev", s_devfs_type.name, MS_NOUSER, NULL);
+    virtual_fs_mknod("/dev/input", S_IFDIR, 0);
 
     printf("DevFS: Initialized\n");
 }
