@@ -68,6 +68,8 @@ ssize_t syscall_read(int fildes, void *buf, size_t nbyte) { return virtual_fs_re
 
 int syscall_ioctl(int fd, unsigned long request, void *arg) { return virtual_fs_ioctl(fd, request, arg); }
 
+ssize_t syscall_write(int fildes, const void *buf, size_t nbyte) { return virtual_fs_write(fildes, buf, nbyte);  }
+
 static void *s_syscall_list[] = {[__NR_exit] = syscall_exit,
                                  [__NR_fork] = syscall_fork,
                                  [__NR_read] = syscall_read,

@@ -493,6 +493,25 @@ int virtual_fs_ioctl(int fd, unsigned long request, void *arg)
     return -EINVAL;
 }
 
+ssize_t virtual_fs_write(int fildes, const void *buffer, size_t nbyte)
+{
+    if (fildes < 0)
+        return -EBADF;
+
+    struct vfs_file *file = g_scheduler_process->files->fd[fildes];
+    if (!file)
+        return -EBADF;
+
+    loff_t ppos = file->position;
+    if (file->flags & O_APPEND)
+        ppos = file->dentry->inode->size;
+
+    if (file->mode & FMODE_CAN_WRITE)
+        return file->op->write(file, buffer, nbyte, ppos);
+
+    return -EINVAL;
+}
+
 int virtual_fs_mount(const char *source, const char *target, const char *filesystemtype, unsigned long mountflags,
                      const void *data)
 {

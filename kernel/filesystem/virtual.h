@@ -29,7 +29,8 @@ struct vfs_poll;
 struct vfs_file_op
 {
     int (*open)(struct vfs_inode *inode, struct vfs_file *file);
-    ssize_t (*read)(struct vfs_file *file, char *buf, size_t count, loff_t ppos);
+    ssize_t (*read)(struct vfs_file *file, char *buffer, size_t count, loff_t ppos);
+    ssize_t (*write)(struct vfs_file *file, const char *buffer, size_t count, loff_t ppos);
     int (*mmap)(struct vfs_file *file, struct process_vm *memory);
     int (*release)(struct vfs_inode *inode, struct vfs_file *file);
     int (*poll)(struct vfs_file *file, struct vfs_poll *poll);
@@ -40,6 +41,7 @@ struct vfs_file
 {
     fmode_t mode;
     loff_t position;
+    uint32_t flags;
     struct vfs_file_op *op;
     struct vfs_dentry *dentry;
     struct vfs_mount *mount;
@@ -140,4 +142,5 @@ void virtual_fs_poll_wait(struct vfs_file *file, struct wait_queue *wait, struct
 int virtual_fs_close(int fildes);
 int virtual_fs_ftruncate(int fildes, off_t length);
 int virtual_fs_ioctl(int fd, unsigned long request, void *arg);
+ssize_t virtual_fs_write(int fildes, const void *buffer, size_t nbyte);
 void virtual_fs_poll_wakeup(struct thread *thread);
