@@ -4,8 +4,8 @@
 #include <kernel/lib/stdio.h>
 #include <kernel/lib/stdlib.h>
 #include <kernel/lib/string.h>
-#include <kernel/math.h>
 #include <st/assert.h>
+#include <st/math.h>
 
 #define EXT2_SUPER_MAGIC 0xEF53
 

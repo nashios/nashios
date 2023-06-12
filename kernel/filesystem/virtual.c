@@ -5,7 +5,7 @@
 #include <kernel/lib/stdio.h>
 #include <kernel/lib/stdlib.h>
 #include <kernel/lib/string.h>
-#include <kernel/math.h>
+#include <st/math.h>
 
 #define FMODE_READ ((fmode_t)0x1)
 #define FMODE_WRITE ((fmode_t)0x2)

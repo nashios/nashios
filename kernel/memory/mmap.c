@@ -3,10 +3,10 @@
 #include <kernel/lib/stdio.h>
 #include <kernel/lib/stdlib.h>
 #include <kernel/lib/string.h>
-#include <kernel/math.h>
 #include <kernel/memory/mmap.h>
 #include <kernel/task/scheduler.h>
 #include <st/assert.h>
+#include <st/math.h>
 
 struct process_vm *mmap_find_unmapped_area(uint32_t addr, uint32_t len)
 {

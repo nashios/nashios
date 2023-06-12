@@ -1,7 +1,7 @@
 #include <kernel/arch/i686/memory/virtual.h>
 #include <kernel/lib/string.h>
-#include <kernel/math.h>
 #include <st/assert.h>
+#include <st/math.h>
 #include <stdbool.h>
 
 #define HEAP_MAGIC 0xEF8E

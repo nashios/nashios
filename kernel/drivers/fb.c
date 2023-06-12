@@ -8,8 +8,8 @@
 #include <kernel/filesystem/chardev.h>
 #include <kernel/filesystem/devfs.h>
 #include <kernel/lib/stdio.h>
-#include <kernel/math.h>
 #include <kernel/memory/mmap.h>
+#include <st/math.h>
 
 #define FB_INDEX 0x01CE
 #define FB_DATA 0x01CF

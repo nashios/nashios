@@ -4,7 +4,7 @@
 #include <kernel/bitmap.h>
 #include <kernel/lib/stdio.h>
 #include <kernel/lib/string.h>
-#include <kernel/math.h>
+#include <st/math.h>
 
 extern void *_kernel_boot;
 extern void *_kernel_start;

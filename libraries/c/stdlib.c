@@ -1,7 +1,7 @@
 #include <assert.h>
 #include <ctype.h>
 #include <limits.h>
-#include <st/pointer-arith.h>
+#include <st/math.h>
 #include <stdbool.h>
 #include <stdint.h>
 #include <stdlib.h>

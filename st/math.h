@@ -3,6 +3,7 @@
 #define DIV_ROUND_UP(number, divisor) (((number) + (divisor)-1) / (divisor))
 
 #define ALIGN_DOWN(base, size) ((base) & -((__typeof__(base))(size)))
+
 #define ALIGN_UP(base, size) ALIGN_DOWN((base) + (size)-1, (size))
 
 #define MIN(x, y)                                                                                                      \
