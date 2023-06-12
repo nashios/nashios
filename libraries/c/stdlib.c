@@ -154,3 +154,5 @@ void abort(void)
     // FIXME: Implement abort() using SIGABRT
     exit(1);
 }
+
+int abs(int i) { return i < 0 ? -i : i; }

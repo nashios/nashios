@@ -19,7 +19,6 @@ extern "C"
     void abort(void);
     int atexit(void (*)(void));
     int atoi(const char *);
-    void free(void *);
     char *getenv(const char *);
 
     /**
@@ -71,6 +70,14 @@ extern "C"
      * @param status The exit status.
      */
     void exit(int status);
+
+    /**
+     * @brief Return an integer absolute value.
+     *
+     * @param i The integer to get the absolute value of.
+     * @return int The absolute value of i.
+     */
+    int abs(int i);
 
 #ifdef __cplusplus
 }
