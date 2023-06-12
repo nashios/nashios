@@ -98,6 +98,18 @@ extern "C"
      */
     ssize_t read(int fildes, void *buf, size_t nbyte);
 
+    /**
+     * @brief Write on a file descriptor
+     * 
+     * @note See more at: https://pubs.opengroup.org/onlinepubs/9699919799/functions/write.html
+     *
+     * @param fildes The file descriptor to write to
+     * @param buf The buffer to write from
+     * @param nbyte The number of bytes to write
+     * @return ssize_t On success, the number of bytes written is returned. On error, -1 is returned, and errno is set appropriately.
+     */
+    ssize_t write(int fildes, const void *buf, size_t nbyte);
+
 #ifdef __cplusplus
 }
 #endif
