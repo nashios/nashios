@@ -79,6 +79,18 @@ extern "C"
      */
     int abs(int i);
 
+    /**
+     * @brief Convert a string to a unsigned long integer.
+     *
+     * @note See more at: https://pubs.opengroup.org/onlinepubs/9699919799/functions/strtoul.html
+     *
+     * @param str The string to convert.
+     * @param endptr The address of a pointer to set to the first invalid character.
+     * @param base The base to use for the conversion.
+     * @return unsigned long The converted value.
+     */
+    unsigned long strtoul(const char *restrict str, char **restrict endptr, int base);
+
 #ifdef __cplusplus
 }
 #endif

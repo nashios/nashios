@@ -1,4 +1,6 @@
 #include <assert.h>
+#include <ctype.h>
+#include <limits.h>
 #include <st/pointer-arith.h>
 #include <stdbool.h>
 #include <stdint.h>
@@ -156,3 +158,73 @@ void abort(void)
 }
 
 int abs(int i) { return i < 0 ? -i : i; }
+
+unsigned long strtoul(const char *restrict str, char **restrict endptr, int base)
+{
+    const char *p_str = str;
+
+    int c;
+    do
+    {
+        c = *p_str++;
+    } while (isspace(c));
+
+    bool negative = false;
+    if (c == '-')
+    {
+        negative = true;
+        c = *p_str++;
+    }
+    else if (c == '+')
+        c = *p_str++;
+
+    if ((base == 0 || base == 16) && c == '0' && (*p_str == 'x' || *p_str == 'X'))
+    {
+        c = p_str[1];
+        p_str += 2;
+        base = 16;
+    }
+
+    if (base == 0)
+        base = c == '0' ? 8 : 10;
+
+    unsigned long offset = (unsigned long)ULONG_MAX / (unsigned long)base;
+    unsigned long limit = (unsigned long)ULONG_MAX % (unsigned long)base;
+
+    int any;
+    unsigned long converted;
+    for (converted = 0, any = 0;; c = *p_str++)
+    {
+        if (isdigit(c))
+            c -= '0';
+        else if (isalpha(c))
+            c -= isupper(c) ? 'A' - 10 : 'a' - 10;
+        else
+            break;
+
+        if (c >= base)
+            break;
+
+        if (any < 0 || converted > offset || (converted == offset && c > (int)limit))
+            any = -1;
+        else
+        {
+            any = 1;
+            converted *= base;
+            converted += c;
+        }
+    }
+
+    if (any < 0)
+    {
+        converted = ULONG_MAX;
+        errno = ERANGE;
+    }
+    else if (negative)
+        converted = -converted;
+
+    if (endptr != 0)
+        *endptr = (char *)(any ? p_str - 1 : str);
+
+    return converted;
+}
