@@ -9,7 +9,7 @@
 #include <unistd.h>
 #endif
 
-void dbgln(const char *format, ...)
+static inline void dbgln(const char *format, ...)
 {
 #if defined(KERNEL)
     char buffer[1024];
