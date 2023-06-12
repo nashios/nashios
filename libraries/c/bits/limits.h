@@ -3,4 +3,6 @@
 
 #include <kernel/api/posix/limits.h>
 
+#define ULONG_MAX ((unsigned long)(~0L))
+
 #endif
