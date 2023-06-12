@@ -99,7 +99,7 @@ void idt_handler(struct itr_registers *registers)
     itr_handler(registers);
 
     if (registers->number >= 32 && registers->number <= 47)
-        pic_send_eoi(registers->number);
+        pic_send_eoi(registers->number - 32);
 }
 
 void idt_init()
