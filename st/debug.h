@@ -1,6 +1,7 @@
 #pragma once
 
 #if defined(KERNEL)
+#include <kernel/lib/stdio.h>
 #else
 #include <fcntl.h>
 #include <stdio.h>
@@ -11,6 +12,16 @@
 void dbgln(const char *format, ...)
 {
 #if defined(KERNEL)
+    char buffer[1024];
+
+    va_list args;
+    va_start(args, format);
+    size_t length = vsnprintf(buffer, sizeof(buffer), format, args);
+    va_end(args);
+
+    buffer[length] = '\n';
+
+    printf(buffer);
 #else
     static int fd = -1;
     if (fd == -1)
@@ -40,6 +51,8 @@ void dbgln(const char *format, ...)
     if (length < 0)
         return;
     va_end(args2);
+
+    buffer[length] = '\n';
 
     if (write(fd, buffer, length) < 0)
         return;

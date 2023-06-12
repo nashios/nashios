@@ -8,8 +8,6 @@ int debug_open(struct vfs_inode *, struct vfs_file *) { return 0; }
 ssize_t debug_write(struct vfs_file *, const char *buffer, size_t count, loff_t)
 {
     printf(buffer, count);
-    printf("\n");
-
     return 0;
 }
 

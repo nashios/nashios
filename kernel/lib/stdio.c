@@ -1,3 +1,4 @@
+#include <kernel/api/posix/limits.h>
 #include <kernel/lib/ctype.h>
 #include <kernel/lib/stdio.h>
 #include <kernel/lib/string.h>
