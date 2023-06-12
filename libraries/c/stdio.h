@@ -6,15 +6,21 @@
 
 #define SEEK_SET 0
 
-typedef struct
-{
-    int unused;
-} FILE;
-
 #ifdef __cplusplus
 extern "C"
 {
 #endif
+
+    struct _FILE
+    {
+        int _flags;
+        int _offset;
+        char *_IO_write_base;
+        char *_IO_write_ptr;
+        char *_IO_write_end;
+    };
+
+    typedef struct _FILE FILE;
 
     extern FILE *stdin;
     extern FILE *stdout;
@@ -60,6 +66,19 @@ extern "C"
     int vfprintf(FILE *restrict stream, const char *restrict format, va_list ap);
 
     /**
+     * @brief Write formatted output
+     *
+     * @note See more at: https://pubs.opengroup.org/onlinepubs/9699919799/functions/vsprintf.html
+     *
+     * @param s The buffer to write to
+     * @param format The format string
+     * @param ap The arguments to the format string
+     * @return int On success, the total number of characters written is returned. On failure, a negative number is
+     * returned.
+     */
+    int vsprintf(char *s, const char *format, va_list ap);
+
+    /**
      * @brief Write formatted output to sized buffer
      *
      * @note See more at: https://pubs.opengroup.org/onlinepubs/9699919799/functions/vsnprintf.html
@@ -85,6 +104,41 @@ extern "C"
      * returned.
      */
     int sprintf(char *restrict s, const char *restrict format, ...);
+
+    /**
+     * @brief Print to allocated string
+     *
+     * @note See more at: https://pubs.opengroup.org/onlinepubs/9699919799/functions/vasprintf.html
+     *
+     * @param strp The string to write to
+     * @param fmt The format string
+     * @param ap The arguments to the format string
+     * @return int On success, the total number of characters written is returned. On failure, a negative number is
+     * returned.
+     */
+    int vasprintf(char **strp, const char *fmt, va_list ap);
+
+    /**
+     * @brief Put a byte on a stream
+     *
+     * @note See more at: https://pubs.opengroup.org/onlinepubs/9699919799/functions/putc.html
+     *
+     * @param c The byte to put
+     * @param stream The stream to put the byte on
+     * @return int On success, the character written is returned. On failure, EOF is returned.
+     */
+    int putc(int c, FILE *stream);
+
+    /**
+     * @brief Put a byte on a stream
+     *
+     * @note See more at: https://pubs.opengroup.org/onlinepubs/9699919799/functions/fputc.html
+     *
+     * @param c The byte to put
+     * @param stream The stream to put the byte on
+     * @return int On success, the character written is returned. On failure, EOF is returned.
+     */
+    int fputc(int c, FILE *stream);
 
 #ifdef __cplusplus
 }
