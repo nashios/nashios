@@ -88,6 +88,17 @@ extern "C"
      */
     int strcmp(const char *str1, const char *str2);
 
+    /**
+     * @brief String scanning operation
+     *
+     * @note See more at: https://pubs.opengroup.org/onlinepubs/9699919799/functions/strchr.html
+     *
+     * @param s The string to be scanned
+     * @param c The character to search for
+     * @return char* A pointer to the first occurrence of the character c in the string s
+     */
+    char *strchr(const char *s, int c);
+
 #ifdef __cplusplus
 }
 #endif

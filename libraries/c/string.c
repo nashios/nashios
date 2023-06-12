@@ -64,3 +64,14 @@ int strcmp(const char *str1, const char *str2)
 
     return c1 - c2;
 }
+
+char *strchr(const char *s, int c)
+{
+    do
+    {
+        if (*s == c)
+            return (char *)s;
+    } while (*s++);
+
+    return NULL;
+}
