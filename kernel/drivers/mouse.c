@@ -138,6 +138,7 @@ bool mouse_handler(struct itr_registers *)
                     iter->events[iter->tail] = s_mouse_event;
                     iter->ready = true;
                 }
+                scheduler_wake_up(&s_mouse_wait_queue);
             }
             break;
         }
