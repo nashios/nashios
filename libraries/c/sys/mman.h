@@ -27,6 +27,17 @@ extern "C"
     void *mmap(void *addr, size_t len, int prot, int flags, int fildes, off_t off);
 
     /**
+     * @brief Unmap files or devices into memory
+     *
+     * @note See more at: https://pubs.opengroup.org/onlinepubs/9699919799/functions/munmap.html
+     *
+     * @param addr The address to unmap
+     * @param len The length of the mapping
+     * @return int On success, munmap() returns 0, on failure -1, and errno is set (probably to EINVAL).
+     */
+    int munmap(void *addr, size_t len);
+
+    /**
      * @brief Open a shared memory object
      *
      * @note See more at: https://pubs.opengroup.org/onlinepubs/9699919799/functions/shm_open.html
