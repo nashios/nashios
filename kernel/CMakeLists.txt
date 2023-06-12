@@ -26,6 +26,8 @@ set(C_SOURCES
     drivers/pit.c
     drivers/mouse.c
     
+    drivers/char/debug.c
+    
     lib/string.c
     lib/ctype.c
     lib/stdio.c

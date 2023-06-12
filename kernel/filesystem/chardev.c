@@ -1,4 +1,5 @@
 #include <kernel/api/posix/errno.h>
+#include <kernel/drivers/char/debug.h>
 #include <kernel/filesystem/chardev.h>
 #include <kernel/filesystem/devfs.h>
 #include <kernel/lib/stdio.h>
@@ -27,6 +28,18 @@ ssize_t chardev_read(struct vfs_file *file, char *buf, size_t count, loff_t ppos
 
     if (device->op->read)
         return device->op->read(file, buf, count, ppos);
+
+    return -EINVAL;
+}
+
+ssize_t chardev_write(struct vfs_file *file, const char *buffer, size_t count, loff_t ppos)
+{
+    struct chardev *device = chardev_find(file->dentry->inode->rdev);
+    if (device == NULL)
+        return -ENODEV;
+
+    if (device->op->write)
+        return device->op->write(file, buffer, count, ppos);
 
     return -EINVAL;
 }
@@ -67,8 +80,12 @@ int chardev_poll(struct vfs_file *file, struct vfs_poll *poll)
     return -EINVAL;
 }
 
-struct vfs_file_op g_chardev_fop = {
-    .open = chardev_open, .read = chardev_read, .ioctl = chardev_ioctl, .mmap = chardev_mmap, .poll = chardev_poll};
+struct vfs_file_op g_chardev_fop = {.open = chardev_open,
+                                    .read = chardev_read,
+                                    .write = chardev_write,
+                                    .ioctl = chardev_ioctl,
+                                    .mmap = chardev_mmap,
+                                    .poll = chardev_poll};
 
 struct chardev *chardev_find(dev_t dev)
 {
@@ -95,5 +112,8 @@ int chardev_set(struct chardev *device)
 void chardev_init()
 {
     dlist_head_init(&s_chardev_list);
+
+    debug_init();
+
     printf("Chardev FS: Initialized\n");
 }
