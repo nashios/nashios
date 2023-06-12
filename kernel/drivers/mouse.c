@@ -69,7 +69,7 @@ static struct chardev s_mouse_chardev = {
 bool mouse_handler(struct itr_registers *)
 {
     uint8_t status = io_inb(MOUSE_STATUS);
-    while ((status & 0x01) && (status & 0x20))
+    if ((status & 0x01) && (status & 0x20))
     {
         uint8_t data = io_inb(MOUSE_PORT);
         switch (s_mouse_cycle)
@@ -143,7 +143,6 @@ bool mouse_handler(struct itr_registers *)
             break;
         }
     }
-
     return ITR_CONTINUE;
 }
 
