@@ -6,7 +6,7 @@
 
 struct fb_var_screeninfo
 {
-    uint32_t width;
-    uint32_t height;
+    uint32_t xres;
+    uint32_t yres;
     uint32_t bits_per_pixel;
 };

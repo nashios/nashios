@@ -82,8 +82,8 @@ int fb_vscreeninfo(void *arg)
     if (!vsinfo)
         return -EINVAL;
 
-    vsinfo->width = s_fb_display.width;
-    vsinfo->height = s_fb_display.height;
+    vsinfo->xres = s_fb_display.width;
+    vsinfo->yres = s_fb_display.height;
     vsinfo->bits_per_pixel = sizeof(uint32_t);
 
     return 0;
