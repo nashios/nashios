@@ -1,6 +1,5 @@
 PROGRAM=$0
 COMMAND=$1
-shift
 
 help() {
     echo "Usage: ${PROGRAM} [COMMAND] [ARCHITECTURE] [TOOLCHAIN]"
@@ -23,10 +22,11 @@ help() {
     echo "  clean-all:          Clean the system, toolchain and common directories"
 }
 
-if [[ ${COMMAND} == "help" || -z ${COMMAND} ]]; then 
+if [[ ${COMMAND} == "help" || -z ${COMMAND} ]]; then
     help
     exit 0
 fi
+shift
 
 if [[ -z $1 ]]; then
     ARCHITECTURE="i686"
@@ -70,7 +70,7 @@ export -f fail
 
 exit_if_root() {
     if [ "$(id -u)" -eq 0 ]; then
-       fail "$*"
+        fail "$*"
     fi
 }
 export -f exit_if_root
@@ -160,15 +160,15 @@ check_qemu() {
     export QEMU_MINOR_VERSION=0
     export QEMU_PATCH_VERSION=0
 
-    if ! command -v "$NASHIOS_QEMU_BIN" >/dev/null 2>&1 ; then
+    if ! command -v "$NASHIOS_QEMU_BIN" >/dev/null 2>&1; then
         compile_qemu
     fi
 
     major_version=$("$NASHIOS_QEMU_BIN" -version | head -n 1 | sed -E 's/QEMU emulator version ([1-9][0-9]*|0).*/\1/')
     minor_version=$("$NASHIOS_QEMU_BIN" -version | head -n 1 | sed -E 's/QEMU emulator version [0-9]+\.([1-9][0-9]*|0).*/\1/')
     patch_version=$("$NASHIOS_QEMU_BIN" -version | head -n 1 | sed -E 's/QEMU emulator version [0-9]+\.[0-9]+\.([1-9][0-9]*|0).*/\1/')
-    if [ "$major_version" -lt "$QEMU_MAJOR_VERSION" ] || 
-        { [ "$major_version" -eq "$QEMU_MAJOR_VERSION" ] && 
+    if [ "$major_version" -lt "$QEMU_MAJOR_VERSION" ] ||
+        { [ "$major_version" -eq "$QEMU_MAJOR_VERSION" ] &&
             [ "$minor_version" -lt "$QEMU_MINOR_VERSION" ] && [ "$patch_version" -lt "$QEMU_PATCH_VERSION" ]; }; then
         compile_qemu
     fi
@@ -199,11 +199,11 @@ toolchain() {
     if [[ -d ${TOOLCHAIN_CROSS_DIR} ]]; then
         read -p "The toolchain has already been compiled. Do you want to recompile it? [y/N] " yn
         case $yn in
-            [Yy]* ) clean_toolchain;;
-            * ) exit 0;;
+        [Yy]*) clean_toolchain ;;
+        *) exit 0 ;;
         esac
     fi
-    
+
     compile_toolchain
 }
 
@@ -243,19 +243,19 @@ if [[ ${COMMAND} = @(build|install|image|run) ]]; then
     [[ -d ${SYSTEM_BUILD_DIR}/Makefile ]] || generate_cmake
 
     case ${COMMAND} in
-        build)
-            build $@
-            ;;
-        install)
-            build $@
-            install $@
-            ;;
-        image)
-            image
-            ;;
-        run)
-            run
-            ;;
+    build)
+        build $@
+        ;;
+    install)
+        build $@
+        install $@
+        ;;
+    image)
+        image
+        ;;
+    run)
+        run
+        ;;
     esac
 elif [[ ${COMMAND} = "toolchain" ]]; then
     toolchain
