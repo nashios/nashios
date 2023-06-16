@@ -13,14 +13,18 @@
 
 #define dlist_first_entry(ptr, type, member) dlist_entry((ptr)->next, type, member)
 
-#define dlist_next_entry(pos, member) dlist_entry((pos)->member.next, typeof(*(pos)), member)
-
 #define dlist_first_entry_or_null(ptr, type, member)                                                                   \
     ({                                                                                                                 \
         struct dlist_head *__head = (ptr);                                                                             \
         struct dlist_head *__position = __head->next;                                                                  \
         __position != __head ? dlist_entry(__position, type, member) : NULL;                                           \
     })
+
+#define dlist_last_entry(ptr, type, member) dlist_entry((ptr)->previous, type, member)
+
+#define dlist_next_entry(pos, member) dlist_entry((pos)->member.next, typeof(*(pos)), member)
+
+#define dlist_prev_entry(pos, member) dlist_entry((pos)->member.previous, typeof(*(pos)), member)
 
 #define dlist_for_each_entry(pos, head, member)                                                                        \
     for (pos = dlist_first_entry(head, typeof(*pos), member); &pos->member != (head);                                  \
@@ -29,6 +33,10 @@
 #define dlist_for_each_entry_safe(pos, n, head, member)                                                                \
     for (pos = dlist_first_entry(head, typeof(*pos), member), n = dlist_next_entry(pos, member);                       \
          &pos->member != (head); pos = n, n = dlist_next_entry(n, member))
+
+#define dlist_for_each_entry_reverse(pos, head, member)                                                                \
+    for (pos = dlist_last_entry(head, typeof(*pos), member); &pos->member != (head);                                   \
+         pos = dlist_prev_entry(pos, member))
 
 struct dlist_head
 {
