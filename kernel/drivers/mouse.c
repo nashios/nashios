@@ -106,7 +106,7 @@ bool mouse_handler(struct itr_registers *)
             }
 
             s_mouse_event.x = move_x;
-            s_mouse_event.y = -move_y;
+            s_mouse_event.y = move_y;
 
             s_mouse_event.state = s_mouse_event.buttons;
             s_mouse_event.buttons = 0;
@@ -162,8 +162,8 @@ void mouse_init()
     chardev_set(&s_mouse_chardev);
     virtual_fs_mknod("/dev/input/mouse0", S_IFCHR, s_mouse_chardev.dev);
 
-    while (io_inb(0x64) & 1)
-        io_inb(0x60);
+    while (io_inb(MOUSE_STATUS) & 0x01)
+        io_inb(MOUSE_PORT);
 
     io_outb(MOUSE_STATUS, 0xA8);
     io_inb(MOUSE_PORT);
@@ -191,7 +191,7 @@ void mouse_init()
     io_outb(0x61, tmp & 0x7F);
     io_inb(MOUSE_PORT);
 
-    while ((io_inb(0x64) & 1))
+    while ((io_inb(MOUSE_STATUS) & 0x01))
         io_inb(0x60);
 
     printf("Mouse: Initialized\n");
