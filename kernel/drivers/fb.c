@@ -31,6 +31,7 @@ struct fb_display
     uint32_t width;
     uint32_t height;
     uint32_t pitch;
+    uint32_t bpp;
 };
 
 static struct fb_display s_fb_display = {};
@@ -63,7 +64,8 @@ int fb_init_vboxvga(struct pci_device *device, uint16_t width, uint16_t height)
     s_fb_display.address = pci_read_bar(device, PCI_BAR0);
     s_fb_display.width = width;
     s_fb_display.height = height;
-    s_fb_display.pitch = width * sizeof(uint32_t);
+    s_fb_display.bpp = 32;
+    s_fb_display.pitch = width * s_fb_display.bpp;
 
     return 0;
 }
@@ -74,6 +76,7 @@ void fb_init_multiboot()
     s_fb_display.width = g_multiboot_info->framebuffer_width;
     s_fb_display.height = g_multiboot_info->framebuffer_height;
     s_fb_display.pitch = g_multiboot_info->framebuffer_pitch;
+    s_fb_display.bpp = g_multiboot_info->framebuffer_bpp;
 }
 
 int fb_vscreeninfo(void *arg)
@@ -84,7 +87,7 @@ int fb_vscreeninfo(void *arg)
 
     vsinfo->xres = s_fb_display.width;
     vsinfo->yres = s_fb_display.height;
-    vsinfo->bits_per_pixel = sizeof(uint32_t);
+    vsinfo->bits_per_pixel = s_fb_display.bpp;
 
     return 0;
 }
@@ -104,7 +107,7 @@ int fb_ioctl(struct vfs_inode *, struct vfs_file *, unsigned int cmd, void *arg)
 
 int fb_mmap(struct vfs_file *, struct process_vm *area)
 {
-    uint32_t screen_size = s_fb_display.height * s_fb_display.pitch;
+    uint32_t screen_size = s_fb_display.width * s_fb_display.height * s_fb_display.bpp / 8;
     uint32_t blocks = DIV_ROUND_UP(screen_size, PAGE_SIZE);
     for (uint32_t i = 0; i < blocks; i++)
     {
@@ -151,14 +154,6 @@ void fb_init()
 
     chardev_set(&s_fb_chardev);
     virtual_fs_mknod("/dev/fb0", S_IFCHR, s_fb_chardev.dev);
-
-    uint32_t screen_size = s_fb_display.height * s_fb_display.pitch;
-    uint32_t blocks = DIV_ROUND_UP(screen_size, PAGE_SIZE);
-    for (uint32_t i = 0; i < blocks; i++)
-    {
-        virtual_mm_map(g_scheduler_process->directory, s_fb_display.address + i * PAGE_SIZE,
-                       s_fb_display.address + i * PAGE_SIZE, PAGE_TBL_PRESENT | PAGE_TBL_WRITABLE);
-    }
 
     printf("Fb: Address = 0x%x, width = %d, height = %d, pitch = %d\n", s_fb_display.address, s_fb_display.width,
            s_fb_display.height, s_fb_display.pitch);

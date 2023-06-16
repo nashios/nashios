@@ -24,7 +24,7 @@ struct service_fb
 {
     uint32_t width;
     uint32_t height;
-    uint32_t pitch;
+    uint32_t bpp;
     uint32_t screen_size;
     char *buffer;
 };
@@ -152,33 +152,37 @@ void window_handle_create_window()
         return;
 }
 
-void window_draw_window(char *buffer, struct window *window, int x, int y)
+void window_draw_window(char *buffer, struct window *window, int x, int y, int scanline)
 {
     int target_x = x + window->graphic->x;
     int target_y = y + window->graphic->y;
 
     if (window->graphic->transparent)
-        gfx_graphic_alpha_draw(buffer, window->graphic->buffer, s_service.fb.pitch, target_x, target_y,
-                               window->graphic->width, window->graphic->height);
+        gfx_graphic_alpha_draw(buffer, window->graphic->buffer, scanline, target_x, target_y, window->graphic->width,
+                               window->graphic->height);
     else
-        gfx_graphic_draw(buffer, window->graphic->buffer, s_service.fb.pitch, target_x, target_y,
-                         window->graphic->width, window->graphic->height);
+        gfx_graphic_draw(buffer, window->graphic->buffer, scanline, target_x, target_y, window->graphic->width,
+                         window->graphic->height);
 
     struct window *child;
-    dlist_for_each_entry(child, &window->children, sibling) { window_draw_window(buffer, child, target_x, target_y); }
+    dlist_for_each_entry(child, &window->children, sibling)
+    {
+        window_draw_window(buffer, child, target_x, target_y, scanline);
+    }
 }
 
 void window_draw()
 {
+    int scanline = s_service.fb.width * s_service.fb.bpp / 8;
+
     struct window *window;
     dlist_for_each_entry(window, &s_service.window_list, sibling)
     {
-        window_draw_window(s_service.buffer, window, 0, 0);
+        window_draw_window(s_service.buffer, window, 0, 0, scanline);
     }
 
-    gfx_graphic_alpha_draw(s_service.buffer, s_service.mouse.graphic->buffer, s_service.fb.pitch,
-                           s_service.mouse.graphic->x, s_service.mouse.graphic->y, s_service.mouse.graphic->width,
-                           s_service.mouse.graphic->height);
+    gfx_graphic_alpha_draw(s_service.buffer, s_service.mouse.graphic->buffer, scanline, s_service.mouse.graphic->x,
+                           s_service.mouse.graphic->y, s_service.mouse.graphic->width, s_service.mouse.graphic->height);
 
     memcpy(s_service.fb.buffer, s_service.buffer, s_service.fb.screen_size);
 }
@@ -209,7 +213,7 @@ void window_handle_mouse()
         return;
 
     s_service.mouse.graphic->x += s_service.mouse.event.x;
-    s_service.mouse.graphic->y += s_service.mouse.event.y;
+    s_service.mouse.graphic->y -= s_service.mouse.event.y;
 
     if (s_service.mouse.graphic->x < 0)
         s_service.mouse.graphic->x = 0;
@@ -236,10 +240,10 @@ void window_init_fb()
     if (result < 0)
         exit(EINVAL);
 
-    s_service.fb.width = vinfo.width;
-    s_service.fb.height = vinfo.height;
-    s_service.fb.pitch = vinfo.width * vinfo.bits_per_pixel;
-    s_service.fb.screen_size = s_service.fb.height * s_service.fb.pitch;
+    s_service.fb.width = vinfo.xres;
+    s_service.fb.height = vinfo.yres;
+    s_service.fb.bpp = vinfo.bits_per_pixel;
+    s_service.fb.screen_size = vinfo.xres * vinfo.yres * vinfo.bits_per_pixel / 8;
 
     s_service.fb.buffer = (char *)mmap(NULL, s_service.fb.screen_size, PROT_READ | PROT_WRITE, MAP_SHARED, fd, 0);
     if (s_service.fb.buffer == MAP_FAILED)
