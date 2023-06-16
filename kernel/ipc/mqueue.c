@@ -64,7 +64,7 @@ ssize_t mq_timedreceive(mqd_t mqdes, char *msg_ptr, size_t msg_len, unsigned *ms
     {
         if ((queue->attr->mq_flags & O_NONBLOCK) == 0)
         {
-            struct mq_receiver *receiver;
+            struct mq_receiver *receiver = NULL;
             WAIT_BEFORE_AFTER(queue->attr->mq_curmsgs > 0 && dlist_is_poison(&receiver->list), ({
                                   receiver = calloc(1, sizeof(struct mq_receiver));
                                   receiver->priority = (uint32_t)msg_prio;
