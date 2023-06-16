@@ -1,4 +1,5 @@
 #include <kernel/api/posix/limits.h>
+#include <kernel/drivers/pit.h>
 #include <kernel/lib/ctype.h>
 #include <kernel/lib/stdio.h>
 #include <kernel/lib/string.h>
@@ -376,10 +377,10 @@ int printf(const char *format, ...)
 {
     char buffer[1024];
     if (g_scheduler_process && g_scheduler_thread)
-        sprintf(buffer, "[%s(%d:%d)] %s", g_scheduler_process->name, g_scheduler_process->pid, g_scheduler_thread->tid,
-                format);
+        sprintf(buffer, "[%d.%d] [%s(%d:%d)] %s", g_pit_ticks, g_pit_subticks, g_scheduler_process->name,
+                g_scheduler_process->pid, g_scheduler_thread->tid, format);
     else
-        sprintf(buffer, "[Kernel] %s", format);
+        sprintf(buffer, "[%d.%d] [Kernel] %s", g_pit_ticks, g_pit_subticks, format);
 
     char second_buffer[1024];
 
