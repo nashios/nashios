@@ -7,7 +7,8 @@
     -m $NASHIOS_QEMU_RAM
     -cpu $NASHIOS_QEMU_CPU
     -drive file=${NASHIOS_DISK_IMAGE},format=raw,index=0,media=disk
-    -serial stdio"
+    -serial stdio
+    -no-reboot"
 
 [ -e /dev/kvm ] && [ -r /dev/kvm ] && [ -w /dev/kvm ] && NASHIOS_QEMU_VIRT="-enable-kvm"
 
