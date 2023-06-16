@@ -1,12 +1,11 @@
 #pragma once
 
-#include <kernel/lib/stdio.h>
+#include <st/debug.h>
 
-#define PANIC(...)                                                                                                     \
+#define PANIC(format, ...)                                                                                             \
     do                                                                                                                 \
     {                                                                                                                  \
-        printf("Panic: Message = ");                                                                                   \
-        printf(__VA_ARGS__);                                                                                           \
+        dbgln("Panic: " format, ##__VA_ARGS__);                                                                        \
         panic(__FILE__, __LINE__, __PRETTY_FUNCTION__);                                                                \
     } while (0)
 

@@ -2,7 +2,7 @@
 #include <kernel/arch/i686/cpu/io.h>
 #include <kernel/drivers/ata.h>
 #include <kernel/interrupts/handler.h>
-#include <kernel/lib/stdio.h>
+#include <st/debug.h>
 #include <kernel/lib/stdlib.h>
 #include <kernel/lib/string.h>
 #include <kernel/panic.h>
@@ -103,7 +103,7 @@ bool ata_detect(const char *name, uint16_t io_base, bool master)
     device->master = master;
     dlist_add_tail(&device->list, &s_ata_device_list);
 
-    printf("ATA: Added device name = %s, io_base = 0x%x\n", name, io_base);
+    dbgln("ATA: Added device name = %s, io_base = 0x%x", name, io_base);
     return true;
 }
 
@@ -199,5 +199,5 @@ void ata_init()
     ata_detect("/dev/hdc", ATA1_IO_ADDR, true);
     ata_detect("/dev/hdd", ATA1_IO_ADDR, false);
 
-    printf("ATA: Initialized\n");
+    dbgln("ATA: Initialized");
 }

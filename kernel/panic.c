@@ -2,6 +2,7 @@
 #include <kernel/cpu/processor.h>
 #include <kernel/lib/string.h>
 #include <kernel/panic.h>
+#include <st/debug.h>
 
 __attribute__((noreturn)) void panic_shutdown()
 {
@@ -14,14 +15,14 @@ __attribute__((noreturn)) void panic_shutdown()
 
 void panic_backtrace_handler(uint32_t base)
 {
-    printf("Panic: Backtrace base = 0x%x\n", base);
+    dbgln("Panic: Backtrace base = 0x%x", base);
 
     uint32_t stack_buffer[2];
     uint32_t *stack_ptr = (uint32_t *)base;
     while (stack_ptr && memcpy(stack_buffer, stack_ptr, sizeof(stack_buffer)))
     {
         uint32_t result_address = stack_buffer[1];
-        printf("Panic: * Address = 0x%p, next = 0x%p\n", result_address, stack_ptr ? (uint32_t *)stack_buffer[0] : 0);
+        dbgln("Panic: * Address = 0x%p, next = 0x%p", result_address, stack_ptr ? (uint32_t *)stack_buffer[0] : 0);
         stack_ptr = (uint32_t *)stack_buffer[0];
     }
     return;
@@ -43,9 +44,9 @@ void panic_backtrace()
 
 void panic(const char *file, int line, const char *function)
 {
-    printf("Panic: File = %s\n", file);
-    printf("Panic: Line = %d\n", line);
-    printf("Panic: Function = %s\n", function);
+    dbgln("Panic: File = %s", file);
+    dbgln("Panic: Line = %d", line);
+    dbgln("Panic: Function = %s", function);
 
     panic_backtrace();
     panic_shutdown();

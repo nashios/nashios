@@ -4,7 +4,7 @@
 #include <kernel/filesystem/mqueuefs.h>
 #include <kernel/filesystem/virtual.h>
 #include <kernel/ipc/mqueue.h>
-#include <kernel/lib/stdio.h>
+#include <st/debug.h>
 #include <kernel/lib/stdlib.h>
 
 static uint32_t s_mqueuefs_index = 0;
@@ -122,5 +122,5 @@ void mqueuefs_init()
     virtual_fs_mknod("/dev/mqueue", O_RDWR, MKDEV(0, 19));
     virtual_fs_mount("mqueuefs", "/dev/mqueue", s_mqueuefs_type.name, MS_NOUSER, NULL);
 
-    printf("Mqueue FS: Initialized\n");
+    dbgln("Mqueue FS: Initialized");
 }

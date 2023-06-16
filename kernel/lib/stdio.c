@@ -1,9 +1,7 @@
 #include <kernel/api/posix/limits.h>
-#include <kernel/drivers/pit.h>
 #include <kernel/lib/ctype.h>
 #include <kernel/lib/stdio.h>
 #include <kernel/lib/string.h>
-#include <kernel/task/scheduler.h>
 
 enum VSNFlags
 {
@@ -15,8 +13,6 @@ enum VSNFlags
     VSN_SMALL = 32,
     VSN_SPECIAL = 64
 };
-
-extern void early_printf(const char *buffer, size_t length);
 
 int vsnprintf_atoi(const char **str)
 {
@@ -370,25 +366,5 @@ int sprintf(char *s, const char *format, ...)
     size_t length = vsnprintf(s, INT_MAX, format, args);
     va_end(args);
 
-    return length;
-}
-
-int printf(const char *format, ...)
-{
-    char buffer[1024];
-    if (g_scheduler_process && g_scheduler_thread)
-        sprintf(buffer, "[%d.%d] [%s(%d:%d)] %s", g_pit_ticks, g_pit_subticks, g_scheduler_process->name,
-                g_scheduler_process->pid, g_scheduler_thread->tid, format);
-    else
-        sprintf(buffer, "[%d.%d] [Kernel] %s", g_pit_ticks, g_pit_subticks, format);
-
-    char second_buffer[1024];
-
-    va_list args;
-    va_start(args, format);
-    size_t length = vsprintf(second_buffer, buffer, args);
-    va_end(args);
-
-    early_printf(second_buffer, length);
     return length;
 }

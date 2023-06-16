@@ -4,7 +4,7 @@
 #include <kernel/filesystem/devfs.h>
 #include <kernel/filesystem/tmpfs.h>
 #include <kernel/filesystem/virtual.h>
-#include <kernel/lib/stdio.h>
+#include <st/debug.h>
 #include <kernel/lib/stdlib.h>
 #include <kernel/lib/string.h>
 
@@ -163,5 +163,5 @@ void tmpfs_init()
     virtual_fs_set_type(&s_tmpfs_type);
     virtual_fs_mknod("/dev/shm", O_RDWR, MKDEV(0, 24));
     virtual_fs_mount("tmpfs", "/dev/shm", s_tmpfs_type.name, MS_NOUSER, NULL);
-    printf("TmpFS: Initialized\n");
+    dbgln("TmpFS: Initialized");
 }

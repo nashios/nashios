@@ -1,13 +1,13 @@
 #include <kernel/drivers/char/debug.h>
 #include <kernel/filesystem/chardev.h>
 #include <kernel/filesystem/devfs.h>
-#include <kernel/lib/stdio.h>
+#include <st/debug.h>
 
 int debug_open(struct vfs_inode *, struct vfs_file *) { return 0; }
 
 ssize_t debug_write(struct vfs_file *, const char *buffer, size_t count, loff_t)
 {
-    printf(buffer, count);
+    dbgln(buffer, count);
     return 0;
 }
 
@@ -20,5 +20,5 @@ void debug_init()
 {
     chardev_set(&s_debug_chardev);
     virtual_fs_mknod("/dev/debug", S_IFCHR, s_debug_chardev.dev);
-    printf("Debug: Initialized\n");
+    dbgln("Debug: Initialized");
 }

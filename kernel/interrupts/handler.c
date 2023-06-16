@@ -1,5 +1,5 @@
 #include <kernel/interrupts/handler.h>
-#include <kernel/lib/stdio.h>
+#include <st/debug.h>
 #include <kernel/lib/stdlib.h>
 #include <kernel/panic.h>
 #include <st/dlist.h>
@@ -75,7 +75,7 @@ void itr_handler(struct itr_registers *registers)
     struct dlist_head *list = &s_itr_handlers[number];
     if (dlist_empty(list))
     {
-        printf("ITR: Unhandled interrupt number = %d\n", number);
+        dbgln("ITR: Unhandled interrupt number = %d", number);
         return;
     }
 
@@ -89,7 +89,7 @@ void itr_handler(struct itr_registers *registers)
 
 bool isr_handler(struct itr_registers *registers)
 {
-    printf("ISR: Exception number = %d, message = %s\n", registers->number, s_isr_messages[registers->number]);
+    dbgln("ISR: Exception number = %d, message = %s", registers->number, s_isr_messages[registers->number]);
     PANIC("Exception");
     return ITR_STOP;
 }
@@ -124,5 +124,5 @@ void itr_init()
     itr_set_handler(29, isr_handler);
     itr_set_handler(30, isr_handler);
 
-    printf("ITR: Initialized\n");
+    dbgln("ITR: Initialized");
 }

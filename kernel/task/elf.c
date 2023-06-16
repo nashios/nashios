@@ -1,6 +1,6 @@
 #include <kernel/api/posix/sys/mman.h>
 #include <kernel/filesystem/virtual.h>
-#include <kernel/lib/stdio.h>
+#include <st/debug.h>
 #include <kernel/lib/stdlib.h>
 #include <kernel/lib/string.h>
 #include <kernel/memory/mmap.h>
@@ -128,21 +128,21 @@ struct elf_layout *elf_load(const char *path)
 
         if ((pheader->p_flags & PF_X) != 0 && (pheader->p_flags & PF_R) != 0)
         {
-            printf("Elf: Text segment address = 0x%x, size = 0x%x\n", pheader->p_vaddr, pheader->p_memsz);
+            dbgln("Elf: Text segment address = 0x%x, size = 0x%x", pheader->p_vaddr, pheader->p_memsz);
             mmap((void *)pheader->p_vaddr, pheader->p_memsz, 0, 0, -1, 0);
             memory->code_start = pheader->p_vaddr;
             memory->code_end = pheader->p_vaddr + pheader->p_memsz;
         }
         else if ((pheader->p_flags & PF_W) != 0 && (pheader->p_flags & PF_R) != 0)
         {
-            printf("Elf: Data segment address = 0x%x, size = 0x%x\n", pheader->p_vaddr, pheader->p_memsz);
+            dbgln("Elf: Data segment address = 0x%x, size = 0x%x", pheader->p_vaddr, pheader->p_memsz);
             mmap((void *)pheader->p_vaddr, pheader->p_memsz, 0, 0, -1, 0);
             memory->data_start = pheader->p_vaddr;
             memory->data_end = pheader->p_memsz;
         }
         else
         {
-            printf("Elf: Ehframe segment address = 0x%x, size = 0x%x\n", pheader->p_vaddr, pheader->p_memsz);
+            dbgln("Elf: Ehframe segment address = 0x%x, size = 0x%x", pheader->p_vaddr, pheader->p_memsz);
             mmap((void *)pheader->p_vaddr, pheader->p_memsz, 0, 0, -1, 0);
         }
 

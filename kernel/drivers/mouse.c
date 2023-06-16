@@ -6,10 +6,10 @@
 #include <kernel/filesystem/chardev.h>
 #include <kernel/filesystem/devfs.h>
 #include <kernel/interrupts/handler.h>
-#include <kernel/lib/stdio.h>
 #include <kernel/lib/stdlib.h>
 #include <kernel/lib/string.h>
 #include <kernel/task/wait.h>
+#include <st/debug.h>
 
 #define MOUSE_MAX_EVENTS 16
 
@@ -194,5 +194,5 @@ void mouse_init()
     while ((io_inb(MOUSE_STATUS) & 0x01))
         io_inb(0x60);
 
-    printf("Mouse: Initialized\n");
+    dbgln("Mouse: Initialized");
 }

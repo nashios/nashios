@@ -1,16 +1,16 @@
 #include <kernel/cpu/processor.h>
 #include <kernel/lib/assert.h>
-#include <kernel/lib/stdio.h>
 #include <kernel/panic.h>
+#include <st/debug.h>
 
 void ___assert(const char *message, const char *file, const char *function, int line)
 {
     DISABLE_INTERRUPTS();
 
-    printf("Assertion: Message = %s\n", message);
-    printf("Assertion: File = %s\n", file);
-    printf("Assertion: Function = %s\n", function);
-    printf("Assertion: Line = %d\n", line);
+    dbgln("Assertion: Message = %s", message);
+    dbgln("Assertion: File = %s", file);
+    dbgln("Assertion: Function = %s", function);
+    dbgln("Assertion: Line = %d", line);
 
-    PANIC("%s\n", message);
+    PANIC("Assertion failed");
 }

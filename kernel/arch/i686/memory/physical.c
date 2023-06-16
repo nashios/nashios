@@ -2,7 +2,7 @@
 #include <kernel/arch/i686/memory/physical.h>
 #include <kernel/arch/i686/memory/virtual.h>
 #include <kernel/bitmap.h>
-#include <kernel/lib/stdio.h>
+#include <st/debug.h>
 #include <kernel/lib/string.h>
 #include <st/math.h>
 
@@ -35,7 +35,7 @@ void physical_mm_set_region(uint32_t address, uint32_t length)
 
     bitmap_set(s_physical_bitmap, 0);
 
-    printf("Physical MM: Set region address = 0x%08x, size = 0x%08x\n", address, length);
+    dbgln("Physical MM: Set region address = 0x%08x, size = 0x%08x", address, length);
 }
 
 void physical_mm_unset_region(uint32_t address, uint32_t length)
@@ -49,7 +49,7 @@ void physical_mm_unset_region(uint32_t address, uint32_t length)
         s_physical_used++;
     }
 
-    printf("Physical MM: Unset region address = 0x%08x, size = 0x%08x\n", address, length);
+    dbgln("Physical MM: Unset region address = 0x%08x, size = 0x%08x", address, length);
 }
 
 void physical_mm_init()
@@ -79,7 +79,7 @@ void physical_mm_init()
         uint32_t offset = address % PAGE_SIZE;
         if (offset != 0)
         {
-            printf("Physical MM: Unaligned region address = 0x%x of 0x%x\n", address, offset);
+            dbgln("Physical MM: Unaligned region address = 0x%x of 0x%x", address, offset);
             offset = PAGE_SIZE - offset;
             address += offset;
             length -= offset;
@@ -87,13 +87,13 @@ void physical_mm_init()
 
         if ((length % PAGE_SIZE) != 0)
         {
-            printf("Physical MM: Unaligned region length = 0x%x of 0x%x\n", length, length % PAGE_SIZE);
+            dbgln("Physical MM: Unaligned region length = 0x%x of 0x%x", length, length % PAGE_SIZE);
             length -= length % PAGE_SIZE;
         }
 
         if (length < PAGE_SIZE)
         {
-            printf("Physical MM: Too small region, wanted >= 0x%x bytes, got = 0x%x\n", PAGE_SIZE, length);
+            dbgln("Physical MM: Too small region, wanted >= 0x%x bytes, got = 0x%x", PAGE_SIZE, length);
             continue;
         }
 
@@ -103,10 +103,10 @@ void physical_mm_init()
     physical_mm_unset_region(0x0, KERNEL_BOOT);
     physical_mm_unset_region(KERNEL_BOOT, KERNEL_SIZE + bitmap_size);
 
-    printf("Physical MM: Kernel start = 0x%x, end = 0x%x, size = 0x%x\n", KERNEL_START, KERNEL_END, KERNEL_SIZE);
-    printf("Physical MM: Bitmap address = 0x%x, size = 0x%x, used frames = %d, max = %d\n", s_physical_bitmap,
+    dbgln("Physical MM: Kernel start = 0x%x, end = 0x%x, size = 0x%x", KERNEL_START, KERNEL_END, KERNEL_SIZE);
+    dbgln("Physical MM: Bitmap address = 0x%x, size = 0x%x, used frames = %d, max = %d", s_physical_bitmap,
            bitmap_size, s_physical_used, s_physical_max);
-    printf("Physical MM: Initialized\n");
+    dbgln("Physical MM: Initialized");
 }
 
 void *physical_mm_allocate()

@@ -2,7 +2,7 @@
 #include <kernel/arch/i686/interrupts/pic.h>
 #include <kernel/cpu/processor.h>
 #include <kernel/interrupts/handler.h>
-#include <kernel/lib/stdio.h>
+#include <st/debug.h>
 
 #define IDT_ENTRIES 256
 
@@ -90,7 +90,7 @@ void idt_add(uint8_t index, uint16_t flags, uint16_t selector, idt_handler_t han
 void idt_default_handler()
 {
     DISABLE_INTERRUPTS();
-    printf("IDT: Unknow interrupt number\n");
+    dbgln("IDT: Unknow interrupt number");
     PAUSE();
 }
 
@@ -109,7 +109,7 @@ void idt_init()
 
     for (uint16_t i = 0; i < IDT_ENTRIES; i++)
         idt_add(i, 0x8E, 0x08, idt_default_handler);
-    printf("IDT: Added default handlers\n");
+    dbgln("IDT: Added default handlers");
 
     idt_add(0, 0x8E, 0x08, isr0);
     idt_add(1, 0x8E, 0x08, isr1);
@@ -143,10 +143,10 @@ void idt_init()
     idt_add(29, 0x8E, 0x08, isr29);
     idt_add(30, 0x8E, 0x08, isr30);
     idt_add(31, 0x8E, 0x08, isr31);
-    printf("IDT: Added interrupt service routines from 0..31\n");
+    dbgln("IDT: Added interrupt service routines from 0..31");
 
     idt_add(128, 0xEE, 0x08, isr128);
-    printf("IDT: Added interrupt service routines 128\n");
+    dbgln("IDT: Added interrupt service routines 128");
 
     idt_add(32, 0x8E, 0x08, irq0);
     idt_add(33, 0x8E, 0x08, irq1);
@@ -164,13 +164,13 @@ void idt_init()
     idt_add(45, 0x8E, 0x08, irq13);
     idt_add(46, 0x8E, 0x08, irq14);
     idt_add(47, 0x8E, 0x08, irq15);
-    printf("IRQ: Added interrupt request from 0..15\n");
+    dbgln("IRQ: Added interrupt request from 0..15");
 
     pic_remap(0x20, 0x28);
-    printf("IRQ: Remaped PIC offset_1 = 0x%x, offset_2 = 0x%x\n", 0x20, 0x28);
+    dbgln("IRQ: Remaped PIC offset_1 = 0x%x, offset_2 = 0x%x", 0x20, 0x28);
 
     uint32_t address = (uint32_t)&s_idt_pointer;
     idt_flush(address);
-    printf("IDT: Flushed address = 0x%x\n", address);
-    printf("IDT: Initialized\n");
+    dbgln("IDT: Flushed address = 0x%x", address);
+    dbgln("IDT: Initialized");
 }

@@ -1,6 +1,6 @@
 #include <kernel/arch/i686/cpu/io.h>
 #include <kernel/drivers/pci.h>
-#include <kernel/lib/stdio.h>
+#include <st/debug.h>
 #include <kernel/lib/stdlib.h>
 #include <stdint.h>
 
@@ -94,7 +94,7 @@ void pci_check_function(uint8_t bus, uint8_t device, uint8_t function)
     pci_device->address = address;
 
     dlist_add_tail(&pci_device->list, &g_pci_device_list);
-    printf("PCI: Added device id = 0x%x, vendor id = 0x%x, bus = 0x%x, device = 0x%x, function = 0x%x\n",
+    dbgln("PCI: Added device id = 0x%x, vendor id = 0x%x, bus = 0x%x, device = 0x%x, function = 0x%x",
            pci_device->device_id, pci_device->vendor_id, bus, device, function);
 }
 
@@ -134,7 +134,7 @@ void pci_init()
     uint16_t header_type = pci_get_header_type(pci_get_address(0, 0, 0));
     if ((header_type & PCI_MULTI_FUNC_DEVICE) != 0)
     {
-        printf("PCI: Detected multiple pci host controllers\n");
+        dbgln("PCI: Detected multiple pci host controllers");
         for (uint8_t function = 0; function < 8; function++)
         {
             uint32_t address = pci_get_address(0, 0, function);
@@ -146,9 +146,9 @@ void pci_init()
     }
     else
     {
-        printf("PCI: Detected single pci host controller\n");
+        dbgln("PCI: Detected single pci host controller");
         pci_scan_bus(0);
     }
 
-    printf("PCI: Initialized\n");
+    dbgln("PCI: Initialized");
 }

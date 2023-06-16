@@ -2,7 +2,6 @@
 #include <kernel/cpu/processor.h>
 #include <kernel/filesystem/virtual.h>
 #include <kernel/interrupts/handler.h>
-#include <kernel/lib/stdio.h>
 #include <kernel/lib/stdlib.h>
 #include <kernel/lib/string.h>
 #include <kernel/memory/mmap.h>
@@ -10,6 +9,7 @@
 #include <kernel/task/elf.h>
 #include <kernel/task/scheduler.h>
 #include <st/assert.h>
+#include <st/debug.h>
 
 #define SCHED_PAGE_FAULT 0xFFFFFFFF
 
@@ -126,7 +126,7 @@ void scheduler_elf_thread_entry(struct thread *thread, const char *path)
 
     struct elf_layout *elf = elf_load(path);
     if (!elf)
-        PANIC("Scheduler: Failed to load elf file = %s\n", path);
+        PANIC("Scheduler: Failed to load elf file = %s", path);
 
     thread->user_stack = elf->stack;
     tss_set_stack(thread->kernel_stack);
@@ -320,7 +320,7 @@ void scheduler_exit(int code)
     scheduler_update_thread(thread, THREAD_TERMINATED_STATE);
     virtual_mm_unmap_range(process->directory, thread->user_stack - SCHED_STACK_SIZE, thread->user_stack);
 
-    printf("Scheduler: Process pid = %d, exit code = %d\n", process->pid, code);
+    dbgln("Scheduler: Process pid = %d, exit code = %d", process->pid, code);
 
     scheduler_unlock();
     scheduler_schedule();
@@ -361,7 +361,7 @@ bool scheduler_handler(struct itr_registers *)
 
     if (should_schedule && !s_scheduler_locks)
     {
-        printf("Scheduler: Round-robin thread = %d\n", g_scheduler_thread->tid);
+        dbgln("Scheduler: Round-robin thread = %d", g_scheduler_thread->tid);
         scheduler_schedule();
     }
 
@@ -375,7 +375,7 @@ bool scheduler_fault_handler(struct itr_registers *registers)
 
     if (registers->cs == 0x1B)
     {
-        printf("Scheduler: Userspace page fault at address = 0x%x\n", address);
+        dbgln("Scheduler: Userspace page fault at address = 0x%x", address);
         scheduler_exit(registers->eax);
         return ITR_STOP;
     }
@@ -578,5 +578,5 @@ void scheduler_init(void *init)
     itr_set_handler(32, scheduler_handler);
     itr_set_handler(14, scheduler_fault_handler);
 
-    printf("Scheduler: Initialized\n");
+    dbgln("Scheduler: Initialized");
 }

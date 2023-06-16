@@ -7,8 +7,8 @@
 #include <kernel/drivers/pci.h>
 #include <kernel/filesystem/chardev.h>
 #include <kernel/filesystem/devfs.h>
-#include <kernel/lib/stdio.h>
 #include <kernel/memory/mmap.h>
+#include <st/debug.h>
 #include <st/math.h>
 
 #define FB_INDEX 0x01CE
@@ -128,7 +128,7 @@ void fb_init()
         g_multiboot_info->framebuffer_type == MULTIBOOT_FRAMEBUFFER_TYPE_RGB)
     {
         fb_init_multiboot();
-        printf("Fb: Using a preset resolution from multiboot without knowing the pci device\n");
+        dbgln("Fb: Using a preset resolution from multiboot without knowing the pci device");
     }
     else if (!pci_is_disabled())
     {
@@ -148,14 +148,14 @@ void fb_init()
     }
     else
     {
-        printf("Fb: Failed to find graphic adapter\n");
+        dbgln("Fb: Failed to find graphic adapter");
         return;
     }
 
     chardev_set(&s_fb_chardev);
     virtual_fs_mknod("/dev/fb0", S_IFCHR, s_fb_chardev.dev);
 
-    printf("Fb: Address = 0x%x, width = %d, height = %d, pitch = %d\n", s_fb_display.address, s_fb_display.width,
-           s_fb_display.height, s_fb_display.pitch);
-    printf("Fb: Initialized\n");
+    dbgln("Fb: Address = 0x%x, width = %d, height = %d, pitch = %d", s_fb_display.address, s_fb_display.width,
+          s_fb_display.height, s_fb_display.pitch);
+    dbgln("Fb: Initialized");
 }

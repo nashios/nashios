@@ -1,7 +1,7 @@
 #include <kernel/api/posix/errno.h>
 #include <kernel/filesystem/ext2.h>
 #include <kernel/filesystem/virtual.h>
-#include <kernel/lib/stdio.h>
+#include <st/debug.h>
 #include <kernel/lib/stdlib.h>
 #include <kernel/lib/string.h>
 #include <st/assert.h>
@@ -719,5 +719,5 @@ void ext2_fs_init()
     virtual_fs_set_type(&s_ext2_type);
     virtual_fs_mount("/dev/hda", "/", s_ext2_type.name, 0x00, NULL);
 
-    printf("Ext2 FS: Initialized\n");
+    dbgln("Ext2 FS: Initialized");
 }

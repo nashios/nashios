@@ -2,7 +2,7 @@
 #include <kernel/drivers/char/debug.h>
 #include <kernel/filesystem/chardev.h>
 #include <kernel/filesystem/devfs.h>
-#include <kernel/lib/stdio.h>
+#include <st/debug.h>
 
 static struct dlist_head s_chardev_list = {};
 
@@ -115,5 +115,5 @@ void chardev_init()
 
     debug_init();
 
-    printf("Chardev FS: Initialized\n");
+    dbgln("Chardev FS: Initialized");
 }

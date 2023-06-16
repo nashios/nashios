@@ -1,6 +1,6 @@
 #include <kernel/api/posix/errno.h>
 #include <kernel/filesystem/virtual.h>
-#include <kernel/lib/stdio.h>
+#include <st/debug.h>
 #include <kernel/lib/stdlib.h>
 #include <kernel/lib/string.h>
 #include <kernel/memory/mmap.h>

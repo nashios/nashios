@@ -3,11 +3,11 @@
 #include <kernel/filesystem/virtual.h>
 #include <kernel/interrupts/handler.h>
 #include <kernel/ipc/mqueue.h>
-#include <kernel/lib/stdio.h>
 #include <kernel/lib/string.h>
 #include <kernel/memory/mmap.h>
 #include <kernel/system/syscall.h>
 #include <kernel/task/scheduler.h>
+#include <st/debug.h>
 
 void syscall_exit(int status) { scheduler_exit(status); }
 
@@ -95,7 +95,7 @@ bool syscall_handler(struct itr_registers *registers)
     uint32_t size = sizeof(s_syscall_list) / sizeof(s_syscall_list[0]);
     if (number >= size || !s_syscall_list[number])
     {
-        printf("Syscall: Called syscall number = %d without handler\n", number);
+        dbgln("Syscall: Called syscall number = %d without handler", number);
         registers->eax = -ENOSYS;
         return ITR_STOP;
     }
@@ -104,7 +104,7 @@ bool syscall_handler(struct itr_registers *registers)
     uint32_t (*handler)(uint32_t, ...) = s_syscall_list[number];
     uint32_t result = handler(registers->ebx, registers->ecx, registers->edx, registers->esi, registers->edi);
     registers->eax = result;
-    printf("Syscall: Called syscall number = %d, result = %d\n", number, result);
+    dbgln("Syscall: Called syscall number = %d, result = %p", number, registers->eax);
 
     return ITR_CONTINUE;
 }
@@ -112,5 +112,5 @@ bool syscall_handler(struct itr_registers *registers)
 void syscall_init()
 {
     itr_set_handler(128, syscall_handler);
-    printf("Syscall: Initialized\n");
+    dbgln("Syscall: Initialized");
 }

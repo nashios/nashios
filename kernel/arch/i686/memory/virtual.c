@@ -1,5 +1,5 @@
 #include <kernel/arch/i686/memory/virtual.h>
-#include <kernel/lib/stdio.h>
+#include <st/debug.h>
 #include <kernel/lib/stdlib.h>
 #include <kernel/lib/string.h>
 #include <kernel/memory/heap.h>
@@ -47,7 +47,7 @@ void virtual_mm_identity_map(struct page_directory *directory, uint32_t physical
     uint32_t *entry = &directory->entries[PAGE_DIR_INDEX(virtual_address)];
     *entry = physical_table | PAGE_DIR_PRESENT | PAGE_DIR_WRITABLE;
 
-    printf("Virtual MM: Identity mapped physical = 0x%08x, virtual = 0x%08x, directory = 0x%x\n", physical_address,
+    dbgln("Virtual MM: Identity mapped physical = 0x%08x, virtual = 0x%08x, directory = 0x%x", physical_address,
            virtual_address, &directory);
 }
 
@@ -75,8 +75,8 @@ void virtual_mm_init()
 
     g_virtual_directory = directory;
     page_enable(physical_directory);
-    printf("Virtual MM: Page enable with page directory address = 0x%x\n", physical_directory);
-    printf("Virtual MM: Initialized\n");
+    dbgln("Virtual MM: Page enable with page directory address = 0x%x", physical_directory);
+    dbgln("Virtual MM: Initialized");
 }
 
 void virtual_mm_create_page_table(struct page_directory *directory, uint32_t virtual, uint32_t flags)
@@ -94,7 +94,7 @@ void virtual_mm_create_page_table(struct page_directory *directory, uint32_t vir
 void virtual_mm_map(struct page_directory *directory, uint32_t physical, uint32_t virtual, uint32_t flags)
 {
     if (!PAGE_IS_ALIGNED(virtual))
-        printf("Virtual MM: Virtual address = 0x%x is not page aligned\n", virtual);
+        dbgln("Virtual MM: Virtual address = 0x%x is not page aligned", virtual);
 
     if (!PAGE_IS_ENABLED(directory->entries[PAGE_DIR_INDEX(virtual)]))
         virtual_mm_create_page_table(directory, virtual, flags);
@@ -107,7 +107,7 @@ void virtual_mm_map(struct page_directory *directory, uint32_t physical, uint32_
 void virtual_mm_unmap(struct page_directory *directory, uint32_t virtual)
 {
     if (!PAGE_IS_ALIGNED(virtual))
-        printf("Virtual MM: 2 Virtual address = 0x%x is not page aligned\n", virtual);
+        dbgln("Virtual MM: 2 Virtual address = 0x%x is not page aligned", virtual);
 
     if (!PAGE_IS_ENABLED(directory->entries[PAGE_DIR_INDEX(virtual)]))
         return;

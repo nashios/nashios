@@ -1,7 +1,9 @@
 #pragma once
 
 #if defined(KERNEL)
+#include <kernel/drivers/pit.h>
 #include <kernel/lib/stdio.h>
+#include <kernel/task/scheduler.h>
 #else
 #include <fcntl.h>
 #include <stdio.h>
@@ -9,19 +11,27 @@
 #include <unistd.h>
 #endif
 
+#if defined(KERNEL)
+extern void early_printf(const char *buffer, size_t length);
+#endif
+
 static inline void dbgln(const char *format, ...)
 {
 #if defined(KERNEL)
-    char buffer[1024];
+    char sn_buffer[1024] = {};
+    if (g_scheduler_process && g_scheduler_thread)
+        sprintf(sn_buffer, "[%d.%d] [%s(%d:%d)] %s\n", g_pit_ticks, g_pit_subticks, g_scheduler_process->name,
+                g_scheduler_process->pid, g_scheduler_thread->tid, format);
+    else
+        sprintf(sn_buffer, "[%d.%d] [Kernel] %s\n", g_pit_ticks, g_pit_subticks, format);
 
+    char buffer[1024] = {};
     va_list args;
     va_start(args, format);
-    size_t length = vsnprintf(buffer, sizeof(buffer), format, args);
+    size_t length = vsnprintf(buffer, sizeof(buffer), sn_buffer, args);
     va_end(args);
 
-    buffer[length] = '\n';
-
-    printf(buffer);
+    early_printf(buffer, length);
 #else
     static int fd = -1;
     if (fd == -1)

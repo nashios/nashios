@@ -1,6 +1,6 @@
 #include <kernel/arch/i686/cpu/gdt.h>
 #include <kernel/arch/i686/task/tss.h>
-#include <kernel/lib/stdio.h>
+#include <st/debug.h>
 
 #define GDT_ENTRIES 6
 
@@ -35,7 +35,7 @@ void gdt_add(uint8_t index, uint32_t base, uint32_t limit, uint8_t access, uint8
     s_gdt_entries[index].granularity |= (granularity & 0xF0);
     s_gdt_entries[index].access = access;
 
-    printf("GDT: Added index = %d, base = 0x%x, limit = 0x%x, access = 0x%x, granularity = 0x%x\n", index, base, limit,
+    dbgln("GDT: Added index = %d, base = 0x%x, limit = 0x%x, access = 0x%x, granularity = 0x%x", index, base, limit,
            access, granularity);
 }
 
@@ -53,9 +53,9 @@ void gdt_init()
 
     uint32_t address = (uint32_t)&s_gdt_pointer;
     gdt_flush(address);
-    printf("GDT: Flushed address = 0x%x\n", address);
+    dbgln("GDT: Flushed address = 0x%x", address);
 
     tss_init();
 
-    printf("GDT: Initialized\n");
+    dbgln("GDT: Initialized");
 }

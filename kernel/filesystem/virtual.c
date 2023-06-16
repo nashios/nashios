@@ -2,7 +2,7 @@
 #include <kernel/drivers/ata.h>
 #include <kernel/filesystem/chardev.h>
 #include <kernel/filesystem/virtual.h>
-#include <kernel/lib/stdio.h>
+#include <st/debug.h>
 #include <kernel/lib/stdlib.h>
 #include <kernel/lib/string.h>
 #include <st/math.h>
@@ -74,7 +74,7 @@ int virtual_fs_set_type(struct vfs_type *type)
         return -EBUSY;
 
     dlist_add_tail(&type->list, &s_virtual_type_list);
-    printf("Virtual FS: Registered filesystem type name = %s\n", type->name);
+    dbgln("Virtual FS: Registered filesystem type name = %s", type->name);
 
     return 0;
 }
@@ -581,7 +581,7 @@ int virtual_fs_mount(const char *source, const char *target, const char *filesys
     }
 
     dlist_add_tail(&mount->list, &s_virtual_mount_list);
-    printf("Virtual FS: Mounted filesystem name = %s, source = %s, target = %s, flags = 0x%x\n", type->name, source,
+    dbgln("Virtual FS: Mounted filesystem name = %s, source = %s, target = %s, flags = 0x%x", type->name, source,
            target, mountflags);
     return 0;
 }
@@ -591,5 +591,5 @@ void virtual_fs_init()
     dlist_head_init(&s_virtual_type_list);
     dlist_head_init(&s_virtual_mount_list);
 
-    printf("Virtual FS: Initialized\n");
+    dbgln("Virtual FS: Initialized");
 }

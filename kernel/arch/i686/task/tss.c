@@ -1,6 +1,6 @@
 #include <kernel/arch/i686/cpu/gdt.h>
 #include <kernel/arch/i686/task/tss.h>
-#include <kernel/lib/stdio.h>
+#include <st/debug.h>
 #include <kernel/lib/string.h>
 
 struct tss_entry
@@ -62,6 +62,6 @@ void tss_add(uint32_t index, uint32_t ss, uint32_t esp)
 void tss_init()
 {
     tss_flush();
-    printf("TSS: Flushed address = 0x%x\n", &s_tss_entry);
-    printf("TSS: Initialized\n");
+    dbgln("TSS: Flushed address = 0x%x", &s_tss_entry);
+    dbgln("TSS: Initialized");
 }

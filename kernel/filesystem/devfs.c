@@ -2,7 +2,7 @@
 #include <kernel/api/posix/mount.h>
 #include <kernel/filesystem/devfs.h>
 #include <kernel/filesystem/virtual.h>
-#include <kernel/lib/stdio.h>
+#include <st/debug.h>
 #include <kernel/lib/stdlib.h>
 #include <kernel/lib/string.h>
 
@@ -96,5 +96,5 @@ void devfs_init()
     virtual_fs_mount("devfs", "/dev", s_devfs_type.name, MS_NOUSER, NULL);
     virtual_fs_mknod("/dev/input", S_IFDIR, 0);
 
-    printf("DevFS: Initialized\n");
+    dbgln("DevFS: Initialized");
 }

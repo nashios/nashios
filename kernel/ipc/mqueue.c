@@ -2,7 +2,7 @@
 #include <kernel/filesystem/mqueuefs.h>
 #include <kernel/filesystem/virtual.h>
 #include <kernel/ipc/mqueue.h>
-#include <kernel/lib/stdio.h>
+#include <st/debug.h>
 #include <kernel/task/scheduler.h>
 
 #define MAX_MQ_MESSAGES 32
@@ -223,5 +223,5 @@ mqd_t mq_open(const char *name, int oflag, struct mq_attr *attr)
 void mq_init()
 {
     hashmap_init(&g_mq_hashmap, hashmap_hash_uint32, hashmap_compare_uint32, 0);
-    printf("MQ: Initialized\n");
+    dbgln("MQ: Initialized");
 }

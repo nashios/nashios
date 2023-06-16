@@ -1,7 +1,7 @@
 #include <kernel/arch/i686/cpu/io.h>
 #include <kernel/drivers/pit.h>
 #include <kernel/interrupts/handler.h>
-#include <kernel/lib/stdio.h>
+#include <st/debug.h>
 #include <kernel/lib/string.h>
 
 #define PIT_FREQUENCY 1193180
@@ -192,5 +192,5 @@ void pit_init()
     itr_set_handler(32, pit_handler);
     pit_set_frequency(PIT_TICKS);
 
-    printf("PIT: Initialized\n");
+    dbgln("PIT: Initialized");
 }
