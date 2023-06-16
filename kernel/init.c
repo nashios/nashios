@@ -17,8 +17,6 @@
 
 void kernel_init()
 {
-    scheduler_unlock();
-
     pci_init();
     ata_init();
     virtual_fs_init();

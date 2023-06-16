@@ -101,6 +101,7 @@ struct process *scheduler_create_process(struct process *parent, const char *nam
 
 void scheduler_kernel_thread_entry(struct thread *, void *flow())
 {
+    scheduler_unlock();
     flow();
     scheduler_schedule();
 }
@@ -378,8 +379,6 @@ bool scheduler_fault_handler(struct itr_registers *registers)
         scheduler_exit(registers->eax);
         return ITR_STOP;
     }
-
-    assert_not_reached();
     return ITR_CONTINUE;
 }
 
