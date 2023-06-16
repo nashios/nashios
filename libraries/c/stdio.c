@@ -44,6 +44,17 @@
         }                                                                                                              \
     } while (0)
 
+enum _vfp_flags
+{
+    _VFP_ZEROPAD = 1,
+    _VFP_SIGN = 2,
+    _VFP_PLUS = 4,
+    _VFP_SPACE = 8,
+    _VFP_LEFT = 16,
+    _VFP_SMALL = 32,
+    _VFP_SPECIAL = 64
+};
+
 FILE *stdin = NULL;
 FILE *stdout = NULL;
 FILE *stderr = NULL;
@@ -333,9 +344,353 @@ int sprintf(char *restrict s, const char *restrict format, ...)
     return length;
 }
 
+int vfprintf_atoi(const char *restrict *str)
+{
+    int i = 0;
+    while (isdigit(**str))
+        i = i * 10 + *((*str)++) - '0';
+    return i;
+}
+
+char *vfprintf_number(char *str, char *end, long number, int base, int size, int precision, int type)
+{
+    char lower_case = (type & _VFP_SMALL);
+    if (type & _VFP_LEFT)
+        type &= ~_VFP_ZEROPAD;
+
+    if (base < 2 || base > 16)
+        return NULL;
+
+    char c = (type & _VFP_ZEROPAD) ? '0' : ' ';
+    char sign = 0;
+    if (type & _VFP_SIGN)
+    {
+        if (number < 0)
+        {
+            sign = '-';
+            number = -number;
+            size--;
+        }
+        else if (type & _VFP_PLUS)
+        {
+            sign = '+';
+            size--;
+        }
+        else if (type & _VFP_SPACE)
+        {
+            sign = ' ';
+            size--;
+        }
+    }
+
+    if (type & _VFP_SPECIAL)
+    {
+        if (base == 16)
+            size -= 2;
+        else if (base == 8)
+            size--;
+    }
+
+    char tmp[66];
+    int i = 0;
+    if (number == 0)
+        tmp[i++] = '0';
+    else
+    {
+        const char digits[17] = "0123456789ABCDEF";
+        while (number != 0)
+        {
+            tmp[i++] = digits[((unsigned long)number) % (unsigned)base] | lower_case;
+            number = ((unsigned long)number) / (unsigned)base;
+        }
+    }
+
+    if (i > precision)
+        precision = i;
+    size -= precision;
+
+    if (!(type & (_VFP_ZEROPAD + _VFP_LEFT)))
+    {
+        while (size-- > 0)
+        {
+            if (str <= end)
+                *str = ' ';
+            str++;
+        }
+    }
+
+    if (sign)
+    {
+        if (str <= end)
+            *str = sign;
+        str++;
+    }
+
+    if (type & _VFP_SPECIAL)
+    {
+        if (base == 8)
+        {
+            if (str <= end)
+                *str = '0';
+            str++;
+        }
+        else if (base == 16)
+        {
+            if (str <= end)
+                *str = '0';
+            str++;
+
+            if (str <= end)
+                *str = ('X' | lower_case);
+            str++;
+        }
+    }
+
+    if (!(type & _VFP_LEFT))
+    {
+        while (size-- > 0)
+        {
+            if (str <= end)
+                *str = c;
+            str++;
+        }
+    }
+
+    while (i < precision--)
+    {
+        if (str <= end)
+            *str = '0';
+        str++;
+    }
+
+    while (i-- > 0)
+    {
+        if (str <= end)
+            *str = tmp[i];
+        str++;
+    }
+
+    while (size-- > 0)
+    {
+        if (str <= end)
+            *str = ' ';
+        str++;
+    }
+
+    return str;
+}
+
 int vfprintf(FILE *restrict stream, const char *restrict format, va_list ap)
 {
-    return __printf_internal(format, ap, stream);
+    int size = vprintf_buffer_size(format, ap);
+    char *str = (char *)malloc(size);
+    if (str == NULL)
+        return -1;
+
+    char *p_str = str;
+    char *end = str + size;
+    if (end < str)
+    {
+        end = ((void *)-1);
+        size = end - str;
+    }
+
+    for (; *format; format++)
+    {
+        if (*format != '%')
+        {
+            if (p_str <= end)
+                *p_str = *format;
+            p_str++;
+            continue;
+        }
+
+        int flags = 0;
+    repeat_flags:
+        format++;
+        switch (*format)
+        {
+        case '-':
+            flags |= _VFP_LEFT;
+            goto repeat_flags;
+        case '+':
+            flags |= _VFP_PLUS;
+            goto repeat_flags;
+        case ' ':
+            flags |= _VFP_SPACE;
+            goto repeat_flags;
+        case '#':
+            flags |= _VFP_SPECIAL;
+            goto repeat_flags;
+        case '0':
+            flags |= _VFP_ZEROPAD;
+            goto repeat_flags;
+        }
+
+        int field_width = -1;
+        if (isdigit(*format))
+            field_width = vfprintf_atoi(&format);
+        else if (*format == '*')
+        {
+            format++;
+            field_width = va_arg(ap, int);
+            if (field_width < 0)
+            {
+                field_width = -field_width;
+                flags |= _VFP_LEFT;
+            }
+        }
+
+        int precision = -1;
+        if (*format == '.')
+        {
+            format++;
+            if (isdigit(*format))
+                precision = vfprintf_atoi(&format);
+            else if (*format == '*')
+            {
+                format++;
+                precision = va_arg(ap, int);
+            }
+            if (precision < 0)
+                precision = 0;
+        }
+
+        int qualifier = -1;
+        if (*format == 'h' || *format == 'l' || *format == 'L')
+        {
+            qualifier = *format;
+            format++;
+        }
+
+        int base = 10;
+        switch (*format)
+        {
+        case 'c':
+            if (!(flags & _VFP_LEFT))
+            {
+                while (--field_width > 0)
+                    *p_str++ = ' ';
+            }
+
+            *p_str++ = (unsigned char)va_arg(ap, int);
+            while (--field_width > 0)
+                *p_str++ = ' ';
+
+            continue;
+        case 's': {
+            const char *s = va_arg(ap, char *);
+            size_t length = strnlen(s, precision);
+
+            if (!(flags & _VFP_LEFT))
+            {
+                while ((int)length < field_width--)
+                {
+                    if (p_str <= end)
+                        *p_str = ' ';
+                    p_str++;
+                }
+            }
+
+            for (size_t i = 0; i < length; i++)
+            {
+                if (p_str <= end)
+                    *p_str = *s;
+
+                p_str++;
+                s++;
+            }
+
+            while ((int)length < field_width--)
+            {
+                if (p_str <= end)
+                    *p_str = ' ';
+                p_str++;
+            }
+
+            continue;
+        }
+        case 'p':
+            if (field_width == -1)
+            {
+                field_width = 2 * sizeof(void *);
+                flags |= _VFP_ZEROPAD;
+            }
+
+            p_str = vfprintf_number(p_str, end, (unsigned long)va_arg(ap, void *), 16, field_width, precision, flags);
+            continue;
+        case 'n':
+            if (qualifier == 'l')
+            {
+                long *ip = va_arg(ap, long *);
+                *ip = (p_str - str);
+            }
+            else
+            {
+                int *ip = va_arg(ap, int *);
+                *ip = (p_str - str);
+            }
+            continue;
+        case '%':
+            if (p_str <= end)
+                *p_str = '%';
+            p_str++;
+            continue;
+        case 'o':
+            base = 8;
+            break;
+        case 'x':
+            flags |= _VFP_SMALL;
+            // fall through
+        case 'X':
+            base = 16;
+            break;
+        case 'd':
+        case 'i':
+            flags |= _VFP_SIGN;
+        case 'u':
+            break;
+        default:
+            if (p_str <= end)
+                *p_str = '%';
+            p_str++;
+
+            if (*format)
+            {
+                if (p_str <= end)
+                    *p_str = *format;
+                p_str++;
+            }
+            else
+                format--;
+
+            continue;
+        }
+
+        unsigned long number = 0;
+        if (qualifier == 'l')
+            number = va_arg(ap, unsigned long);
+        else if (qualifier == 'h')
+        {
+            number = (unsigned short)va_arg(ap, int);
+            if (flags & _VFP_SIGN)
+                number = (short)number;
+        }
+        else if (flags & _VFP_SIGN)
+            number = va_arg(ap, int);
+        else
+            number = va_arg(ap, unsigned int);
+
+        p_str = vfprintf_number(p_str, end, number, base, field_width, precision, flags);
+    }
+
+    if (p_str <= end)
+        *p_str = '\0';
+    else if (size > 0)
+        *end = '\0';
+
+    __stdio_write(str, p_str - str, stream);
+    return p_str - str;
 }
 
 int fprintf(FILE *restrict stream, const char *restrict format, ...)
