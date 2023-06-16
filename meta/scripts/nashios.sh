@@ -158,18 +158,14 @@ compile_qemu() {
 check_qemu() {
     export QEMU_MAJOR_VERSION=8
     export QEMU_MINOR_VERSION=0
-    export QEMU_PATCH_VERSION=0
+    export QEMU_PATCH_VERSION=2
 
     if ! command -v "$NASHIOS_QEMU_BIN" >/dev/null 2>&1; then
         compile_qemu
     fi
 
-    major_version=$("$NASHIOS_QEMU_BIN" -version | head -n 1 | sed -E 's/QEMU emulator version ([1-9][0-9]*|0).*/\1/')
-    minor_version=$("$NASHIOS_QEMU_BIN" -version | head -n 1 | sed -E 's/QEMU emulator version [0-9]+\.([1-9][0-9]*|0).*/\1/')
-    patch_version=$("$NASHIOS_QEMU_BIN" -version | head -n 1 | sed -E 's/QEMU emulator version [0-9]+\.[0-9]+\.([1-9][0-9]*|0).*/\1/')
-    if [ "$major_version" -lt "$QEMU_MAJOR_VERSION" ] ||
-        { [ "$major_version" -eq "$QEMU_MAJOR_VERSION" ] &&
-            [ "$minor_version" -lt "$QEMU_MINOR_VERSION" ] && [ "$patch_version" -lt "$QEMU_PATCH_VERSION" ]; }; then
+    if [[ "$(${NASHIOS_QEMU_BIN} --version | head -n1 | cut -d' ' -f4)" != "${QEMU_MAJOR_VERSION}.${QEMU_MINOR_VERSION}.${QEMU_PATCH_VERSION}" ]]; then
+        echo "QEMU version does not match"
         compile_qemu
     fi
 }
