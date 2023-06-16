@@ -50,7 +50,7 @@ function(nashios_bin target_name)
     nashios_install_sources()
     add_executable(${target_name} ${SOURCES})
     install(TARGETS ${target_name} DESTINATION bin)
-    target_link_libraries(${target_name} libc)
+    target_link_libraries(${target_name} PRIVATE libc)
 endfunction()
 
 include_directories(.)
