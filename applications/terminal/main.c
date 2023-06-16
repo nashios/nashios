@@ -2,7 +2,7 @@
 
 int main()
 {
-    struct window *window = gui_create_window(800, 600, 100, 100);
+    struct window *window = gui_create_window("Terminal", 800, 600, 100, 100);
     gui_focus_window(window);
     return gui_event_loop(window);
 }

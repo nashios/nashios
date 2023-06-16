@@ -29,6 +29,6 @@ struct window
     struct dlist_head children;
 };
 
-struct window *gui_create_window(int width, int height, int x, int y);
+struct window *gui_create_window(const char *title, int width, int height, int x, int y);
 struct window *gui_create_unstyled_window(int width, int height, int x, int y);
 void gui_focus_window(struct window *window);

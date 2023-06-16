@@ -1,11 +1,13 @@
 #include <fcntl.h>
 #include <gfx/bitmap.h>
+#include <gfx/psf.h>
 #include <gui/window.h>
 #include <mqueue.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 #include <sys/mman.h>
+#include <sys/stat.h>
 #include <unistd.h>
 
 void gui_init_window(struct window *window, struct window *parent, int width, int height, int x, int y,
@@ -100,7 +102,7 @@ void gui_set_window_bg_color(struct window *window, uint32_t color)
     }
 }
 
-void gui_init_window_topbar(struct window *window)
+void gui_init_window_topbar(struct window *window, struct psf_font *font, const char *title)
 {
     struct window *topbar = (struct window *)calloc(1, sizeof(struct window));
     if (!topbar)
@@ -144,6 +146,8 @@ void gui_init_window_topbar(struct window *window)
         return;
     gfx_bitmap_draw(minimize->graphic, minimize_bitmap, 0, 0);
     free(minimize_bitmap);
+
+    psf_draw_line(font, title, 8, 10, 0x00000000, 0xFFFFFFFF, topbar->graphic->buffer, topbar->graphic->width * 4);
 }
 
 void gui_init_window_body(struct window *window)
@@ -167,10 +171,17 @@ struct window *gui_create_unstyled_window(int width, int height, int x, int y)
     return window;
 }
 
-struct window *gui_create_window(int width, int height, int x, int y)
+struct window *gui_create_window(const char *title, int width, int height, int x, int y)
 {
+    struct psf_font *font = psf_open("/usr/share/fonts/ter-powerline-v16n.psf");
+    if (!font)
+        return NULL;
+
     struct window *window = gui_create_unstyled_window(width, height, x, y);
-    gui_init_window_topbar(window);
+    if (!window)
+        return NULL;
+
+    gui_init_window_topbar(window, font, title);
     gui_init_window_body(window);
 
     return window;
