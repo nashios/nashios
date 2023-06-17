@@ -1,11 +1,11 @@
 #include <kernel/api/posix/errno.h>
 #include <kernel/filesystem/virtual.h>
-#include <st/debug.h>
 #include <kernel/lib/stdlib.h>
 #include <kernel/lib/string.h>
 #include <kernel/memory/mmap.h>
 #include <kernel/task/scheduler.h>
 #include <st/assert.h>
+#include <st/debug.h>
 #include <st/math.h>
 
 struct process_vm *mmap_find_unmapped_area(uint32_t addr, uint32_t len)
@@ -203,6 +203,6 @@ int mmap_brk(uint32_t addr)
 uint32_t mmap_sbrk(intptr_t increment)
 {
     uint32_t value = g_scheduler_process->memory->brk_middle;
-    mmap_brk(g_scheduler_process->memory->brk_middle + increment);
+    mmap_brk(value + increment);
     return value;
 }
