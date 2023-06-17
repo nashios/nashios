@@ -22,10 +22,8 @@ SECTIONS
 	}
 	.bss ALIGN(4096) : AT(ADDR(.bss) - _kernel_higher_half)
 	{
-		_kernel_bss_start = .;
 		*(COMMON)
 		*(.bss .bss.*)
-		_kernel_bss_end = .;
 	}
 	_kernel_end = .;
 	_kernel_size = _kernel_end - _kernel_start;
