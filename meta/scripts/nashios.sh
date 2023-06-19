@@ -327,7 +327,8 @@ build_toolchain() {
             build_dir="${TOOLCHAIN_BUILD_DIR}" \
             cache_dir="${CACHE_DIR}" \
             source_dir="${SOURCE_DIR}" \
-            sysroot_dir="${SYSROOT_DIR}" ||
+            sysroot_dir="${SYSROOT_DIR}" \
+            "${ARGS[@]}" ||
             return 1
 
         return 0
