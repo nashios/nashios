@@ -16,8 +16,9 @@ jobs:
 
       - name: Install dependencies
         run: |
+          sudo add-apt-repository ppa:ubuntu-toolchain-r/ppa
           sudo apt update
-          sudo apt install build-essential cmake curl libmpfr-dev libmpc-dev libgmp-dev ninja-build ccache rsync unzip texinfo libssl-dev fuse2fs
+          sudo apt install cmake gcc-13 g++-13
 
       - name: Toolchain cache
         uses: actions/cache@v3
