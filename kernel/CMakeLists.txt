@@ -80,9 +80,12 @@ endif()
 add_executable(kernel ${ASM_SOURCES} ${C_SOURCES})
 target_compile_options(kernel PRIVATE -ffreestanding -O2)
 target_link_options(kernel PRIVATE -T ${LINKER_FILE} -ffreestanding -O2 -nostdlib)
-target_link_libraries(kernel PRIVATE gcc)
 target_compile_definitions(kernel PRIVATE KERNEL=true)
 install(TARGETS kernel DESTINATION boot)
+
+if(CMAKE_CXX_COMPILER_ID MATCHES "GNU")
+    target_link_libraries(kernel PRIVATE gcc)
+endif()
 
 nashios_install_headers(kernel)
 nashios_install_sources(kernel)
