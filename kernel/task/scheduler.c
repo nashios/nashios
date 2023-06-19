@@ -1,4 +1,4 @@
-#include <kernel/arch/i686/task/tss.h>
+#include <kernel/arch/x86/task/tss.h>
 #include <kernel/cpu/processor.h>
 #include <kernel/filesystem/virtual.h>
 #include <kernel/interrupts/handler.h>

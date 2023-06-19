@@ -1,5 +1,5 @@
-#include <kernel/arch/i686/boot/multiboot.h>
-#include <kernel/arch/i686/memory/virtual.h>
+#include <kernel/arch/x86/boot/multiboot.h>
+#include <kernel/arch/x86/memory/virtual.h>
 #include <st/debug.h>
 
 #define MULTIBOOT_SEARCH 8192

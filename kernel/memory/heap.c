@@ -1,4 +1,4 @@
-#include <kernel/arch/i686/memory/virtual.h>
+#include <kernel/arch/x86/memory/virtual.h>
 #include <kernel/lib/string.h>
 #include <st/assert.h>
 #include <st/math.h>

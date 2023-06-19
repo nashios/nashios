@@ -1,5 +1,5 @@
-#include <kernel/arch/i686/cpu/gdt.h>
-#include <kernel/arch/i686/task/tss.h>
+#include <kernel/arch/x86/cpu/gdt.h>
+#include <kernel/arch/x86/task/tss.h>
 #include <st/debug.h>
 #include <kernel/lib/string.h>
 

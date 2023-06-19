@@ -1,6 +1,6 @@
-#include <kernel/arch/i686/boot/multiboot.h>
-#include <kernel/arch/i686/memory/physical.h>
-#include <kernel/arch/i686/memory/virtual.h>
+#include <kernel/arch/x86/boot/multiboot.h>
+#include <kernel/arch/x86/memory/physical.h>
+#include <kernel/arch/x86/memory/virtual.h>
 #include <kernel/bitmap.h>
 #include <st/debug.h>
 #include <kernel/lib/string.h>

@@ -1,6 +1,6 @@
 #include <kernel/api/posix/errno.h>
 #include <kernel/api/posix/mount.h>
-#include <kernel/arch/i686/memory/virtual.h>
+#include <kernel/arch/x86/memory/virtual.h>
 #include <kernel/filesystem/devfs.h>
 #include <kernel/filesystem/tmpfs.h>
 #include <kernel/filesystem/virtual.h>

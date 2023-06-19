@@ -1,9 +1,9 @@
-#include <kernel/arch/i686/boot/multiboot.h>
-#include <kernel/arch/i686/boot/serial.h>
-#include <kernel/arch/i686/cpu/gdt.h>
-#include <kernel/arch/i686/interrupts/idt.h>
-#include <kernel/arch/i686/memory/physical.h>
-#include <kernel/arch/i686/memory/virtual.h>
+#include <kernel/arch/x86/boot/multiboot.h>
+#include <kernel/arch/x86/boot/serial.h>
+#include <kernel/arch/x86/cpu/gdt.h>
+#include <kernel/arch/x86/interrupts/idt.h>
+#include <kernel/arch/x86/memory/physical.h>
+#include <kernel/arch/x86/memory/virtual.h>
 #include <kernel/cpu/processor.h>
 #include <kernel/init.h>
 

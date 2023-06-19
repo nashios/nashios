@@ -40,41 +40,41 @@ set(C_SOURCES
 
 if(${CMAKE_SYSTEM_PROCESSOR} STREQUAL "i686")
     list(APPEND ASM_SOURCES
-        arch/i686/boot/boot.S
+        arch/x86/boot/boot.S
 
-        arch/i686/cpu/gdt.S
+        arch/x86/cpu/gdt.S
         
-        arch/i686/memory/page_enable.S
-        arch/i686/memory/flush_tbl.S
+        arch/x86/memory/page_enable.S
+        arch/x86/memory/flush_tbl.S
         
-        arch/i686/interrupts/idt_flush.S
-        arch/i686/interrupts/irq_common.S
-        arch/i686/interrupts/isr_common.S
+        arch/x86/interrupts/idt_flush.S
+        arch/x86/interrupts/irq_common.S
+        arch/x86/interrupts/isr_common.S
         
-        arch/i686/task/tss_flush.S
-        arch/i686/task/scheduler_switch.S
-        arch/i686/task/scheduler_enter_usermode.S
-        arch/i686/task/scheduler_return_usermode.S)
+        arch/x86/task/tss_flush.S
+        arch/x86/task/scheduler_switch.S
+        arch/x86/task/scheduler_enter_usermode.S
+        arch/x86/task/scheduler_return_usermode.S)
 
     list(APPEND C_SOURCES
-        arch/i686/main.c
+        arch/x86/main.c
 
-        arch/i686/boot/multiboot.c
-        arch/i686/boot/serial.c
+        arch/x86/boot/multiboot.c
+        arch/x86/boot/serial.c
 
-        arch/i686/cpu/gdt.c
-        arch/i686/cpu/io.c
-        arch/i686/cpu/processor.c
+        arch/x86/cpu/gdt.c
+        arch/x86/cpu/io.c
+        arch/x86/cpu/processor.c
         
-        arch/i686/interrupts/idt.c
-        arch/i686/interrupts/pic.c
+        arch/x86/interrupts/idt.c
+        arch/x86/interrupts/pic.c
         
-        arch/i686/memory/physical.c
-        arch/i686/memory/virtual.c
+        arch/x86/memory/physical.c
+        arch/x86/memory/virtual.c
         
-        arch/i686/task/tss.c)
+        arch/x86/task/tss.c)
 
-    set(LINKER_FILE ${CMAKE_CURRENT_SOURCE_DIR}/arch/i686/linker.ld)
+    set(LINKER_FILE ${CMAKE_CURRENT_SOURCE_DIR}/arch/x86/linker.ld)
 endif()
 
 add_executable(kernel ${ASM_SOURCES} ${C_SOURCES})

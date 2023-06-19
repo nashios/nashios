@@ -1,4 +1,4 @@
-#include <kernel/arch/i686/cpu/io.h>
+#include <kernel/arch/x86/cpu/io.h>
 #include <kernel/drivers/pci.h>
 #include <st/debug.h>
 #include <kernel/lib/stdlib.h>

@@ -1,4 +1,4 @@
-#include <kernel/arch/i686/cpu/io.h>
+#include <kernel/arch/x86/cpu/io.h>
 #include <kernel/drivers/pit.h>
 #include <kernel/interrupts/handler.h>
 #include <st/debug.h>

@@ -1,5 +1,5 @@
-#include <kernel/arch/i686/boot/serial.h>
-#include <kernel/arch/i686/cpu/io.h>
+#include <kernel/arch/x86/boot/serial.h>
+#include <kernel/arch/x86/cpu/io.h>
 #include <st/debug.h>
 
 static enum serial_port s_serial_port = SERIAL_INVALID;

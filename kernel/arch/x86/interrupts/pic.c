@@ -1,5 +1,5 @@
-#include <kernel/arch/i686/cpu/io.h>
-#include <kernel/arch/i686/interrupts/pic.h>
+#include <kernel/arch/x86/cpu/io.h>
+#include <kernel/arch/x86/interrupts/pic.h>
 
 #define PIC1_COMMAND 0x20
 #define PIC1_DATA 0x21
