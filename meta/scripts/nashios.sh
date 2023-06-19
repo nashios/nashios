@@ -1,3 +1,6 @@
+#!/bin/bash
+set -e
+
 PROGRAM=$0
 COMMAND=$1
 
