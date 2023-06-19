@@ -20,6 +20,11 @@ jobs:
           sudo apt update
           sudo apt install cmake gcc-13 g++-13
 
+      - name: Set toolchain
+        run: |
+          sudo update-alternatives --install /usr/bin/gcc gcc /usr/bin/gcc-13 13
+          sudo update-alternatives --install /usr/bin/g++ g++ /usr/bin/g++-13 13
+
       - name: Toolchain cache
         uses: actions/cache@v3
         with:
