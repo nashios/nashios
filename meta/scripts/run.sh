@@ -1,15 +1,54 @@
-[ -z "$NASHIOS_QEMU_KERNEL" ] && NASHIOS_QEMU_KERNEL="${SYSROOT_DIR}/boot/kernel"
-[ -z "$NASHIOS_QEMU_RAM" ] && NASHIOS_QEMU_RAM="128M"
-[ -z "$NASHIOS_QEMU_CPU" ] && NASHIOS_QEMU_CPU="max"
-[ -z "$NASHIOS_DISK_IMAGE" ] && NASHIOS_DISK_IMAGE="${DISK_IMAGE}"
-[ -z "$NASHIOS_QEMU_ARGS" ] && NASHIOS_QEMU_ARGS="
-    -kernel $NASHIOS_QEMU_KERNEL
-    -m $NASHIOS_QEMU_RAM
-    -cpu $NASHIOS_QEMU_CPU
-    -drive file=${NASHIOS_DISK_IMAGE},format=raw,index=0,media=disk
-    -serial stdio
-    -no-reboot"
+#!/bin/bash
+set -e
 
-[ -e /dev/kvm ] && [ -r /dev/kvm ] && [ -w /dev/kvm ] && NASHIOS_QEMU_VIRT="-enable-kvm"
+PROGRAM=$0
+COMMAND=$1
 
-"$NASHIOS_QEMU_BIN" $NASHIOS_QEMU_ARGS $NASHIOS_QEMU_VIRT
+NAME="$(basename "${PROGRAM}")"
+usage() {
+    echo "Nashios run script, version ${VERSION}"
+    echo ""
+    echo "Usage: ${NAME} <command> <options>"
+    echo ""
+    echo "Commands:"
+    echo "  help            Display this help message"
+    echo "  qemu            Run the system in QEMU"
+    echo ""
+    echo "Options:"
+    echo "  qemu_bin        Specify the QEMU binary"
+    echo "  qemu_kernel     Specify the QEMU kernel"
+    echo "  qemu_cpu        Specify the QEMU CPU"
+    echo "  qemu_memory     Specify the QEMU memory"
+    echo "  qemu_image      Specify the QEMU image"
+    echo "  qemu_args       Specify additional QEMU arguments"
+}
+trap usage ERR
+
+if [[ "${COMMAND}" = "help" || -z "${COMMAND}" ]]; then
+    usage
+    exit 0
+fi
+shift
+
+ARGS=("$@")
+qemu() {
+    local qemu_bin=$(find_in_args_or_fail "qemu_bin=")
+    local qemu_kernel=$(find_in_args_or_fail "qemu_kernel=")
+    local qemu_image=$(find_in_args_or_fail "qemu_image=")
+    local qemu_memory=$(find_in_args_or_default "qemu_memory=" "128M")
+    local qemu_cpu=$(find_in_args_or_default "qemu_cpu=" "max")
+    local qemu_args=$(find_in_args_or_default "qemu_args=" "")
+
+    qemu_args+=" -serial stdio"
+    qemu_args+=" -drive file=${qemu_image},format=raw"
+
+    "${qemu_bin}" -kernel "${qemu_kernel}" -m "${qemu_memory}" -cpu "${qemu_cpu}" ${qemu_args}
+}
+
+if [[ "${COMMAND}" = @(qemu) ]]; then
+    case "${COMMAND}" in
+    qemu)
+        qemu
+        ;;
+    esac
+fi
