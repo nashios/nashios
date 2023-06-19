@@ -177,6 +177,10 @@ buildstep "Binutils/compile" make -j ${CORES} all
 buildstep "Binutils/install" make install
 popd
 
+pushd ${BUILD_DIR}/${GCC_PACKAGE}
+buildstep "GCC/contrib" ./contrib/download_prerequisites
+popd
+
 mkdir ${BUILD_DIR}/${GCC_PACKAGE}-build
 pushd ${BUILD_DIR}/${GCC_PACKAGE}-build
 buildstep "GCC/configure" ../${GCC_PACKAGE}/configure --target=${TARGET} --prefix=${PREFIX} --with-sysroot=${SYSROOT_DIR} --enable-languages=c,c++ --enable-shared --with-newlib
