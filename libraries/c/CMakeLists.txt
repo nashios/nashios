@@ -14,9 +14,12 @@ set(SOURCES
     sys/mman.c
     sys/stat.c)
 
-if(${CMAKE_SYSTEM_PROCESSOR} MATCHES "i686")
+if(CMAKE_SYSTEM_PROCESSOR MATCHES "i686")
     set(CRTI_FILE arch/i686/crti.S)
     set(CRTN_FILE arch/i686/crtn.S)
+elseif(CMAKE_SYSTEM_PROCESSOR MATCHES "x86_64")
+    set(CRTI_FILE arch/x86_64/crti.S)
+    set(CRTN_FILE arch/x86_64/crtn.S)
 endif()
 
 add_library(crt0 crt0.c)
