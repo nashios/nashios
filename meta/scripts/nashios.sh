@@ -26,6 +26,7 @@ help() {
     echo ""
     echo "Architectures:"
     echo "  i686:               32-bit x86"
+    echo "  x86_64:             64-bit x86"
     echo ""
     echo "Toolchains:"
     echo "  gnu:                GNU Compiler Collection"
@@ -40,7 +41,7 @@ shift
 if [[ -z "$1" ]]; then
     ARCHITECTURE="i686"
 else
-    if [[ "$1" = @(i686) ]]; then
+    if [[ "$1" = @(i686|x86_64) ]]; then
         ARCHITECTURE="$1"
         shift
     else
@@ -192,6 +193,8 @@ setup() {
 
     if [[ "${ARCHITECTURE}" = "i686" ]]; then
         QEMU_BIN="qemu-system-i386"
+    elif [[ "${ARCHITECTURE}" = "x86_64" ]]; then
+        QEMU_BIN="qemu-system-x86_64"
     fi
 
     DISK_IMAGE="${SYSTEM_BUILD_DIR}/disk.img"
@@ -271,6 +274,8 @@ build_qemu() {
     local targets=()
     if [[ "${ARCHITECTURE}" = "i686" ]]; then
         targets+=("i386-softmmu")
+    elif [[ "${ARCHITECTURE}" = "x86_64" ]]; then
+        targets+=("x86_64-softmmu")
     fi
 
     ${SCRIPTS_DIR}/setup-qemu.sh all \
