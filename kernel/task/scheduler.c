@@ -83,7 +83,7 @@ struct process *scheduler_create_process(struct process *parent, const char *nam
     process->files = (struct process_files *)calloc(1, sizeof(struct process_files));
     process->memory = (struct process_mm *)calloc(1, sizeof(struct process_mm));
 
-    if (process->parent)
+    if (process->parent != NULL)
     {
         process->directory = virtual_mm_create_address();
         memcpy(process->fs, parent->fs, sizeof(struct process_fs));

@@ -137,8 +137,6 @@ extern struct thread *g_scheduler_thread;
 
 void scheduler_init(void *init);
 void scheduler_schedule();
-void scheduler_lock();
-void scheduler_unlock();
 void scheduler_queue_thread(struct thread *thread);
 void scheduler_update_thread(struct thread *thread, enum thread_state state);
 void scheduler_open(const char *path);
