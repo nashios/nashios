@@ -38,9 +38,14 @@ qemu() {
     local qemu_memory=$(find_in_args_or_default "qemu_memory=" "128M")
     local qemu_cpu=$(find_in_args_or_default "qemu_cpu=" "max")
     local qemu_args=$(find_in_args_or_default "qemu_args=" "")
+    local qemu_accel=$(find_in_args_or_default "qemu_accel=" "true")
 
     qemu_args+=" -serial stdio"
     qemu_args+=" -drive file=${qemu_image},format=raw"
+
+    if [[ "${qemu_accel}" = "true" ]]; then
+        qemu_args+=" -enable-kvm"
+    fi
 
     "${qemu_bin}" -kernel "${qemu_kernel}" -m "${qemu_memory}" -cpu "${qemu_cpu}" ${qemu_args}
 }
