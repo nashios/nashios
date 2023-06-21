@@ -1,6 +1,7 @@
 #include <kernel/cpu/processor.h>
 #include <kernel/drivers/ata.h>
 #include <kernel/drivers/fb.h>
+#include <kernel/drivers/keyboard.h>
 #include <kernel/drivers/mouse.h>
 #include <kernel/drivers/pci.h>
 #include <kernel/drivers/pit.h>
@@ -29,6 +30,7 @@ void kernel_init()
     syscall_init();
     mq_init();
     mouse_init();
+    keyboard_init();
 
     scheduler_open("/bin/system_service");
 

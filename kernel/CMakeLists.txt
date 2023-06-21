@@ -25,6 +25,7 @@ set(C_SOURCES
     drivers/fb.c
     drivers/pit.c
     drivers/mouse.c
+    drivers/keyboard.c
     
     drivers/char/debug.c
     
