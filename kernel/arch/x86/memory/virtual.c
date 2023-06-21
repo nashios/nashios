@@ -1,9 +1,9 @@
 #include <kernel/arch/x86/memory/virtual.h>
-#include <st/debug.h>
 #include <kernel/lib/stdlib.h>
 #include <kernel/lib/string.h>
 #include <kernel/memory/heap.h>
 #include <st/assert.h>
+#include <st/debug.h>
 
 #define PAGE_TBL_ADDRESS 0xFFC00000
 #define PAGE_DIR_ADDRESS 0xFFFFF000
@@ -48,7 +48,7 @@ void virtual_mm_identity_map(struct page_directory *directory, uint32_t physical
     *entry = physical_table | PAGE_DIR_PRESENT | PAGE_DIR_WRITABLE;
 
     dbgln("Virtual MM: Identity mapped physical = 0x%08x, virtual = 0x%08x, directory = 0x%x", physical_address,
-           virtual_address, &directory);
+          virtual_address, &directory);
 }
 
 void virtual_mm_allocate_tbl(struct page_directory *directory, int index)

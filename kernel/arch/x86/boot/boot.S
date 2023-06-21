@@ -1,7 +1,18 @@
-#define ASM_FILE
-#include <kernel/arch/x86/boot/multiboot.h>
+.set MULTIBOOT_HEADER_MAGIC, 0x1BADB002
 
-.section .multiboot
+#ifdef __ELF__
+.set MULTIBOOT_AOUT_KLUDGE, 0x00000000
+#else
+.set MULTIBOOT_AOUT_KLUDGE, 0x00010000
+#endif
+
+.set MULTIBOOT_PAGE_ALIGN, 0x00000001
+.set MULTIBOOT_MEMORY_INFO, 0x00000002
+.set MULTIBOOT_VIDEO_MODE, 0x00000004
+
+.set MULTIBOOT_HEADER_FLAGS, MULTIBOOT_PAGE_ALIGN | MULTIBOOT_MEMORY_INFO | MULTIBOOT_VIDEO_MODE | MULTIBOOT_AOUT_KLUDGE
+
+.section .multiboot.data, "aw"
 .align 4
 multiboot_header:
 	.long MULTIBOOT_HEADER_MAGIC
@@ -9,9 +20,9 @@ multiboot_header:
 	.long -(MULTIBOOT_HEADER_MAGIC + MULTIBOOT_HEADER_FLAGS)
 #ifndef __ELF__
 	.long multiboot_header
-	.long _kernel_start
-	.long _kernel_end
-	.long _kernel_bss_end
+	.long _start
+	.long _data_end
+	.long _bss_end
 	.long _start
 #else
 	.long 0
@@ -25,8 +36,7 @@ multiboot_header:
 	.long 768
 	.long 32
 
-.section .bss
-.align 16
+.section .bss, "aw", @nobits
 stack_bottom:
     .space 16384
 stack_top:
@@ -42,7 +52,7 @@ boot_directory:
 	.long 0x00000083
 	.fill (1024 - PAGE_NUMBER - 1), 4, 0x00
 
-.section .text
+.section .multiboot.text, "a"
 .global _start
 .type _start, @function
 _start:
@@ -61,6 +71,7 @@ _start:
 	jmp *%ecx
 
 .section .text
+.type higher_half, @function
 higher_half:
 	movl $0x00, (boot_directory)
 	invlpg (0)
@@ -81,5 +92,3 @@ higher_half:
 1:
 	hlt
 	jmp 1b
-
-.size _start, . - _start

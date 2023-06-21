@@ -2,8 +2,8 @@
 #include <kernel/arch/x86/memory/physical.h>
 #include <kernel/arch/x86/memory/virtual.h>
 #include <kernel/bitmap.h>
-#include <st/debug.h>
 #include <kernel/lib/string.h>
+#include <st/debug.h>
 #include <st/math.h>
 
 extern void *_kernel_boot;
@@ -14,7 +14,7 @@ extern void *_kernel_size;
 #define KERNEL_BOOT ((uint32_t)&_kernel_boot)
 #define KERNEL_START ((uint32_t)&_kernel_start)
 #define KERNEL_END ((uint32_t)&_kernel_end)
-#define KERNEL_SIZE ((uint32_t)&_kernel_size)
+#define KERNEL_SIZE (KERNEL_END - PHYS_TO_VIRT(KERNEL_START))
 
 #define PHYSICAL_FRAMES_PER_BYTE 8
 
@@ -104,8 +104,8 @@ void physical_mm_init()
     physical_mm_unset_region(KERNEL_BOOT, KERNEL_SIZE + bitmap_size);
 
     dbgln("Physical MM: Kernel start = 0x%x, end = 0x%x, size = 0x%x", KERNEL_START, KERNEL_END, KERNEL_SIZE);
-    dbgln("Physical MM: Bitmap address = 0x%x, size = 0x%x, used frames = %d, max = %d", s_physical_bitmap,
-           bitmap_size, s_physical_used, s_physical_max);
+    dbgln("Physical MM: Bitmap address = 0x%x, size = 0x%x, used frames = %d, max = %d", s_physical_bitmap, bitmap_size,
+          s_physical_used, s_physical_max);
     dbgln("Physical MM: Initialized");
 }
 

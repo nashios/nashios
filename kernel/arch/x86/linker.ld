@@ -1,30 +1,52 @@
 ENTRY(_start)
 
+_kernel_boot = 0x00100000;
+_kernel_higher_half = 0xC0000000;
+
 SECTIONS
 {
-	_kernel_boot = 0x00100000;
-	_kernel_higher_half = 0xC0000000;
-	. = _kernel_higher_half + _kernel_boot;
-
+	. = _kernel_boot;
 	_kernel_start = .;
-	.text ALIGN(4096) : AT(ADDR(.text) - _kernel_higher_half)
+
+	.multiboot.data :
 	{
-		*(.multiboot)
-		*(.text .text.*)
+		*(.multiboot.data)
 	}
-	.rodata ALIGN(4096) : AT(ADDR(.rodata) - _kernel_higher_half)
+
+	.multiboot.text :
 	{
-		*(.rodata .rodata.*)
+		*(.multiboot.text)
 	}
-	.data ALIGN(4096) : AT(ADDR(.data) - _kernel_higher_half)
+
+	. += _kernel_higher_half;
+	.text ALIGN(4K) : AT(ADDR(.text) - _kernel_higher_half)
 	{
-		*(.data .data.*)
+		_text_start = .;
+		*(.text)
+		*(.text.*)
+		_text_end = .;
 	}
-	.bss ALIGN(4096) : AT(ADDR(.bss) - _kernel_higher_half)
+	.rodata ALIGN(4K) : AT(ADDR(.rodata) - _kernel_higher_half)
 	{
+		_rodata_start = .;
+		*(.rodata)
+		*(.rodata.*)
+		_rodata_end = .;
+	}
+	.data ALIGN(4K) : AT(ADDR(.data) - _kernel_higher_half)
+	{
+		_data_start = .;
+		*(.data)
+		*(.data.*)
+		_data_end = .;
+	}
+	.bss ALIGN(4K) : AT(ADDR(.bss) - _kernel_higher_half)
+	{
+		_bss_start = .;
+		*(.bss)
+		*(.bss.*)
 		*(COMMON)
-		*(.bss .bss.*)
+		_bss_end = .;
 	}
 	_kernel_end = .;
-	_kernel_size = _kernel_end - _kernel_start;
 }

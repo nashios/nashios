@@ -1,21 +1,5 @@
 #pragma once
 
-#define MULTIBOOT_HEADER_MAGIC 0x1BADB002
-
-#define MULTIBOOT_AOUT_KLUDGE 0x00010000
-#define MULTIBOOT_PAGE_ALIGN 0x00000001
-#define MULTIBOOT_MEMORY_INFO 0x00000002
-#define MULTIBOOT_VIDEO_MODE 0x00000004
-
-#ifdef __ELF__
-#define AOUT_KLUDGE 0
-#else
-#define AOUT_KLUDGE MULTIBOOT_AOUT_KLUDGE
-#endif
-#define MULTIBOOT_HEADER_FLAGS MULTIBOOT_PAGE_ALIGN | MULTIBOOT_MEMORY_INFO | MULTIBOOT_VIDEO_MODE | AOUT_KLUDGE
-
-#ifndef ASM_FILE
-
 #define MULTIBOOT_MEMORY_AVAILABLE 1
 #define MULTIBOOT_MEMORY_RESERVED 2
 #define MULTIBOOT_MEMORY_ACPI_RECLAIMABLE 3
@@ -117,5 +101,3 @@ struct multiboot_info
 extern struct multiboot_info *g_multiboot_info;
 
 void multiboot_init(uint32_t magic, uint32_t address);
-
-#endif
