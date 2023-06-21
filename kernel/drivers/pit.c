@@ -1,8 +1,9 @@
 #include <kernel/arch/x86/cpu/io.h>
+#include <kernel/cpu/processor.h>
 #include <kernel/drivers/pit.h>
 #include <kernel/interrupts/handler.h>
-#include <st/debug.h>
 #include <kernel/lib/string.h>
+#include <st/debug.h>
 
 #define PIT_FREQUENCY 1193180
 #define PIT_TICKS 1000

@@ -1,7 +1,7 @@
 #include <kernel/interrupts/handler.h>
-#include <st/debug.h>
 #include <kernel/lib/stdlib.h>
 #include <kernel/panic.h>
+#include <st/debug.h>
 #include <st/dlist.h>
 
 struct itr_handler

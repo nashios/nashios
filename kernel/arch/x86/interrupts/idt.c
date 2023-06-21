@@ -96,10 +96,14 @@ void idt_default_handler()
 
 void idt_handler(struct itr_registers *registers)
 {
+    DISABLE_INTERRUPTS();
+
     itr_handler(registers);
 
     if (registers->number >= 32 && registers->number <= 47)
         pic_send_eoi(registers->number - 32);
+
+    ENABLE_INTERRUPTS();
 }
 
 void idt_init()
