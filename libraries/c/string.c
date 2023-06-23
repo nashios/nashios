@@ -1,3 +1,4 @@
+#include <stdlib.h>
 #include <string.h>
 
 void *memcpy(void *restrict s1, const void *restrict s2, size_t n)
@@ -74,4 +75,14 @@ char *strchr(const char *s, int c)
     } while (*s++);
 
     return NULL;
+}
+
+char *strdup(const char *s)
+{
+    size_t length = strlen(s) + 1;
+    char *new_s = (char *)calloc(length, sizeof(char));
+    if (!new_s)
+        return NULL;
+
+    return (char *)memcpy(new_s, s, length);
 }

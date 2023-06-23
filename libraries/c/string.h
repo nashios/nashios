@@ -99,6 +99,16 @@ extern "C"
      */
     char *strchr(const char *s, int c);
 
+    /**
+     * @brief Duplicate a string
+     *
+     * @note See more at: https://pubs.opengroup.org/onlinepubs/9699919799/functions/strdup.html
+     *
+     * @param s The string to duplicate
+     * @return char* A pointer to a new string, which is a duplicate of the string s
+     */
+    char *strdup(const char *s);
+
 #ifdef __cplusplus
 }
 #endif
