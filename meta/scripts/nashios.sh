@@ -134,6 +134,7 @@ setup_directories() {
     SCRIPTS_DIR=${META_DIR}/scripts
     CMAKE_DIR=${META_DIR}/cmake
     PATCHES_DIR=${META_DIR}/patches
+    CONFIGS_DIR=${META_DIR}/configs
 
     COMMON_BUILD_DIR=${BUILD_DIR}/common
     SYSTEM_BUILD_DIR=${BUILD_DIR}/system/${ARCHITECTURE}/${TOOLCHAIN}
@@ -198,6 +199,7 @@ setup() {
     fi
 
     DISK_IMAGE="${SYSTEM_BUILD_DIR}/disk.img"
+    CDROM_IMAGE="${SYSTEM_BUILD_DIR}/cdrom.iso"
 }
 
 generate_cmake() {
@@ -304,10 +306,26 @@ run() {
         fi
     fi
 
-    ${SCRIPTS_DIR}/run.sh qemu \
-        qemu_bin="${QEMU_BIN}" \
-        qemu_kernel="${SYSROOT_DIR}/boot/kernel" \
-        qemu_image="${DISK_IMAGE}"
+    local args=()
+    args+=" qemu_bin=${QEMU_BIN}"
+    args+=" qemu_image=${DISK_IMAGE}"
+
+    local mode=$(find_in_args_or_default "run_mode=" "kernel")
+    case "${mode}" in
+    kernel)
+        args+=" qemu_kernel=${SYSROOT_DIR}/boot/kernel"
+        args+=" qemu_mode=kernel"
+        ;;
+    cdrom)
+        mkdir -p "${SYSROOT_DIR}/boot/grub" && cp "${CONFIGS_DIR}/grub.cfg" "${SYSROOT_DIR}/boot/grub/grub.cfg"
+        grub2-mkrescue -o "${CDROM_IMAGE}" "${SYSROOT_DIR}"
+
+        args+=" qemu_cdrom=${CDROM_IMAGE}"
+        args+=" qemu_mode=cdrom"
+        ;;
+    esac
+
+    "${SCRIPTS_DIR}/run.sh" qemu ${args}
 }
 
 build_toolchain() {
