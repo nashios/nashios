@@ -34,10 +34,29 @@ set(C_SOURCES
     lib/stdio.c
     lib/stdlib.c
     lib/assert.c
-    
+
     system/syscall.c
     
-    ipc/mqueue.c)
+    ipc/mqueue.c
+    
+    syscall/brk.c
+    syscall/close.c
+    syscall/execve.c
+    syscall/exit.c
+    syscall/fork.c
+    syscall/fstat.c
+    syscall/ftruncate.c
+    syscall/getpid.c
+    syscall/ioctl.c
+    syscall/mmap.c
+    syscall/mq_open.c
+    syscall/mq_timedreceive.c
+    syscall/mq_timedsend.c
+    syscall/open.c
+    syscall/poll.c
+    syscall/read.c
+    syscall/stat.c
+    syscall/write.c)
 
 if(${CMAKE_SYSTEM_PROCESSOR} STREQUAL "i686")
     list(APPEND ASM_SOURCES

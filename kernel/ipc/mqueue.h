@@ -3,6 +3,7 @@
 #include <kernel/api/posix/mqueue.h>
 #include <kernel/api/posix/sys/types.h>
 #include <kernel/api/posix/time.h>
+#include <kernel/task/scheduler.h>
 #include <st/hashmap.h>
 #include <stddef.h>
 
