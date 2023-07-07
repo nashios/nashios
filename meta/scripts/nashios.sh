@@ -107,7 +107,7 @@ check_toolchain() {
 }
 
 build_cmake_command() {
-    ${SCRIPTS_DIR}/setup-cmake.sh all
+    ${SCRIPTS_DIR}/setup-cmake.sh "${@}"
 }
 
 build_qemu_command() {

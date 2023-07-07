@@ -18,11 +18,11 @@
 set -e
 
 PROGRAM="${0}"
-COMMAND="${1}"
 ARGS=("$@")
 
-if [ -z "${COMMAND}" ]; then
-    COMMAND="all"
+command=$(find_subcommand_in_args)
+if [ -z "${command}" ]; then
+    command="all"
 fi
 
 all_command() {
@@ -101,14 +101,53 @@ setup_variables() {
     CMAKE_ARCHIVE="${CMAKE_PACKAGE}.tar.gz"
 
     MIRROR=$(find_in_args_or_default "mirror=" "https://github.com/Kitware/CMake/releases/download")
+    USE_CACHE=$(find_in_args_or_default "cache" "false")
     GENERATOR="Unix Makefiles"
 }
 
-if [[ "${COMMAND}" = @(help|check|all) ]]; then
+if [[ "${command}" = @(help|check|all) ]]; then
     setup_variables
-    "${COMMAND}_command"
+
+    echo "${ARGS[@]}"
+
+    if [ "${USE_CACHE}" = "true" ]; then
+        mkdir -p ${CACHE_DIR}
+        pushd ${CACHE_DIR}
+
+        CACHE_ARCHIVE="${CACHE_DIR}/cmake.tar.gz"
+        if [ -r "${CACHE_ARCHIVE}" ]; then
+            buildstep "Cache" echo "Cache file ${CACHE_ARCHIVE} exists"
+            buildstep "Cache" echo "Extracting cmake from cache"
+
+            mkdir -p ${COMMON_INSTALL_DIR}
+            pushd ${COMMON_INSTALL_DIR}
+            if tar -xzf "${CACHE_ARCHIVE}"; then
+                buildstep "Cache" echo "Cache unchanged"
+                exit 0
+            else
+                buildstep "Cache" echo "Failed to extract cached cmake archive"
+                buildstep "Cache" echo "This means the cache is broken and will be removed"
+                buildstep "Cache" echo "Github Actions cannot update a cache, this will unnecessarily"
+                buildstep "Cache" echo "slow down all future builds for this hash, until the cache is resetted"
+                rm -f "${CACHE_ARCHIVE}"
+            fi
+            popd
+        else
+            buildstep "Cache" echo "Cache file ${CACHE_ARCHIVE} does not exist"
+        fi
+        popd
+    fi
+
+    "${command}_command"
+
+    if [ "${USE_CACHE}" = "true" ]; then
+        pushd ${COMMON_INSTALL_DIR}
+        buildstep "Cache" echo "Creating toolchain cache"
+        buildstep "Cache" tar -czf "${CACHE_ARCHIVE}" .
+        popd
+    fi
 else
-    echo "Unknown command: ${COMMAND}"
+    echo "Unknown command: ${command}"
     echo "Type '${PROGRAM} help' for more information"
     exit 1
 fi
