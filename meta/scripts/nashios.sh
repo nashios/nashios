@@ -158,27 +158,16 @@ setup_cmake() {
 }
 
 setup_version() {
-    CMAKE_MAJOR_VERSION="3"
-    CMAKE_MINOR_VERSION="26"
-    CMAKE_PATCH_VERSION="4"
-    CMAKE_VERSION="${CMAKE_MAJOR_VERSION}.${CMAKE_MINOR_VERSION}.${CMAKE_PATCH_VERSION}"
+    CMAKE_VERSION="3.26.4"
     CMAKE_CHECKSUM="9095556a3b268fd88c995d2bb4c90320"
 
-    QEMU_MAJOR_VERSION="8"
-    QEMU_MINOR_VERSION="0"
-    QEMU_PATCH_VERSION="2"
-    QEMU_VERSION="${QEMU_MAJOR_VERSION}.${QEMU_MINOR_VERSION}.${QEMU_PATCH_VERSION}"
+    QEMU_VERSION="8.0.2"
     QEMU_MD5SUM="15ee0d10f7a707ca22058da71c837a97"
 
-    GCC_MAJOR_VERSION="13"
-    GCC_MINOR_VERSION="1"
-    GCC_PATCH_VERSION="0"
-    GCC_VERSION="${GCC_MAJOR_VERSION}.${GCC_MINOR_VERSION}.${GCC_PATCH_VERSION}"
+    GCC_VERSION="13.1.0"
     GCC_MD5SUM="43e4de77f2218c83ca675257ea1af9ef"
 
-    BINUTILS_MAJOR_VERSION="2"
-    BINUTILS_MINOR_VERSION="40"
-    BINUTILS_VERSION="${BINUTILS_MAJOR_VERSION}.${BINUTILS_MINOR_VERSION}"
+    BINUTILS_VERSION="2.40"
     BINUTILS_MD5SUM="007b59bd908a737c06e5a8d3d2c737eb"
 }
 
@@ -332,11 +321,6 @@ build_toolchain() {
     local use_cache=$(find_in_args_or_default "cache=" "false")
 
     if [[ "${TOOLCHAIN}" = "gnu" ]]; then
-        if [[ "$(gcc -dumpversion)" < "${GCC_MAJOR_VERSION}" ]]; then
-            echo "The system gcc is older than ${GCC_MAJOR_VERSION}, please install gcc ${GCC_MAJOR_VERSION} or newer"
-            return 1
-        fi
-
         ${SCRIPTS_DIR}/setup-gnu-toolchain.sh all \
             arch="${ARCHITECTURE}" \
             toolchain="${TOOLCHAIN}" \
