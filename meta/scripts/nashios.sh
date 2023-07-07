@@ -215,7 +215,7 @@ check_cmake_version() {
 }
 
 build_cmake() {
-    ${SCRIPTS_DIR}/SetupCMake.sh all \
+    ${SCRIPTS_DIR}/setup-cmake.sh all \
         version="${CMAKE_VERSION}" \
         checksum="${CMAKE_CHECKSUM}" \
         prefix_dir="${COMMON_CROSS_DIR}" \
