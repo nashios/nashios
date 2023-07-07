@@ -108,8 +108,6 @@ setup_variables() {
 if [[ "${command}" = @(help|check|all) ]]; then
     setup_variables
 
-    echo "${ARGS[@]}"
-
     if [ "${USE_CACHE}" = "true" ]; then
         mkdir -p ${CACHE_DIR}
         pushd ${CACHE_DIR}
