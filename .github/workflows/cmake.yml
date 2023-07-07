@@ -14,28 +14,17 @@ jobs:
     steps:
       - uses: actions/checkout@v3
 
-      - name: Install dependencies
-        run: |
-          sudo add-apt-repository ppa:ubuntu-toolchain-r/ppa
-          sudo apt update
-          sudo apt install cmake gcc-13 g++-13
-
-      - name: Set toolchain
-        run: |
-          sudo update-alternatives --install /usr/bin/gcc gcc /usr/bin/gcc-13 13
-          sudo update-alternatives --install /usr/bin/g++ g++ /usr/bin/g++-13 13
-
       - name: Toolchain cache
         uses: actions/cache@v3
         with:
           path: ${{ github.workspace }}/binary/cache/toolchain-${{ matrix.arch }}-${{ matrix.toolchain }}.tar.gz
           key: ${{ runner.os }}-toolchain-${{ matrix.arch }}-${{ hashFiles('meta/scripts/toolchain/*.sh', 'meta/patches/*.patch', 'libraries/c/**/*.h') }}
 
+      - name: Compile cmake
+        run: meta/scripts/nashios.sh build cmake
+
       - name: Compile toolchain
-        run: meta/scripts/nashios.sh toolchain ${{ matrix.arch }} ${{ matrix.toolchain }} cache=true
+        run: meta/scripts/nashios.sh build toolchain --arch=${{ matrix.arch }} --toolchain=${{ matrix.toolchain }} --cache=true
 
       - name: Compile system
-        run: meta/scripts/nashios.sh build ${{ matrix.arch }} ${{ matrix.toolchain }}
-
-      - name: Install system
-        run: meta/scripts/nashios.sh install ${{ matrix.arch }} ${{ matrix.toolchain }}
+        run: meta/scripts/nashios.sh build system --arch=${{ matrix.arch }} --toolchain=${{ matrix.toolchain }}
