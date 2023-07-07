@@ -1,69 +1,31 @@
+# Nashi Operating System
+# Copyright (C) 2023 Saullo Bretas Silva <saullo.silva55@outlook.com>
+#
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program.  If not, see <https://www.gnu.org/licenses/>.
+
 #!/bin/bash
 set -e
 
-PROGRAM=$0
-COMMAND=$1
+PROGRAM="${0}"
+COMMAND="${1}"
 
-NAME="$(basename "${PROGRAM}")"
-export VERSION=$(git describe --tags --always --dirty)
-
-help() {
-    echo "Nashios build script, version ${VERSION}"
-    echo ""
-    echo "Usage: ${NAME} <command> <architecture> <toolchain> <args...>"
-    echo ""
-    echo "Commands:"
-    echo "  help:               Display this help message"
-    echo "  toolchain:          Compile the toolchain"
-    echo "  build:              Compile the system"
-    echo "  install:            Install the system files"
-    echo "  image:              Create disk image"
-    echo "  run:                Run the system "
-    echo "  clean:              Clean the system build directory"
-    echo "  clean-common:       Clean the common build directory"
-    echo "  clean-toolchain:    Clean the toolchain build directories"
-    echo "  clean-all:          Clean the system, toolchain and common directories"
-    echo ""
-    echo "Architectures:"
-    echo "  i686:               32-bit x86"
-    echo "  x86_64:             64-bit x86"
-    echo ""
-    echo "Toolchains:"
-    echo "  gnu:                GNU Compiler Collection"
-}
-
-if [[ "${COMMAND}" = "help" || -z "${COMMAND}" ]]; then
-    help
+if [[ -z "${COMMAND}" ]]; then
+    echo "No command specified"
+    echo "Type '${PROGRAM} help' for more information"
     exit 0
 fi
 shift
-
-if [[ -z "$1" ]]; then
-    ARCHITECTURE="i686"
-else
-    if [[ "$1" = @(i686|x86_64) ]]; then
-        ARCHITECTURE="$1"
-        shift
-    else
-        echo "Unknown architecture: $1"
-        help
-        exit 1
-    fi
-fi
-export ARCHITECTURE
-
-if [[ -z $1 ]]; then
-    TOOLCHAIN="gnu"
-else
-    if [[ $1 = @(gnu) ]]; then
-        TOOLCHAIN=$1
-        shift
-    else
-        echo "Unknown toolchain: $1"
-        help
-        exit 1
-    fi
-fi
 
 buildstep() {
     name=$1
@@ -83,14 +45,13 @@ exit_if_root() {
         fail "$*"
     fi
 }
-exit_if_root "It is forbidden to run the ${NAME} script as root"
+exit_if_root "It is forbidden to run the ${PROGRAM} script as root"
 
-ARGS=("$@")
+ARGS=("${@}")
 find_in_args() {
     local match=$1
-
     for arg in "${ARGS[@]}"; do
-        if [[ "${arg}" = "${match}"* ]]; then
+        if [[ "${arg}" = "--${match}="* ]]; then
             echo "${arg#*=}"
             return
         fi
@@ -121,147 +82,35 @@ find_in_args_or_default() {
 }
 export -f find_in_args_or_default
 
-setup_directories() {
-    SOURCE_DIR=$(git rev-parse --show-toplevel)
+find_subcommand_in_args() {
+    for arg in "${ARGS[@]}"; do
+        if [[ "${arg}" != --* ]]; then
+            echo "${arg}"
+            return
+        fi
+    done
+}
+export -f find_subcommand_in_args
 
-    BINARY_DIR=${SOURCE_DIR}/binary
-    CACHE_DIR=${BINARY_DIR}/cache
-    BUILD_DIR=${BINARY_DIR}/build
-    CROSS_DIR=${BINARY_DIR}/cross
-    MOUNT_DIR=${BINARY_DIR}/mount
-
-    META_DIR=${SOURCE_DIR}/meta
-    SCRIPTS_DIR=${META_DIR}/scripts
-    CMAKE_DIR=${META_DIR}/cmake
-    PATCHES_DIR=${META_DIR}/patches
-    CONFIGS_DIR=${META_DIR}/configs
-
-    COMMON_BUILD_DIR=${BUILD_DIR}/common
-    SYSTEM_BUILD_DIR=${BUILD_DIR}/system/${ARCHITECTURE}/${TOOLCHAIN}
-    TOOLCHAIN_BUILD_DIR=${BUILD_DIR}/toolchain/${ARCHITECTURE}/${TOOLCHAIN}
-
-    COMMON_CROSS_DIR=${CROSS_DIR}/common
-    TOOLCHAIN_CROSS_DIR=${CROSS_DIR}/toolchain/${ARCHITECTURE}/${TOOLCHAIN}
-
-    SYSROOT_DIR=${BINARY_DIR}/sysroot/${ARCHITECTURE}/${TOOLCHAIN}
+run_command() {
+    "${SCRIPTS_DIR}/run.sh" ${@}
 }
 
-CMAKE_ARGS=()
-setup_cmake() {
-    if [[ ${TOOLCHAIN} = "gnu" ]]; then
-        CMAKE_ARGS+=("-DCMAKE_TOOLCHAIN_FILE=${CMAKE_DIR}/gnu-toolchain.cmake")
+check_toolchain() {
+    if [[ "${TOOLCHAIN}" = "gnu" ]]; then
+        local result=$("${SCRIPTS_DIR}/setup-gnu-toolchain.sh" check)
+        if [[ "${result}" = "true" ]]; then
+            return 0
+        fi
     fi
-
-    CMAKE_ARGS+=("-DPROCESSOR=${ARCHITECTURE}")
-    CMAKE_ARGS+=("-DTOOLCHAIN=${TOOLCHAIN_CROSS_DIR}/bin/${TARGET}")
-    CMAKE_ARGS+=("-DSYSROOT=${SYSROOT_DIR}")
+    return 1
 }
 
-setup_version() {
-    CMAKE_VERSION="3.26.4"
-    CMAKE_CHECKSUM="9095556a3b268fd88c995d2bb4c90320"
-
-    QEMU_VERSION="8.0.2"
-    QEMU_MD5SUM="15ee0d10f7a707ca22058da71c837a97"
-
-    GCC_VERSION="13.1.0"
-    GCC_MD5SUM="43e4de77f2218c83ca675257ea1af9ef"
-
-    BINUTILS_VERSION="2.40"
-    BINUTILS_MD5SUM="007b59bd908a737c06e5a8d3d2c737eb"
+build_cmake_command() {
+    ${SCRIPTS_DIR}/setup-cmake.sh all
 }
 
-setup() {
-    TARGET=${ARCHITECTURE}-pc-nashios
-
-    setup_directories
-    setup_cmake
-    setup_version
-
-    PATH="${COMMON_CROSS_DIR}/bin":$PATH
-    CORES=$(find_in_args_or_default "cores=" "$(nproc)")
-
-    if [[ "${ARCHITECTURE}" = "i686" ]]; then
-        QEMU_BIN="qemu-system-i386"
-    elif [[ "${ARCHITECTURE}" = "x86_64" ]]; then
-        QEMU_BIN="qemu-system-x86_64"
-    fi
-
-    DISK_IMAGE="${SYSTEM_BUILD_DIR}/disk.img"
-    CDROM_IMAGE="${SYSTEM_BUILD_DIR}/cdrom.iso"
-}
-
-generate_cmake() {
-    cmake -B ${SYSTEM_BUILD_DIR} -S ${SOURCE_DIR} ${CMAKE_ARGS[@]}
-}
-
-check_cmake_generation() {
-    if [[ ! -f "${SYSTEM_BUILD_DIR}/Makefile" ]]; then
-        return 1
-    fi
-    return 0
-}
-
-check_cmake_version() {
-    if ! command -v cmake &>/dev/null; then
-        return 1
-    fi
-
-    if [[ "$(cmake --version | head -n1 | cut -d' ' -f3)" != "${CMAKE_VERSION}" ]]; then
-        return 1
-    fi
-
-    return 0
-}
-
-build_cmake() {
-    ${SCRIPTS_DIR}/setup-cmake.sh all \
-        version="${CMAKE_VERSION}" \
-        checksum="${CMAKE_CHECKSUM}" \
-        prefix_dir="${COMMON_CROSS_DIR}" \
-        build_dir="${COMMON_BUILD_DIR}" \
-        cache_dir="${CACHE_DIR}" ||
-        return 1
-
-    return 0
-}
-
-build() {
-    args=()
-    if [[ $# -ne 0 ]]; then
-        args=("--target $@")
-    fi
-    cmake --build ${SYSTEM_BUILD_DIR} ${args[@]}
-}
-
-install() {
-    args=()
-    if [[ $# -ne 0 ]]; then
-        args=("--target $@")
-    fi
-    cmake --install ${SYSTEM_BUILD_DIR} ${args[@]}
-}
-
-image() {
-    ${SCRIPTS_DIR}/setup-image.sh all \
-        disk_image="${DISK_IMAGE}" \
-        source_dir="${SOURCE_DIR}" \
-        sysroot_dir="${SYSROOT_DIR}"
-}
-
-check_qemu_version() {
-    if ! command -v "${QEMU_BIN}" &>/dev/null; then
-        return 1
-    fi
-
-    if [[ "$(${QEMU_BIN} --version | head -n1 | cut -d' ' -f4)" != "${QEMU_VERSION}" ]]; then
-        return 1
-    fi
-
-    return 0
-}
-
-build_qemu() {
+build_qemu_command() {
     local targets=()
     if [[ "${ARCHITECTURE}" = "i686" ]]; then
         targets+=("i386-softmmu")
@@ -269,178 +118,235 @@ build_qemu() {
         targets+=("x86_64-softmmu")
     fi
 
-    ${SCRIPTS_DIR}/setup-qemu.sh all \
-        targets="${targets[@]}" \
-        cores="${CORES}" \
-        version="${QEMU_VERSION}" \
-        checksum="${QEMU_MD5SUM}" \
-        prefix_dir="${COMMON_CROSS_DIR}" \
-        build_dir="${COMMON_BUILD_DIR}" \
-        cache_dir="${CACHE_DIR}" ||
-        return 1
-
-    return 0
+    ${SCRIPTS_DIR}/setup-qemu.sh all --targets="${targets[@]}"
 }
 
-run() {
-    build
-    install
-    image
-
-    if ! check_qemu_version; then
-        echo "QEMU is not compiled"
-        if ! build_qemu; then
-            echo "Failed to compile QEMU"
-            exit 1
-        fi
-    fi
-
-    local args=()
-    args+=" qemu_bin=${QEMU_BIN}"
-    args+=" qemu_image=${DISK_IMAGE}"
-
-    local mode=$(find_in_args_or_default "run_mode=" "kernel")
-    case "${mode}" in
-    kernel)
-        args+=" qemu_kernel=${SYSROOT_DIR}/boot/kernel"
-        args+=" qemu_mode=kernel"
-        ;;
-    cdrom)
-        mkdir -p "${SYSROOT_DIR}/boot/grub" && cp "${CONFIGS_DIR}/grub.cfg" "${SYSROOT_DIR}/boot/grub/grub.cfg"
-        grub2-mkrescue -o "${CDROM_IMAGE}" "${SYSROOT_DIR}"
-
-        args+=" qemu_cdrom=${CDROM_IMAGE}"
-        args+=" qemu_mode=cdrom"
-        ;;
-    esac
-
-    "${SCRIPTS_DIR}/run.sh" qemu ${args}
-}
-
-build_toolchain() {
-    local use_cache=$(find_in_args_or_default "cache=" "false")
-
+build_toolchain_command() {
     if [[ "${TOOLCHAIN}" = "gnu" ]]; then
-        ${SCRIPTS_DIR}/setup-gnu-toolchain.sh all \
-            arch="${ARCHITECTURE}" \
-            toolchain="${TOOLCHAIN}" \
-            target="${TARGET}" \
-            cores="${CORES}" \
-            binutils_version="${BINUTILS_VERSION}" \
-            binutils_checksum="${BINUTILS_MD5SUM}" \
-            gcc_version="${GCC_VERSION}" \
-            gcc_checksum="${GCC_MD5SUM}" \
-            prefix_dir="${TOOLCHAIN_CROSS_DIR}" \
-            build_dir="${TOOLCHAIN_BUILD_DIR}" \
-            cache_dir="${CACHE_DIR}" \
-            source_dir="${SOURCE_DIR}" \
-            sysroot_dir="${SYSROOT_DIR}" \
-            "${ARGS[@]}" ||
-            return 1
+        ${SCRIPTS_DIR}/setup-gnu-toolchain.sh "${@}"
+    fi
+}
 
+check_cmake_version() {
+    local result=$("${SCRIPTS_DIR}/setup-cmake.sh" check)
+    if [[ "${result}" = "true" ]]; then
         return 0
     fi
-
     return 1
 }
 
-check_toolchain() {
-    if [[ "${TOOLCHAIN}" = "gnu" ]]; then
-        if [[ ! -f "${TOOLCHAIN_CROSS_DIR}/bin/${TARGET}-gcc" ]]; then
-            return 1
-        fi
+check_cmake_generation() {
+    if [[ ! -d "${SYSTEM_BUILD_DIR}" ]]; then
+        return 1
+    fi
+    if [[ ! -f "${SYSTEM_BUILD_DIR}/CMakeCache.txt" ]]; then
+        return 1
     fi
     return 0
 }
 
-clean_system() {
-    rm -rf "${SYSTEM_BUILD_DIR}"
-
-    echo "Cleaned the system build directory"
+CMAKE_ARGS=()
+generate_cmake() {
+    mkdir -p "${SYSTEM_BUILD_DIR}"
+    pushd "${SYSTEM_BUILD_DIR}"
+    buildstep "CMake/generate" cmake -S "${SOURCE_DIR}" -B "${SYSTEM_BUILD_DIR}" "${CMAKE_ARGS[@]}"
+    popd
 }
 
-clean_toolchain() {
-    if check_toolchain; then
-        read -rp "The ${TOOLCHAIN} toolchain for ${ARCHITECTURE} is already compiled. Continue? [y/N] " input
-        if [[ "${input}" != "y" ]]; then
-            exit 0
-        fi
-    fi
-
-    rm -rf "${TOOLCHAIN_BUILD_DIR}"
-    rm -rf "${TOOLCHAIN_CROSS_DIR}"
-    rm -rf "${CACHE_DIR}/toolchain-${ARCHITECTURE}-${TOOLCHAIN}"
-
-    echo "Cleaned the toolchain build directories"
-}
-
-clean_common() {
-    rm -rf "${COMMON_BUILD_DIR}"
-    rm -rf "${COMMON_CROSS_DIR}"
-
-    echo "Cleaned the common build directories"
-}
-
-clean_all() {
-    clean_system
-    clean_common
-    clean_toolchain
-}
-
-check_before_build() {
+build_system_command() {
     if ! check_toolchain; then
         echo "The ${TOOLCHAIN} toolchain for ${ARCHITECTURE} is not compiled"
-        if ! build_toolchain; then
-            echo "Failed to compile the toolchain"
-            exit 1
-        fi
+        echo "Type '${PROGRAM} build toolchain' to compile it"
+        exit 1
     fi
 
     if ! check_cmake_version; then
         echo "CMake is not compiled"
-        if ! build_cmake; then
-            echo "Failed to compile CMake"
-            exit 1
-        fi
+        echo "Type '${PROGRAM} build cmake' to compile it"
+        exit 1
     fi
 
     if ! check_cmake_generation; then
         echo "CMake is not generated"
         generate_cmake
     fi
+
+    args=()
+    if [[ $# -ne 0 ]]; then
+        args=("--target $@")
+    fi
+    cmake --build ${SYSTEM_BUILD_DIR} ${args[@]}
+    cmake --install ${SYSTEM_BUILD_DIR} ${args[@]}
 }
 
-setup
-if [[ "${COMMAND}" = @(build|install|image|run) ]]; then
-    check_before_build
+build_command() {
+    local command=$(find_subcommand_in_args)
+    if [[ "${command}" = "help" ]]; then
+        echo "Usage: ${PROGRAM} build [TARGET] [OPTIONS...]"
+        echo ""
+        echo "Targets:"
+        echo "  help               Display this help message"
+        echo "  system             Compile the system (default)"
+        echo "  toolchain          Compile the toolchain"
+        echo "  cmake              Compile CMake"
+        echo "  qemu               Compile QEMU"
+        echo ""
+        echo "Options:"
+        echo "  arch=<ARCH>        Architecture to build for (default: i686)"
+        echo "  toolchain=<TOOL>   Toolchain to use (default: gnu)"
+        exit 0
+    fi
 
-    case "${COMMAND}" in
-    build)
-        build $@
-        ;;
-    install)
-        install $@
-        ;;
-    image)
-        image
-        ;;
-    run)
-        run
-        ;;
-    esac
-elif [[ "${COMMAND}" = "toolchain" ]]; then
-    clean_toolchain
-    build_toolchain $@
-elif [[ "${COMMAND}" = "clean" ]]; then
-    clean_system
-elif [[ "${COMMAND}" = "clean-common" ]]; then
-    clean_common
-elif [[ "${COMMAND}" = "clean-toolchain" ]]; then
-    clean_toolchain
-elif [[ "${COMMAND}" = "clean-all" ]]; then
-    clean_all
+    if [[ -z "${command}" ]]; then
+        command="system"
+    else
+        shift
+    fi
+
+    if [[ "${command}" = @(toolchain|system|cmake|qemu) ]]; then
+        "build_${command}_command" "${@}"
+    else
+        echo "Unknown target: ${command}"
+        echo "Type '${PROGRAM} build help' for more information"
+        exit 1
+    fi
+}
+
+clean_toolchain_command() {
+    rm -rf ${TOOLCHAIN_BUILD_DIR}
+    rm -rf ${TOOLCHAIN_INSTALL_DIR}
+
+    echo "Toolchain build directory cleaned"
+}
+
+clean_common_command() {
+    rm -rf "${COMMON_BUILD_DIR}"
+    rm -rf "${COMMON_INSTALL_DIR}"
+
+    echo "Common build directory cleaned"
+}
+
+clean_system_command() {
+    rm -rf "${SYSTEM_BUILD_DIR}"
+    rm -rf "${SYSTEM_INSTALL_DIR}"
+
+    echo "System build directory cleaned"
+}
+
+clean_all_command() {
+    clean_system_command
+    clean_toolchain_command
+    clean_common_command
+}
+
+clean_command() {
+    local command=$(find_subcommand_in_args)
+    if [[ "${command}" = "help" ]]; then
+        echo "Usage: ${PROGRAM} clean [TARGET]"
+        echo ""
+        echo "Targets:"
+        echo "  help                Display this help message"
+        echo "  system              Clean the system build directory (default)"
+        echo "  toolchain           Clean the toolchain build directory"
+        echo "  common              Clean the common build directory"
+        echo "  all                 Clean all targets"
+        exit 0
+    fi
+
+    if [[ -z "${command}" ]]; then
+        command="system"
+    fi
+
+    if [[ "${command}" = @(system|toolchain|common|all) ]]; then
+        "clean_${command}_command" "${@}"
+    else
+        echo "Unknown target: ${command}"
+        echo "Type '${PROGRAM} clean help' for more information"
+        exit 1
+    fi
+}
+
+help_command() {
+    echo "Nashi Operating System Copyright (C) 2023 Saullo Bretas Silva <saullo.silva55@outlook.com>"
+    echo "This program comes with ABSOLUTELY NO WARRANTY; for details type 'show w'."
+    echo "This is free software, and you are welcome to redistribute it"
+    echo "under certain conditions; type 'show c' for details."
+    echo ""
+    echo "Nashios build script"
+    echo ""
+    echo "Usage: ${PROGRAM} [COMMAND]"
+    echo ""
+    echo "Commands:"
+    echo "  help               Display this help message"
+    echo "  build              Compile the system"
+    echo "  run                Run the system"
+    echo "  clean              Clean the build directory"
+    echo ""
+    echo "Architectures:"
+    echo "  i686               32-bit x86"
+    echo "  x86_64             64-bit x86"
+    echo ""
+    echo "Toolchains:"
+    echo "  gnu                GNU Compiler Collection"
+    echo ""
+    echo "Type '${PROGRAM} [COMMAND] help' for more information"
+}
+
+setup_variables() {
+    export ARCHITECTURE=$(find_in_args_or_default "arch" "i686")
+    if [[ "${ARCHITECTURE}" != @(i686|x86_64) ]]; then
+        echo "Unknown architecture: ${ARCHITECTURE}"
+        echo "Type '${PROGRAM} help' for more information"
+        exit 1
+    fi
+
+    TOOLCHAIN=$(find_in_args_or_default "toolchain" "gnu")
+    if [[ "${TOOLCHAIN}" != @(gnu) ]]; then
+        echo "Unknown toolchain: ${TOOLCHAIN}"
+        echo "Type '${PROGRAM} help' for more information"
+        exit 1
+    fi
+
+    export TARGET="${ARCHITECTURE}-pc-nashios"
+    export SOURCE_DIR=$(git rev-parse --show-toplevel)
+
+    BINARY_DIR=${SOURCE_DIR}/binary
+    export CACHE_DIR=${BINARY_DIR}/cache
+    BUILD_DIR=${BINARY_DIR}/build
+    INSTALL_DIR=${BINARY_DIR}/install
+    MOUNT_DIR=${BINARY_DIR}/mount
+
+    META_DIR=${SOURCE_DIR}/meta
+    SCRIPTS_DIR=${META_DIR}/scripts
+    CMAKE_DIR=${META_DIR}/cmake
+    export PATCHES_DIR=${META_DIR}/patches
+    export CONFIGS_DIR=${META_DIR}/configs
+
+    export COMMON_BUILD_DIR=${BUILD_DIR}/common
+    export SYSTEM_BUILD_DIR=${BUILD_DIR}/system/${ARCHITECTURE}/${TOOLCHAIN}
+    export TOOLCHAIN_BUILD_DIR=${BUILD_DIR}/toolchain/${ARCHITECTURE}/${TOOLCHAIN}
+
+    export COMMON_INSTALL_DIR=${INSTALL_DIR}/common
+    export TOOLCHAIN_INSTALL_DIR=${INSTALL_DIR}/toolchain/${ARCHITECTURE}/${TOOLCHAIN}
+    export SYSTEM_INSTALL_DIR=${INSTALL_DIR}/system/${ARCHITECTURE}/${TOOLCHAIN}
+
+    if [[ ${TOOLCHAIN} = "gnu" ]]; then
+        CMAKE_ARGS+=("-DCMAKE_TOOLCHAIN_FILE=${CMAKE_DIR}/gnu-toolchain.cmake")
+    fi
+
+    CMAKE_ARGS+=("-DPROCESSOR=${ARCHITECTURE}")
+    CMAKE_ARGS+=("-DTOOLCHAIN=${TOOLCHAIN_INSTALL_DIR}/bin/${TARGET}")
+    CMAKE_ARGS+=("-DSYSROOT=${SYSTEM_INSTALL_DIR}")
+
+    export PATH="${COMMON_INSTALL_DIR}/bin:$PATH"
+    export CORES=$(find_in_args_or_default "cores=" "$(nproc)")
+}
+
+if [[ "${COMMAND}" = @(help|build|run|clean) ]]; then
+    setup_variables
+    "${COMMAND}_command" "${@}"
 else
     echo "Unknown command: ${COMMAND}"
-    help
+    echo "Type '${PROGRAM} help' for more information"
     exit 1
 fi
