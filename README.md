@@ -25,13 +25,13 @@ The starting point for building the NashiOS is the `meta/scripts/nashios.sh` scr
 
 ## Contributing
 
-Read our [contributing guide](https://github.com/saullo/MysteriesOfDarkness/blob/main/CONTRIBUTING.md) to learn about our development process, how to propose bugfixes and improvements, and how to build and test your changes.
+Read our [contributing guide](https://github.com/nashios/nashios/blob/main/CONTRIBUTING.md) to learn about our development process, how to propose bugfixes and improvements, and how to build and test your changes.
 
 ## Contact
 
 We receive your feedback and suggestions via the following channels:
 
-- [GitHub Issues](https://github.com/saullo/MysteriesOfDarkness/issues)
+- [GitHub Issues](https://github.com/nashios/nashios/issues)
 
 ## Authors
 
