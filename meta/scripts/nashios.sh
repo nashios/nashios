@@ -171,12 +171,7 @@ build_system_command() {
         generate_cmake
     fi
 
-    args=()
-    if [[ $# -ne 0 ]]; then
-        args=("--target $@")
-    fi
-    cmake --build ${SYSTEM_BUILD_DIR} ${args[@]}
-    cmake --install ${SYSTEM_BUILD_DIR} ${args[@]}
+    cmake --build ${SYSTEM_BUILD_DIR} --target install
 }
 
 build_command() {
