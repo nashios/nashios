@@ -14,14 +14,20 @@ jobs:
     steps:
       - uses: actions/checkout@v3
 
+      - name: CMake cache
+        uses: actions/cache@v3
+        with:
+          path: ${{ github.workspace }}/binary/cache/cmake.tar.gz
+          key: ${{ runner.os }}-cmake-${{ hashFiles('meta/scripts/setup-cmake.sh') }}
+
+      - name: Compile cmake
+        run: meta/scripts/nashios.sh build cmake --cache=true
+
       - name: Toolchain cache
         uses: actions/cache@v3
         with:
           path: ${{ github.workspace }}/binary/cache/toolchain-${{ matrix.arch }}-${{ matrix.toolchain }}.tar.gz
           key: ${{ runner.os }}-toolchain-${{ matrix.arch }}-${{ matrix.toolchain }}-${{ hashFiles('meta/scripts/setup-*-toolchain.sh', 'meta/patches/*.patch', 'libraries/c/**/*.h') }}
-
-      - name: Compile cmake
-        run: meta/scripts/nashios.sh build cmake
 
       - name: Compile toolchain
         run: meta/scripts/nashios.sh build toolchain --arch=${{ matrix.arch }} --toolchain=${{ matrix.toolchain }} --cache=true
