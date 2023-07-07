@@ -18,7 +18,7 @@ jobs:
         uses: actions/cache@v3
         with:
           path: ${{ github.workspace }}/binary/cache/toolchain-${{ matrix.arch }}-${{ matrix.toolchain }}.tar.gz
-          key: ${{ runner.os }}-toolchain-${{ matrix.arch }}-${{ hashFiles('meta/scripts/toolchain/*.sh', 'meta/patches/*.patch', 'libraries/c/**/*.h') }}
+          key: ${{ runner.os }}-toolchain-${{ matrix.arch }}-${{ matrix.toolchain }}-${{ hashFiles('meta/scripts/setup-*-toolchain.sh', 'meta/patches/*.patch', 'libraries/c/**/*.h') }}
 
       - name: Compile cmake
         run: meta/scripts/nashios.sh build cmake
