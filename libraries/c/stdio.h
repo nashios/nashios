@@ -69,6 +69,17 @@ extern "C"
     int vfprintf(FILE *restrict stream, const char *restrict format, va_list ap);
 
     /**
+     * @brief Format output of a list of arguments
+     *
+     * @note See more at: https://pubs.opengroup.org/onlinepubs/9699919799/functions/vprintf.html
+     *
+     * @param format The format string
+     * @param ap The arguments to the format string
+     * @return int On success, the total number of characters written is returned. On failure, a negative number is
+     */
+    int vprintf(const char *restrict format, va_list ap);
+
+    /**
      * @brief Write formatted output
      *
      * @note See more at: https://pubs.opengroup.org/onlinepubs/9699919799/functions/vsprintf.html

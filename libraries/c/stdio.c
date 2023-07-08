@@ -728,6 +728,8 @@ int printf(const char *restrict format, ...)
     return result;
 }
 
+int vprintf(const char *restrict format, va_list ap) { return vfprintf(stdout, format, ap); }
+
 int fileno(FILE *stream) { return stream->_fd; }
 
 int ferror(FILE *stream) { return stream->_flags & _IO_ERR_SEEN; }
