@@ -173,6 +173,16 @@ extern "C"
      */
     int fileno(FILE *stream);
 
+    /**
+     * @brief Test error indicator on stream
+     *
+     * @note See more at: https://pubs.opengroup.org/onlinepubs/9699919799/functions/ferror.html
+     *
+     * @param stream The stream to test
+     * @return int Non-zero if the error indicator is set, zero otherwise
+     */
+    int ferror(FILE *stream);
+
 #ifdef __cplusplus
 }
 #endif

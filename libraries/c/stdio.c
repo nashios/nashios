@@ -7,6 +7,8 @@
 
 #define __MIN_WRITE_BUF_LEN 32
 
+#define _IO_ERR_SEEN 0x0020
+
 #define __COPY_VA_INT()                                                                                                \
     do                                                                                                                 \
     {                                                                                                                  \
@@ -727,3 +729,5 @@ int printf(const char *restrict format, ...)
 }
 
 int fileno(FILE *stream) { return stream->_fd; }
+
+int ferror(FILE *stream) { return stream->_flags & _IO_ERR_SEEN; }
