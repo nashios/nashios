@@ -5,6 +5,10 @@
 #include <stdint.h>
 #include <sys/types.h>
 
+#define STDIN_FILENO 0
+#define STDOUT_FILENO 1
+#define STDERR_FILENO 2
+
 #ifdef __cplusplus
 extern "C"
 {
@@ -139,6 +143,17 @@ extern "C"
      * @param status The exit status of the process
      */
     void _exit(int status);
+
+    /**
+     * @brief Test for a terminal device
+     *
+     * @note See more at: https://pubs.opengroup.org/onlinepubs/9699919799/functions/isatty.html
+     *
+     * @param fildes The file descriptor to test
+     * @return int Return 1 if the file descriptor is associated with a terminal; otherwise 0 is returned, and errno is
+     * set to indicate the error.
+     */
+    int isatty(int fildes);
 
 #ifdef __cplusplus
 }
