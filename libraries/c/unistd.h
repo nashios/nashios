@@ -100,15 +100,36 @@ extern "C"
 
     /**
      * @brief Write on a file descriptor
-     * 
+     *
      * @note See more at: https://pubs.opengroup.org/onlinepubs/9699919799/functions/write.html
      *
      * @param fildes The file descriptor to write to
      * @param buf The buffer to write from
      * @param nbyte The number of bytes to write
-     * @return ssize_t On success, the number of bytes written is returned. On error, -1 is returned, and errno is set appropriately.
+     * @return ssize_t On success, the number of bytes written is returned. On error, -1 is returned, and errno is set
+     * appropriately.
      */
     ssize_t write(int fildes, const void *buf, size_t nbyte);
+
+    /**
+     * @brief Duplicate an open file descriptor
+     *
+     * @note See more at: https://pubs.opengroup.org/onlinepubs/9699919799/functions/dup.html
+     *
+     * @param fildes The file descriptor to duplicate
+     * @return int On success, these system calls return the new file descriptor. On error, -1 is returned, and errno is
+     * set appropriately.
+     */
+    int dup(int fildes);
+
+    /**
+     * @brief Duplicate an open file descriptor
+     *
+     * @param fildes The file descriptor to duplicate
+     * @param fildes2 The file descriptor to duplicate to
+     * @return int On success, these system calls return the new file descriptor. On error, -1 is returned, and errno is
+     */
+    int dup2(int fildes, int fildes2);
 
 #ifdef __cplusplus
 }

@@ -23,3 +23,7 @@ pid_t getpid(void) { return syscall(__NR_getpid); }
 ssize_t read(int fildes, void *buf, size_t nbyte) { return syscall(__NR_read, fildes, buf, nbyte); }
 
 ssize_t write(int fildes, const void *buf, size_t nbyte) { return syscall(__NR_write, fildes, buf, nbyte); }
+
+int dup(int fildes) { return syscall(__NR_dup, fildes); }
+
+int dup2(int fildes, int fildes2) { return syscall(__NR_dup2, fildes, fildes2); }
