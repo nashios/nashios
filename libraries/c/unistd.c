@@ -25,6 +25,7 @@
 #include <fcntl.h>
 #include <stdbool.h>
 #include <sys/syscall.h>
+#include <termios.h>
 #include <unistd.h>
 
 int brk(void *addr) { return syscall(__NR_brk, addr); }
@@ -60,4 +61,8 @@ void _exit(int status)
         syscall(__NR_exit, status);
 }
 
-int isatty(int fildes) { return fcntl(fildes, F_ISTTY); }
+int isatty(int fildes)
+{
+    struct termios termios;
+    return tcgetattr(fildes, &termios) == 0;
+}
