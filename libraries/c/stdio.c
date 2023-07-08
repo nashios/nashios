@@ -710,3 +710,9 @@ int fputc(int c, FILE *stream)
     __stdio_write(&p_c, 1, stream);
     return p_c;
 }
+
+int fputs(const char *restrict s, FILE *restrict stream)
+{
+    size_t length = strlen(s);
+    return __stdio_write(s, length, stream);
+}

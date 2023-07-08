@@ -140,6 +140,17 @@ extern "C"
      */
     int fputc(int c, FILE *stream);
 
+    /**
+     * @brief Put a string on a stream
+     * 
+     * @note See more at: https://pubs.opengroup.org/onlinepubs/9699919799/functions/fputs.html
+     * 
+     * @param s The string to put
+     * @param stream The stream to put the string on
+     * @return int On success, a non-negative value is returned. On failure, EOF is returned.
+     */
+    int fputs(const char *restrict s, FILE *restrict stream);
+
 #ifdef __cplusplus
 }
 #endif
