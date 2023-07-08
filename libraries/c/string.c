@@ -144,7 +144,7 @@ void *memmove(void *s1, const void *s2, size_t n)
     }
     else
     {
-        char *last_s2 = p_s2 + (n - 1);
+        const char *last_s2 = p_s2 + (n - 1);
         char *last_s1 = p_s1 + (n - 1);
 
         for (size_t i = 0; i < n; i++)
