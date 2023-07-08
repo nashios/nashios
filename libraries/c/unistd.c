@@ -1,3 +1,4 @@
+#include <stdbool.h>
 #include <sys/syscall.h>
 #include <unistd.h>
 
@@ -27,3 +28,9 @@ ssize_t write(int fildes, const void *buf, size_t nbyte) { return syscall(__NR_w
 int dup(int fildes) { return syscall(__NR_dup, fildes); }
 
 int dup2(int fildes, int fildes2) { return syscall(__NR_dup2, fildes, fildes2); }
+
+void _exit(int status)
+{
+    while (true)
+        syscall(__NR_exit, status);
+}

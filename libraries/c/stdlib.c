@@ -147,8 +147,7 @@ void free(void *ptr)
 void exit(int status)
 {
     syscall(__NR_exit_group, status);
-    while (true)
-        syscall(__NR_exit, status);
+    _exit(status);
 }
 
 void abort(void)
@@ -228,3 +227,5 @@ unsigned long strtoul(const char *restrict str, char **restrict endptr, int base
 
     return converted;
 }
+
+void _Exit(int status) { exit(status); }

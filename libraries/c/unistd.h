@@ -131,6 +131,15 @@ extern "C"
      */
     int dup2(int fildes, int fildes2);
 
+    /**
+     * @brief Exit a process
+     *
+     * @note See more at: https://pubs.opengroup.org/onlinepubs/9699919799/functions/exit.html
+     *
+     * @param status The exit status of the process
+     */
+    void _exit(int status);
+
 #ifdef __cplusplus
 }
 #endif

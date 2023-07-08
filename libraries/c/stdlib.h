@@ -91,6 +91,15 @@ extern "C"
      */
     unsigned long strtoul(const char *restrict str, char **restrict endptr, int base);
 
+    /**
+     * @brief Terminate the calling process.
+     *
+     * @note See more at: https://pubs.opengroup.org/onlinepubs/9699919799/functions/_Exit.html
+     *
+     * @param status The exit status.
+     */
+    void _Exit(int status);
+
 #ifdef __cplusplus
 }
 #endif
