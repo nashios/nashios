@@ -716,3 +716,12 @@ int fputs(const char *restrict s, FILE *restrict stream)
     size_t length = strlen(s);
     return __stdio_write(s, length, stream);
 }
+
+int printf(const char *restrict format, ...)
+{
+    va_list args;
+    va_start(args, format);
+    int result = vprintf(format, args);
+    va_end(args);
+    return result;
+}

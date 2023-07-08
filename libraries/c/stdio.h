@@ -142,14 +142,25 @@ extern "C"
 
     /**
      * @brief Put a string on a stream
-     * 
+     *
      * @note See more at: https://pubs.opengroup.org/onlinepubs/9699919799/functions/fputs.html
-     * 
+     *
      * @param s The string to put
      * @param stream The stream to put the string on
      * @return int On success, a non-negative value is returned. On failure, EOF is returned.
      */
     int fputs(const char *restrict s, FILE *restrict stream);
+
+    /**
+     * @brief Print formatted output to stdout
+     *
+     * @note See more at: https://pubs.opengroup.org/onlinepubs/9699919799/functions/printf.html
+     *
+     * @param format The format string
+     * @param ... The arguments to the format string
+     * @return int On success, the total number of characters written is returned. On failure, a negative number is
+     */
+    int printf(const char *restrict format, ...);
 
 #ifdef __cplusplus
 }
