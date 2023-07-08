@@ -13,6 +13,7 @@ extern "C"
 
     struct _FILE
     {
+        int _fd;
         int _flags;
         int _offset;
         char *_IO_write_base;
@@ -161,6 +162,16 @@ extern "C"
      * @return int On success, the total number of characters written is returned. On failure, a negative number is
      */
     int printf(const char *restrict format, ...);
+
+    /**
+     * @brief Map a stream pointer to a file descriptor
+     *
+     * @note See more at: https://pubs.opengroup.org/onlinepubs/9699919799/functions/fileno.html
+     *
+     * @param stream The stream to map
+     * @return int The file descriptor
+     */
+    int fileno(FILE *stream);
 
 #ifdef __cplusplus
 }

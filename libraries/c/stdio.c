@@ -725,3 +725,5 @@ int printf(const char *restrict format, ...)
     va_end(args);
     return result;
 }
+
+int fileno(FILE *stream) { return stream->_fd; }
