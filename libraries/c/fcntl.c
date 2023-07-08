@@ -16,3 +16,13 @@ int open(const char *path, int oflag, ...)
 
     return syscall(__NR_open, path, oflag, mode);
 }
+
+int fcntl(int fildes, int cmd, ...)
+{
+    va_list ap;
+    va_start(ap, cmd);
+    unsigned long args = va_arg(ap, unsigned long);
+    va_end(ap);
+
+    return syscall(__NR_fcntl, fildes, cmd, args);
+}
