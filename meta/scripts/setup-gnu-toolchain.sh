@@ -124,7 +124,7 @@ gcc_command() {
     buildstep "GCC/contrib" ./contrib/download_prerequisites
     popd
 
-    mkdir ${TOOLCHAIN_BUILD_DIR}/${GCC_PACKAGE}-build
+    mkdir -p ${TOOLCHAIN_BUILD_DIR}/${GCC_PACKAGE}-build
     pushd ${TOOLCHAIN_BUILD_DIR}/${GCC_PACKAGE}-build
     buildstep "GCC/configure" ../${GCC_PACKAGE}/configure --target=${TARGET} --prefix=${TOOLCHAIN_INSTALL_DIR} --with-sysroot=${SYSTEM_INSTALL_DIR} --enable-languages=c,c++ --enable-shared --with-newlib
     buildstep "GCC/compile" make -j ${CORES} all-gcc all-target-libgcc
