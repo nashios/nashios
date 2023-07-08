@@ -1,14 +1,15 @@
 set(SOURCES
-    errno.c
-    stdlib.c
-    string.c
-    unistd.c
-    stdio.c
     assert.c
-    poll.c
+    ctype.c
+    errno.c
     fcntl.c
     mqueue.c
-    ctype.c
+    poll.c
+    stdio.c
+    stdlib.c
+    string.c
+    termios.c
+    unistd.c
 
     sys/ioctl.c
     sys/mman.c
