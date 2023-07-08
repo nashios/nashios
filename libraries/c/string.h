@@ -132,6 +132,18 @@ extern "C"
      */
     char *strrchr(const char *s, int c);
 
+    /**
+     * @brief Compare byte in memory
+     *
+     * @note See more at: https://pubs.opengroup.org/onlinepubs/9699919799/functions/memcmp.html
+     *
+     * @param s1 The first memory block to compare
+     * @param s2 The second memory block to compare
+     * @param n The number of bytes to compare
+     * @return int Returns an integral value indicating the relationship between the strings:
+     */
+    int memcmp(const void *s1, const void *s2, size_t n);
+
 #ifdef __cplusplus
 }
 #endif

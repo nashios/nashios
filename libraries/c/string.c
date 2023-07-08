@@ -118,3 +118,17 @@ char *strrchr(const char *s, int c)
 
     return result;
 }
+
+int memcmp(const void *s1, const void *s2, size_t n)
+{
+    const unsigned char *p_s1 = (const unsigned char *)s1;
+    const unsigned char *p_s2 = (const unsigned char *)s2;
+
+    for (size_t i = 0; i < n; i++)
+    {
+        if (*p_s1++ != *p_s2++)
+            return p_s1[-1] < p_s2[-1] ? -1 : 1;
+    }
+
+    return 0;
+}
