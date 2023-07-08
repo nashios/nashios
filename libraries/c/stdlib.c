@@ -23,6 +23,7 @@ struct malloc_block
 static struct malloc_block *s_malloc_list = NULL;
 static uint32_t s_malloc_address = 0;
 static uint32_t s_malloc_remaining = 0;
+static char const *__progname = NULL;
 
 void malloc_verify_block(struct malloc_block *block)
 {
@@ -229,3 +230,7 @@ unsigned long strtoul(const char *restrict str, char **restrict endptr, int base
 }
 
 void _Exit(int status) { exit(status); }
+
+const char *getprogname(void) { return __progname; }
+
+void setprogname(const char *name) { __progname = name; }

@@ -100,6 +100,20 @@ extern "C"
      */
     void _Exit(int status);
 
+    /**
+     * @brief Return the value of the argument to the calling program.
+     *
+     * @return const char* The value of the argument to the calling program.
+     */
+    const char *getprogname(void);
+
+    /**
+     * @brief Set the value of the argument to the calling program.
+     *
+     * @param name The value of the argument to the calling program.
+     */
+    void setprogname(const char *name);
+
 #ifdef __cplusplus
 }
 #endif
