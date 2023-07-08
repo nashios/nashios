@@ -144,3 +144,4 @@ int virtual_fs_ftruncate(int fildes, off_t length);
 int virtual_fs_ioctl(int fd, unsigned long request, void *arg);
 ssize_t virtual_fs_write(int fildes, const void *buffer, size_t nbyte);
 void virtual_fs_poll_wakeup(struct thread *thread);
+int virtual_fs_fcntl(int fd, int cmd, void *arg);

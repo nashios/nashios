@@ -26,5 +26,6 @@ int syscall_fstat(int fildes, struct stat *buf);
 ssize_t syscall_read(int fildes, void *buf, size_t nbyte);
 int syscall_ioctl(int fd, unsigned long request, void *arg);
 ssize_t syscall_write(int fildes, const void *buf, size_t nbyte);
+int syscall_fcntl(int fildes, int cmd, void *arg);
 
 void syscall_init();

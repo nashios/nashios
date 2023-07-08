@@ -2,9 +2,9 @@
 #include <kernel/drivers/ata.h>
 #include <kernel/filesystem/chardev.h>
 #include <kernel/filesystem/virtual.h>
-#include <st/debug.h>
 #include <kernel/lib/stdlib.h>
 #include <kernel/lib/string.h>
+#include <st/debug.h>
 #include <st/math.h>
 
 #define FMODE_READ ((fmode_t)0x1)
@@ -582,8 +582,36 @@ int virtual_fs_mount(const char *source, const char *target, const char *filesys
 
     dlist_add_tail(&mount->list, &s_virtual_mount_list);
     dbgln("Virtual FS: Mounted filesystem name = %s, source = %s, target = %s, flags = 0x%x", type->name, source,
-           target, mountflags);
+          target, mountflags);
     return 0;
+}
+
+int virtual_fs_fcntl(int fd, int cmd, void *arg)
+{
+    if (fd < 0)
+        return -EBADFD;
+
+    struct vfs_file *file = g_scheduler_process->files->fd[fd];
+    if (file == NULL)
+        return -EBADFD;
+
+    int result = 0;
+    switch (cmd)
+    {
+    case F_GETFD:
+        result = file->flags;
+        break;
+    case F_SETFD:
+        file->flags = (uint32_t)arg;
+        break;
+    case F_GETFL:
+        result = file->mode;
+        break;
+    case F_SETFL:
+        file->mode = (fmode_t)arg;
+        break;
+    }
+    return result;
 }
 
 void virtual_fs_init()

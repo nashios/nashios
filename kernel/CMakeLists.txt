@@ -43,6 +43,7 @@ set(C_SOURCES
     syscall/close.c
     syscall/execve.c
     syscall/exit.c
+    syscall/fcntl.c
     syscall/fork.c
     syscall/fstat.c
     syscall/ftruncate.c
