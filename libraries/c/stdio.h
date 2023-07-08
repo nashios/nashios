@@ -6,6 +6,8 @@
 
 #define SEEK_SET 0
 
+#define EOF (-1)
+
 #ifdef __cplusplus
 extern "C"
 {
