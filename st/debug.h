@@ -62,8 +62,6 @@ static inline void dbgln(const char *format, ...)
         return;
     va_end(args2);
 
-    buffer[length] = '\n';
-
     if (write(fd, buffer, length) < 0)
         return;
 
