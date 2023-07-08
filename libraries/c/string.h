@@ -112,12 +112,25 @@ extern "C"
     /**
      * @brief Compare part of two strings
      *
+     * @note See more at: https://pubs.opengroup.org/onlinepubs/9699919799/functions/strncmp.html
+     *
      * @param s1 First string to compare
      * @param s2 Second string to compare
      * @param n Number of characters to compare
      * @return int Returns an integral value indicating the relationship between the strings:
      */
     int strncmp(const char *s1, const char *s2, size_t n);
+
+    /**
+     * @brief String scanning operation
+     *
+     * @note See more at: https://pubs.opengroup.org/onlinepubs/9699919799/functions/strrchr.html
+     *
+     * @param s The string to be scanned
+     * @param c The character to search for
+     * @return char* A pointer to the last occurrence of the character c in the string s
+     */
+    char *strrchr(const char *s, int c);
 
 #ifdef __cplusplus
 }
