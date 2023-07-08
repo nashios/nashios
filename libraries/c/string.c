@@ -132,3 +132,23 @@ int memcmp(const void *s1, const void *s2, size_t n)
 
     return 0;
 }
+
+void *memmove(void *s1, const void *s2, size_t n)
+{
+    char *p_s1 = (char *)s1;
+    const char *p_s2 = (const char *)s2;
+    if (p_s1 < p_s2)
+    {
+        for (size_t i = 0; i < n; i++)
+            *p_s1++ = *p_s2++;
+    }
+    else
+    {
+        char *last_s2 = p_s2 + (n - 1);
+        char *last_s1 = p_s1 + (n - 1);
+
+        for (size_t i = 0; i < n; i++)
+            *last_s1-- = *last_s2--;
+    }
+    return s1;
+}

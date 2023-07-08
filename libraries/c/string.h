@@ -144,6 +144,18 @@ extern "C"
      */
     int memcmp(const void *s1, const void *s2, size_t n);
 
+    /**
+     * @brief Copy bytes in memory with overlapping areas
+     *
+     * @note See more at: https://pubs.opengroup.org/onlinepubs/9699919799/functions/memmove.html
+     *
+     * @param s1 The destination memory block
+     * @param s2 The source memory block
+     * @param n The number of bytes to copy
+     * @return void* A pointer to the destination memory block
+     */
+    void *memmove(void *s1, const void *s2, size_t n);
+
 #ifdef __cplusplus
 }
 #endif
