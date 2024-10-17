@@ -8,7 +8,9 @@ if(CMAKE_SYSTEM_PROCESSOR MATCHES "x86")
         arch/x86/boot/start.S)
     
     list(APPEND C_SOURCES
-        arch/x86/boot/main.c)
+        arch/x86/boot/main.c
+
+        arch/x86/cpu/io.c)
 endif()
 
 add_executable(kernel ${ASM_SOURCES} ${C_SOURCES})
