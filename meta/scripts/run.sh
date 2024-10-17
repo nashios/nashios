@@ -18,4 +18,4 @@ cmake -S ${SOURCE_DIR} -B ${BUILD_DIR}/system/${ARCH} ${args[@]}
 cmake --build ${BUILD_DIR}/system/${ARCH}
 cmake --install ${BUILD_DIR}/system/${ARCH}
 
-qemu-system-i386 -kernel ${INSTALL_DIR}/system/${ARCH}/boot/kernel
+qemu-system-i386 -kernel ${INSTALL_DIR}/system/${ARCH}/boot/kernel -serial stdio

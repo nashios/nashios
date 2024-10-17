@@ -9,6 +9,7 @@ if(CMAKE_SYSTEM_PROCESSOR MATCHES "x86")
     
     list(APPEND C_SOURCES
         arch/x86/boot/main.c
+        arch/x86/boot/serial.c
 
         arch/x86/cpu/io.c)
 endif()
