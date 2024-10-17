@@ -1,7 +1,8 @@
 set(C_SOURCES
     init/main.c
     
-    lib/string.c)
+    lib/string.c
+    lib/stdio.c)
 
 if(CMAKE_SYSTEM_PROCESSOR MATCHES "x86")
     set(ASM_SOURCES
@@ -11,7 +12,9 @@ if(CMAKE_SYSTEM_PROCESSOR MATCHES "x86")
         arch/x86/boot/main.c
         arch/x86/boot/serial.c
 
-        arch/x86/cpu/io.c)
+        arch/x86/cpu/io.c
+        
+        arch/x86/lib/stdio.c)
 endif()
 
 add_executable(kernel ${ASM_SOURCES} ${C_SOURCES})
