@@ -1,5 +1,7 @@
 set(C_SOURCES
-    init/main.c)
+    init/main.c
+    
+    lib/string.c)
 
 if(CMAKE_SYSTEM_PROCESSOR MATCHES "x86")
     set(ASM_SOURCES
